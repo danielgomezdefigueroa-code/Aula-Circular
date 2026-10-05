@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Aula Circular · laboratorio</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f3f6f4;
+      color: #20352a;
+    }
+    main {
+      max-width: 850px;
+      margin: 40px auto;
+      padding: 24px;
+    }
+    form {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    input, button {
+      padding: 12px;
+      font: inherit;
+      border-radius: 8px;
+    }
+    input {
+      border: 1px solid #687a70;
+      flex: 1;
+      min-width: 160px;
+    }
+    button {
+      border: 0;
+      background: #216343;
+      color: white;
+      cursor: pointer;
+    }
+    ul {
+      padding: 0;
+      list-style: none;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+    }
+    li {
+      background: white;
+      padding: 20px;
+      border: 1px solid #d0dcd4;
+      border-radius: 12px;
+    }
+    li h2 { margin-top: 0; font-size: 20px; }
+    li p { margin-bottom: 0; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Recursos del centro</h1>
+    <p>Consulta los recursos de ejemplo de Aula Circular.</p>
+    <form id="filtro">
+      <label for="busqueda">Buscar por título</label>
+      <input id="busqueda" name="q" type="search" maxlength="80"
+             placeholder="Por ejemplo: calculadora">
+      <button type="submit">Buscar</button>
+    </form>
+    <p id="estado" role="status">Cargando…</p>
+    <ul id="recursos"></ul>
+  </main>
+  <script type="module" src="/catalogo.mjs"></script>
+</body>
+</html>
