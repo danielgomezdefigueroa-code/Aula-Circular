@@ -1,0 +1,19 @@
+{
+  "name": "aula-circular-lab",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "node --env-file=.env --watch src/app.mjs",
+    "start": "node --env-file=.env src/app.mjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "express": "5.2.1",
+    "pg": "8.23.1"
+  }
+}
