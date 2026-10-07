@@ -150,3 +150,67 @@ header {
   margin-bottom: 2rem;
   scroll-margin-top: 4rem;
 }
+
+/* ==============================================================
+   Sprint 1 · menú móvil, insignias de tipo y accesibilidad
+   ============================================================== */
+.menu-boton { display: none; }
+
+@media(max-width:768px) {
+  .js .menu-boton {
+    display: inline-block;
+    margin-top: .5rem;
+    min-height: 44px;
+    background: transparent;
+    border: 1px solid white;
+  }
+  .js .nav:not(.abierto) { display: none; }
+  .js .nav.abierto {
+    flex-direction: column;
+    align-items: stretch;
+    overflow: visible;
+    white-space: normal;
+  }
+  .js .nav-link { width: 100%; min-height: 44px; display: flex; align-items: center; }
+}
+
+.insignia {
+  display: inline-block;
+  font-size: .8rem;
+  font-weight: 700;
+  padding: 3px 12px;
+  border-radius: 999px;
+  border: 2px solid;
+  margin-bottom: .5rem;
+}
+.t-prestamo { border-color: #17614d; background: #e5f2ea; border-style: solid; }
+.t-anuncio  { border-color: #7a4b00; background: #fff5dc; border-style: dashed; }
+.t-digital  { border-color: #274a8a; background: #e8eefb; border-style: double; }
+.t-enlace   { border-color: #5b3a8a; background: #f0e9fa; border-style: dotted; }
+li h3 { font-size: 1.1rem; margin: .25rem 0; }
+#estado { margin-top: 1rem; }
+
+a:focus-visible, button:focus-visible, input:focus-visible {
+  outline: 3px solid #db7868;
+  outline-offset: 3px;
+}
+header a:focus-visible, header button:focus-visible { outline-color: white; }
+
+@media(prefers-reduced-motion:reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
+
+/* Catálogo de muestra (traído del laboratorio) */
+.presentacion h1 { font-size: clamp(1.8rem, 4vw, 3rem); line-height: 1.15; margin: 8px 0 16px; }
+.presentacion h2 { margin: 24px 0 12px; }
+.etiqueta { font-size: .75rem; font-weight: 800; letter-spacing: .08em; color: #355b43; }
+.filtros-lab { display: grid; grid-template-columns: 1fr 1.6fr 1fr; gap: 16px; align-items: end; }
+.filtros-lab label { display: block; font-weight: 650; margin-bottom: 6px; }
+.filtros-lab select { width: 100%; min-height: 44px; padding: 10px 12px; border: 1px solid #687a70; border-radius: 8px; font: inherit; background: white; }
+.filtros-lab input[type=search] { width: 100%; min-height: 44px; }
+.filtros-lab .casilla { display: flex; align-items: center; gap: 10px; min-height: 44px; margin: 0; }
+.filtros-lab input[type=checkbox] { width: 20px; height: 20px; flex: none; padding: 0; }
+.tarjeta { overflow-wrap: anywhere; }
+.tarjeta .estado { font-size: .85rem; font-weight: 700; }
+#lab-cuenta { margin-top: 1rem; }
+@media(max-width:768px) { .filtros-lab { grid-template-columns: 1fr; } }

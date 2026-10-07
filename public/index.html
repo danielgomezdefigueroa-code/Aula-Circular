@@ -10,7 +10,9 @@
     <header>
       <div class="max-w">
         <span class="brand">Aula Circular</span>
-        <nav class="nav" aria-label="Navegación principal">
+        <button type="button" id="menu-boton" class="menu-boton" aria-expanded="false" aria-controls="menu-principal">Abrir menú</button>
+        <nav id="menu-principal" class="nav" aria-label="Navegación principal">
+          <a href="#inicio" class="nav-link">Inicio</a>
           <a href="#biblioteca" class="nav-link">Biblioteca</a>
           <a href="#libros" class="nav-link">Libros</a>
           <a href="#documentacion" class="nav-link">Documentación</a>
@@ -18,7 +20,23 @@
         </nav>
       </div>
     </header>
-    <main class="contenido">
+    <main id="contenido" class="contenido">
+      <section id="inicio" class="seccion presentacion" aria-labelledby="titulo-inicio">
+        <p class="etiqueta">CENTRO FICTICIO · DATOS DE ENSAYO</p>
+        <h1 id="titulo-inicio">Encuentra lo que necesitas para aprender.</h1>
+        <p>Biblioteca reúne recursos del centro. Libros recoge materiales del alumnado. Documentación organiza información y formularios por curso.</p>
+        <h2 id="catalogo-titulo">Catálogo de muestra</h2>
+        <div class="filtros-lab">
+          <div><label for="lab-seccion">Área</label>
+            <select id="lab-seccion"><option value="todas">Todas las áreas</option><option value="biblioteca">Biblioteca</option><option value="libros">Libros</option><option value="documentacion">Documentación</option></select></div>
+          <div><label for="lab-busqueda">Buscar por título o curso</label>
+            <input id="lab-busqueda" type="search" placeholder="Por ejemplo: programación"></div>
+          <label class="casilla"><input type="checkbox" id="lab-disponibles"> Solo disponibles o publicados</label>
+        </div>
+        <p id="lab-cuenta" role="status" aria-live="polite"></p>
+        <ul id="lab-catalogo" class="tarjeta-grid"></ul>
+      </section>
+
       <section id="biblioteca" class="seccion">
         <h2>Biblioteca del centro</h2>
         <p>Consulta los recursos de ejemplo de Aula Circular.</p>
@@ -28,6 +46,7 @@
                 placeholder="Por ejemplo: calculadora">
           <button type="submit">Buscar</button>
         </form>
+        <p id="estado" role="status" aria-live="polite"></p>
         <ul id="recursos" class="tarjeta-grid"></ul>
         <!--<script type="module" src="/catalogo.mjs"></script> script main (modificación de prueba)-->
       </section>
@@ -35,7 +54,8 @@
       <section id="libros" class="seccion">
         <h2>Libros del alumnado</h2>
         <p>Cesión, préstamo e intercambio de libros entre estudiantes.</p>
-        <p>En construcción...</p>
+        <p>Datos de ejemplo locales; aún no vienen de la base de datos.</p>
+        <ul id="libros-lista" class="tarjeta-grid"></ul>
       </section>
 
       <section id="documentacion" class="seccion">
@@ -51,11 +71,24 @@
       </section>
     </main>
 
+    <script src="datos.js"></script>
+    <script src="motor.js"></script>
+    <script src="catalogo-local.js"></script>
     <script>
       const datosEstandar = [
         { id: 1, titulo: 'Calculadora científica de ejemplo', tipo: 'fisico' },
         { id: 2, titulo: 'Guía de prácticas de ejemplo', tipo: 'digital' }
       ];
+      const librosEjemplo = [
+        { id: 'L1', titulo: 'Programación paso a paso', modalidad: 'Cesión' },
+        { id: 'L2', titulo: 'Bases de datos relacionales', modalidad: 'Intercambio' }
+      ];
+      const tiposTexto = {
+        fisico: ['Préstamo físico', 't-prestamo'],
+        digital: ['Descarga digital', 't-digital'],
+        enlace: ['Enlace externo', 't-enlace'],
+        anuncio: ['Anuncio estudiantil', 't-anuncio']
+      };
 
       async function cargarRecursos(texto = '') {
         try {
@@ -72,22 +105,62 @@
         );
       }
 
-      document.addEventListener('DOMContentLoaded', async () => {
-        const recursos = await cargarRecursos();
+      function crearTarjeta(titulo, tipo, extra) {
+        const [etiqueta, clase] = tiposTexto[tipo] || [tipo, 't-enlace'];
+        const tar = document.createElement('li');
+        tar.className = 'tarjeta';
+        const ins = document.createElement('p');
+        ins.className = 'insignia ' + clase;
+        ins.textContent = etiqueta;
+        const h3 = document.createElement('h3');
+        h3.textContent = titulo;
+        tar.append(ins, h3);
+        if (extra) {
+          const p = document.createElement('p');
+          p.textContent = extra;
+          tar.append(p);
+        }
+        return tar;
+      }
+
+      async function pintarRecursos(texto = '') {
+        const recursos = await cargarRecursos(texto);
         const lista = document.querySelector('#recursos');
-        lista.innerHTML = '';
+        lista.replaceChildren();
+        for (const r of recursos) lista.append(crearTarjeta(r.titulo, r.tipo));
+        document.querySelector('#estado').textContent = recursos.length
+          ? recursos.length + (recursos.length === 1 ? ' recurso encontrado' : ' recursos encontrados')
+          : 'No se encontraron recursos. Prueba otra búsqueda.';
+      }
 
-        if (recursos.length === 0) {
-          lista.innerHTML = '<li class="tarjeta">No se encontraron recursos.</li>';
-          return;
-        }
+      document.addEventListener('DOMContentLoaded', () => {
+        pintarRecursos();
+        document.querySelector('#filtro').addEventListener('submit', (e) => {
+          e.preventDefault();
+          pintarRecursos(document.querySelector('#busqueda').value.trim());
+        });
 
-        for (const r of recursos) {
-          const tar = document.createElement('li');
-          tar.className = 'tarjeta';
-          tar.innerHTML = `<h2>${r.titulo}</h2><p>Tipo: ${r.tipo}</p>`;
-          lista.append(tar);
+        const libros = document.querySelector('#libros-lista');
+        for (const l of librosEjemplo) libros.append(crearTarjeta(l.titulo, 'anuncio', 'Modalidad: ' + l.modalidad));
+
+        document.documentElement.classList.add('js');
+        const boton = document.querySelector('#menu-boton');
+        const menu = document.querySelector('#menu-principal');
+        function estadoMenu(abierto) {
+          menu.classList.toggle('abierto', abierto);
+          boton.setAttribute('aria-expanded', String(abierto));
+          boton.textContent = abierto ? 'Cerrar menú' : 'Abrir menú';
         }
+        boton.addEventListener('click', () =>
+          estadoMenu(boton.getAttribute('aria-expanded') !== 'true'));
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape' && boton.getAttribute('aria-expanded') === 'true') {
+            estadoMenu(false);
+            boton.focus();
+          }
+        });
+        menu.querySelectorAll('a').forEach(a =>
+          a.addEventListener('click', () => estadoMenu(false)));
       });
     </script>
 
