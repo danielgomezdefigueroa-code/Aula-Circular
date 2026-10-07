@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Aula Circular · laboratorio</title>
+  <!-- Estilos del laboratorio: espaciado, formulario flexible y tarjetas. -->
   <style>
     body {
       margin: 0;
@@ -59,15 +60,19 @@
   <main>
     <h1>Recursos del centro</h1>
     <p>Consulta los recursos de ejemplo de Aula Circular.</p>
+    <!-- catalogo.mjs captura submit para consultar la API sin recargar. -->
     <form id="filtro">
       <label for="busqueda">Buscar por título</label>
       <input id="busqueda" name="q" type="search" maxlength="80"
              placeholder="Por ejemplo: calculadora">
       <button type="submit">Buscar</button>
     </form>
+    <!-- role=status anuncia los cambios de estado a tecnologías de asistencia. -->
     <p id="estado" role="status">Cargando…</p>
+    <!-- El cliente crea los elementos li con la respuesta de PostgreSQL. -->
     <ul id="recursos"></ul>
   </main>
+  <!-- Un módulo se ejecuta después de analizar el HTML. -->
   <script type="module" src="/catalogo.mjs"></script>
 </body>
 </html>
