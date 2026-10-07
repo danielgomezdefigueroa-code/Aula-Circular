@@ -1,0 +1,152 @@
+
+:root {
+  --crema: #F5F3EB;
+  --verde-petróleo: #164E4A;
+  --carbón: #20352A;
+  --coral: #DB7868;
+}
+
+/* --- Reset y bases --- */
+* { box-sizing: border-box; margin: 0; padding: 0 }
+
+/* Scroll padding para header sticky: deja espacio al hacer scroll a anclas */
+html {
+  scroll-padding-top: 4rem;
+}
+
+/* Cuerpo de la página */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f3f6f4;
+  color: #20352a;
+}
+main {
+  max-width: 850px;
+  margin: 40px auto;
+  padding: 24px;
+}
+form {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+input, button {
+  padding: 12px;
+  font: inherit;
+  border-radius: 8px;
+}
+input {
+  border: 1px solid #687a70;
+  flex: 1;
+  min-width: 160px;
+}
+button {
+  border: 0;
+  background: #216343;
+  color: white;
+  cursor: pointer;
+}
+ul {
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+li {
+  background: white;
+  padding: 20px;
+  border: 1px solid #d0dcd4;
+  border-radius: 12px;
+}
+li h2 { margin-top: 0; font-size: 20px; }
+li p { margin-bottom: 0; }
+
+/* Contenedor máximo: 850px, centrado en pantalla */
+.max-w { 
+  max-width: 850px; 
+  margin: 0 auto; 
+  padding: 0.5rem 1rem 0; 
+}
+
+/* --- Header (navegación principal) --- */
+header {
+  background: var(--verde-petróleo);
+  color: white;
+  padding: 1rem 1.5rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.brand {
+  font-weight: 750;
+  letter-spacing: .03em;
+  font-size: clamp(1.5rem, 4vw, 2rem);
+}
+
+/* --- Nav principal --- */
+.nav {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: .5rem;
+}
+
+/* Enlaces del menú */
+.nav-link {
+  color: white;
+  text-decoration: none;
+  padding: .5rem .8rem;
+  border-radius: 8px;
+  font-size: .9rem;
+  transition: background .2s;
+}
+
+.nav-link:hover { background: rgba(255,255,255,.2); }
+
+/* ==============================================================
+   MODOS RESPONSIVE
+   ============================================================== */
+
+/* ESCRITORIO > 768px */
+@media(min-width:769px) { 
+  .nav { gap: 1.5rem; } 
+}
+
+/* MÓVIL < 768px */
+@media(max-width:768px) { 
+  .nav { justify-content: space-between; }
+  .nav-link { width: 45%; margin: .2rem 0; }
+}
+
+/* MÓVIL MUY ESTRECHO < 480px */
+@media(max-width:480px) { 
+  .nav { overflow-x: auto; white-space: nowrap; }
+  .nav-link { width: auto; margin: .1rem 0; }
+}
+
+.tarjeta-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+  list-style: none;
+  padding: 1rem;
+}
+
+.tarjeta {
+  background: white;
+  border: 1px solid #d0dcd4;
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+.seccion {
+  min-height: 320px;
+  margin-bottom: 2rem;
+  scroll-margin-top: 4rem;
+}

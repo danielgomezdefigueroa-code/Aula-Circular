@@ -4,70 +4,92 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Aula Circular · laboratorio</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f3f6f4;
-      color: #20352a;
-    }
-    main {
-      max-width: 850px;
-      margin: 40px auto;
-      padding: 24px;
-    }
-    form {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-    input, button {
-      padding: 12px;
-      font: inherit;
-      border-radius: 8px;
-    }
-    input {
-      border: 1px solid #687a70;
-      flex: 1;
-      min-width: 160px;
-    }
-    button {
-      border: 0;
-      background: #216343;
-      color: white;
-      cursor: pointer;
-    }
-    ul {
-      padding: 0;
-      list-style: none;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 16px;
-    }
-    li {
-      background: white;
-      padding: 20px;
-      border: 1px solid #d0dcd4;
-      border-radius: 12px;
-    }
-    li h2 { margin-top: 0; font-size: 20px; }
-    li p { margin-bottom: 0; }
-  </style>
+  <link rel="stylesheet" href="css/estilo.css">
 </head>
 <body>
-  <main>
-    <h1>Recursos del centro</h1>
-    <p>Consulta los recursos de ejemplo de Aula Circular.</p>
-    <form id="filtro">
-      <label for="busqueda">Buscar por título</label>
-      <input id="busqueda" name="q" type="search" maxlength="80"
-             placeholder="Por ejemplo: calculadora">
-      <button type="submit">Buscar</button>
-    </form>
-    <p id="estado" role="status">Cargando…</p>
-    <ul id="recursos"></ul>
-  </main>
-  <script type="module" src="/catalogo.mjs"></script>
-</body>
+    <header>
+      <div class="max-w">
+        <span class="brand">Aula Circular</span>
+        <nav class="nav" aria-label="Navegación principal">
+          <a href="#biblioteca" class="nav-link">Biblioteca</a>
+          <a href="#libros" class="nav-link">Libros</a>
+          <a href="#documentacion" class="nav-link">Documentación</a>
+          <a href="#mi-espacio" class="nav-link">Mi espacio</a>
+        </nav>
+      </div>
+    </header>
+    <main class="contenido">
+      <section id="biblioteca" class="seccion">
+        <h2>Biblioteca del centro</h2>
+        <p>Consulta los recursos de ejemplo de Aula Circular.</p>
+        <form id="filtro">
+          <label for="busqueda">Buscar por título</label>
+          <input id="busqueda" name="q" type="search" maxlength="80"
+                placeholder="Por ejemplo: calculadora">
+          <button type="submit">Buscar</button>
+        </form>
+        <ul id="recursos" class="tarjeta-grid"></ul>
+        <!--<script type="module" src="/catalogo.mjs"></script> script main (modificación de prueba)-->
+      </section>
+
+      <section id="libros" class="seccion">
+        <h2>Libros del alumnado</h2>
+        <p>Cesión, préstamo e intercambio de libros entre estudiantes.</p>
+        <p>En construcción...</p>
+      </section>
+
+      <section id="documentacion" class="seccion">
+        <h2>Documentación por curso</h2>
+        <p>Requisitos, listas y plantillas por curso.</p>
+        <p>En construcción...</p>
+      </section>
+
+      <section id="mi-espacio" class="seccion">
+        <h2>Mi espacio</h2>
+        <p>Tus solicitudes, préstamos, publicaciones e historial.</p>
+        <p>En construcción...</p>
+      </section>
+    </main>
+
+    <script>
+      const datosEstandar = [
+        { id: 1, titulo: 'Calculadora científica de ejemplo', tipo: 'fisico' },
+        { id: 2, titulo: 'Guía de prácticas de ejemplo', tipo: 'digital' }
+      ];
+
+      async function cargarRecursos(texto = '') {
+        try {
+          const parametros = new URLSearchParams({ q: texto });
+          const respuesta = await fetch('/api/recursos-demo?' + parametros);
+          if (respuesta.ok) {
+            const { datos } = await respuesta.json();
+            return datos || [];
+          }
+        } catch (e) {
+        }
+        return datosEstandar.filter(r =>
+          r.titulo.toLowerCase().includes(texto.toLowerCase())
+        );
+      }
+
+      document.addEventListener('DOMContentLoaded', async () => {
+        const recursos = await cargarRecursos();
+        const lista = document.querySelector('#recursos');
+        lista.innerHTML = '';
+
+        if (recursos.length === 0) {
+          lista.innerHTML = '<li class="tarjeta">No se encontraron recursos.</li>';
+          return;
+        }
+
+        for (const r of recursos) {
+          const tar = document.createElement('li');
+          tar.className = 'tarjeta';
+          tar.innerHTML = `<h2>${r.titulo}</h2><p>Tipo: ${r.tipo}</p>`;
+          lista.append(tar);
+        }
+      });
+    </script>
+
+  </body>
 </html>
