@@ -1,8 +1,3 @@
-// ============================================================
-// CONVERSIÓN DEL TIPO TÉCNICO A UN TEXTO MÁS LEGIBLE
-// ============================================================
-
-
 const estado = document.querySelector('#estado');
 const lista = document.querySelector('#recursos');
 const formulario = document.querySelector('#filtro');
@@ -28,28 +23,7 @@ async function cargarRecursos(texto = '') {
       const tipo = document.createElement('p');
 
       titulo.textContent = recurso.titulo;
-
-      /** Cambio debido a la tarea 2 del equipo Biblioteca y Documentos */
-      /** tipo.textContent = 'Tipo: ' + recurso.tipo; */
-     
-      // El servidor devuelve los tipos en formato interno:
-      // 'fisico', 'digital', 'enlace' o 'estudiantil'.
-      //
-      // Creamos un objeto para mostrar esos valores
-      // de una forma más clara para el usuario.
-      const nombresTipo = {
-        fisico: 'Físico',
-        digital: 'Digital',
-        enlace: 'Enlace',
-        estudiantil: 'Estudiantil'
-      };
-
-      // Mostramos el nombre correspondiente al tipo del recurso.
-      // Si por algún motivo aparece un tipo no definido,
-      // mostramos directamente el valor recibido.
-      tipo.textContent =
-      'Tipo: ' + (nombresTipo[recurso.tipo] ?? recurso.tipo);
-
+      tipo.textContent = 'Tipo: ' + recurso.tipo;
       tarjeta.append(titulo, tipo);
       lista.append(tarjeta);
     }
