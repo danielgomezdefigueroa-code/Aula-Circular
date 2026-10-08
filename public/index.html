@@ -13,10 +13,6 @@
         <button type="button" id="menu-boton" class="menu-boton" aria-expanded="false" aria-controls="menu-principal">Abrir menú</button>
         <nav id="menu-principal" class="nav" aria-label="Navegación principal">
           <a href="#inicio" class="nav-link">Inicio</a>
-          <a href="#biblioteca" class="nav-link">Biblioteca</a>
-          <a href="#libros" class="nav-link">Libros</a>
-          <a href="#documentacion" class="nav-link">Documentación</a>
-          <a href="#mi-espacio" class="nav-link">Mi espacio</a>
         </nav>
       </div>
     </header>
@@ -26,48 +22,31 @@
         <h1 id="titulo-inicio">Encuentra lo que necesitas para aprender.</h1>
         <p>Biblioteca reúne recursos del centro. Libros recoge materiales del alumnado. Documentación organiza información y formularios por curso.</p>
         <h2 id="catalogo-titulo">Catálogo de muestra</h2>
+
         <div class="filtros-lab">
-          <div><label for="lab-seccion">Área</label>
-            <select id="lab-seccion"><option value="todas">Todas las áreas</option><option value="biblioteca">Biblioteca</option><option value="libros">Libros</option><option value="documentacion">Documentación</option></select></div>
-          <div><label for="lab-busqueda">Buscar por título o curso</label>
-            <input id="lab-busqueda" type="search" placeholder="Por ejemplo: programación"></div>
-          <label class="casilla"><input type="checkbox" id="lab-disponibles"> Solo disponibles o publicados</label>
+          <div>
+            <label for="lab-seccion">Área</label>
+            <select id="lab-seccion">
+              <option value="todas">Todas las áreas</option>
+              <option value="biblioteca">Biblioteca</option>
+              <option value="libros">Libros</option>
+              <option value="documentacion">Documentación</option>
+            </select>
+          </div>
+          <div>
+            <label for="lab-busqueda">Buscar por título o curso</label>
+            <input id="lab-busqueda" type="search" placeholder="Por ejemplo: programación">
+          </div>
+          <div class="contenedor-casilla">
+            <label class="casilla" for="lab-disponibles">
+              <input type="checkbox" id="lab-disponibles">
+              <span>Solo disponibles o publicados</span>
+            </label>
+          </div>
         </div>
+
         <p id="lab-cuenta" role="status" aria-live="polite"></p>
         <ul id="lab-catalogo" class="tarjeta-grid"></ul>
-      </section>
-
-      <section id="biblioteca" class="seccion">
-        <h2>Biblioteca del centro</h2>
-        <p>Consulta los recursos de ejemplo de Aula Circular.</p>
-        <form id="filtro">
-          <label for="busqueda">Buscar por título</label>
-          <input id="busqueda" name="q" type="search" maxlength="80"
-                placeholder="Por ejemplo: calculadora">
-          <button type="submit">Buscar</button>
-        </form>
-        <p id="estado" role="status" aria-live="polite"></p>
-        <ul id="recursos" class="tarjeta-grid"></ul>
-        <!--<script type="module" src="/catalogo.mjs"></script> script main (modificación de prueba)-->
-      </section>
-
-      <section id="libros" class="seccion">
-        <h2>Libros del alumnado</h2>
-        <p>Cesión, préstamo e intercambio de libros entre estudiantes.</p>
-        <p>Datos de ejemplo locales; aún no vienen de la base de datos.</p>
-        <ul id="libros-lista" class="tarjeta-grid"></ul>
-      </section>
-
-      <section id="documentacion" class="seccion">
-        <h2>Documentación por curso</h2>
-        <p>Requisitos, listas y plantillas por curso.</p>
-        <p>En construcción...</p>
-      </section>
-
-      <section id="mi-espacio" class="seccion">
-        <h2>Mi espacio</h2>
-        <p>Tus solicitudes, préstamos, publicaciones e historial.</p>
-        <p>En construcción...</p>
       </section>
     </main>
 
