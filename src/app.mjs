@@ -1,22 +1,48 @@
-// Servidor del laboratorio: publica el cliente y dos rutas de consulta.
-// Node carga .env mediante --env-file (ver scripts de package.json).
 import express from 'express';
 import pg from 'pg';
 import { fileURLToPath } from 'node:url';
+import {
+  configurarSesiones,
+  requiereSesion,
+  requiereCuentaActiva,
+  requiereRol
+} from './cuentas/sesiones.mjs';
+import { crearRutasCuentas } from './cuentas/rutas.mjs';
+import { crearRutasGestion } from './cuentas/gestion.mjs';
 
-const { Pool } = pg;
-// pg lee PGHOST, PGPORT, PGDATABASE, PGUSER y PGPASSWORD del entorno.
-// Reutiliza hasta cinco conexiones; espera hasta tres segundos para conectar.
-const pool = new Pool({ max: 5, connectionTimeoutMillis: 3000 });
+const puerto = Number(process.env.PORT ?? 3000);
+
+if (!Number.isInteger(puerto) || puerto < 1 || puerto > 65535) {
+  throw new Error('PORT debe ser un puerto válido');
+}
+
+if (process.env.APP_ORIGIN !== `http://127.0.0.1:${puerto}` ||
+    process.env.NODE_ENV !== 'development') {
+  throw new Error('Configura el origen y el modo development para este ensayo local');
+}
+
+const pool = new pg.Pool({
+  max: 5,
+  connectionTimeoutMillis: 3000
+});
+
 const app = express();
-
-// Reduce información del servidor y limita el tamaño de cuerpos JSON.
 app.disable('x-powered-by');
 app.use(express.json({ limit: '32kb' }));
 
-// SELECT 1 comprueba una conexión real, sin consultar la tabla del catálogo.
-// Responde 200 si funciona y 503 si la base no está disponible.
-app.get('/api/salud', async (_req, res) => {
+// Incluye también errores de lectura de JSON y respuestas de salud.
+app.use((_req, res, next) => {
+  res.set('Cache-Control', 'private, no-store');
+  next();
+});
+
+configurarSesiones(app, pool);
+
+// Espera la preparación del hash ficticio antes de aceptar peticiones.
+app.use('/api', await crearRutasCuentas(pool));
+app.use('/api/gestion', crearRutasGestion(pool));
+
+app.get('/api/salud', async (_req, res, next) => {
   try {
     await pool.query('SELECT 1');
     res.json({ estado: 'listo', baseDatos: true });
@@ -25,51 +51,55 @@ app.get('/api/salud', async (_req, res) => {
   }
 });
 
-// Ruta pública exclusiva de este laboratorio con datos sintéticos.
-// En la aplicación se protege con sesión y cuenta activa.
-app.get('/api/recursos-demo', async (req, res, next) => {
-  try {
-    // q es opcional: vacío lista todos los títulos; limita la búsqueda a 80 caracteres.
-    const texto = String(req.query.q ?? '').trim().slice(0, 80);
-    // $1 separa el dato del SQL. ILIKE busca sin distinguir mayúsculas.
-    // % permite coincidencias parciales; % y _ del usuario siguen siendo comodines.
-    const resultado = await pool.query(
-      'SELECT id, titulo, tipo FROM recurso_demo WHERE titulo ILIKE $1 ORDER BY id',
-      ['%' + texto + '%']
-    );
-    res.json({ datos: resultado.rows });
-  } catch (error) {
-    // Delega en el middleware de errores situado al final.
-    next(error);
-  }
-});
-
-// Resuelve public/ desde la ubicación de este módulo, no desde la terminal.
-// Cliente y API comparten origen: este laboratorio no necesita CORS.
-app.use(express.static(fileURLToPath(new URL('../public/', import.meta.url))));
-// Se ejecuta si ninguna ruta ni archivo público atendió la petición.
-app.use((_req, res) => res.status(404).json({ error: 'NO_ENCONTRADO' }));
-
-// Los cuatro argumentos identifican el middleware de errores de Express.
-// Registra solo el código y evita enviar detalles internos al navegador.
-app.use((error, _req, res, _next) => {
-  console.error('Fallo del laboratorio:', error.code ?? 'SIN_CODIGO');
-  res.status(500).json({ error: 'ERROR_INTERNO' });
-});
-
-// Escucha solo en este ordenador. PORT viene de .env o vale 3000.
-// Un puerto ocupado impide arrancar y produce EADDRINUSE.
-const servidor = app.listen(
-  Number(process.env.PORT ?? 3000),
-  '127.0.0.1',
-  () => {
-    console.log(
-      'Laboratorio listo en http://127.0.0.1:' + (process.env.PORT ?? 3000)
-    );
+// Catálogo protegido: exige identidad, cuenta activa y rol participante.
+// Un administrador sin rol alumno/docente no obtiene acceso por ser admin.
+app.get('/api/biblioteca',
+  requiereSesion(pool),
+  requiereCuentaActiva,
+  requiereRol('alumno', 'docente'),
+  async (req, res, next) => {
+    try {
+      const texto = String(req.query.q ?? '').trim().slice(0, 80);
+      const resultado = await pool.query(
+        'SELECT id, titulo, tipo FROM recurso_demo WHERE titulo ILIKE $1 ORDER BY id',
+        ['%' + texto + '%']
+      );
+      res.json({ datos: resultado.rows });
+    } catch (error) {
+      next(error);
+    }
   }
 );
 
-// Ctrl+C deja terminar las peticiones y cierra el pool antes de salir.
+app.use(express.static(
+  fileURLToPath(new URL('../public/', import.meta.url))
+));
+
+app.use((_req, res) => {
+  res.status(404).json({ error: 'NO_ENCONTRADO' });
+});
+
+app.use((error, _req, res, _next) => {
+  // Nunca registra cuerpos, claves, cookies ni consultas SQL.
+  console.error('Error del servidor:', error.code ?? 'SIN_CODIGO');
+
+  if (error.type === 'entity.parse.failed') {
+    return res.status(400).json({ error: 'JSON_INVALIDO' });
+  }
+  if (error.type === 'entity.too.large') {
+    return res.status(413).json({ error: 'CUERPO_DEMASIADO_GRANDE' });
+  }
+  if (error.status === 503) {
+    return res.status(503).json({ error: 'SERVICIO_OCUPADO' });
+  }
+
+  res.status(500).json({ error: 'ERROR_INTERNO' });
+});
+
+const servidor = app.listen(puerto, '127.0.0.1', () => {
+  console.log(`Sprint2 listo en http://127.0.0.1:${puerto}`);
+});
+
 process.on('SIGINT', () => {
   servidor.close(async () => {
     await pool.end();
