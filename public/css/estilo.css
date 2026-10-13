@@ -5,7 +5,10 @@
   --coral: #DB7868;
 }
 
-/* --- Reset y bases --- */
+/* --- Reset y bases ---
+    Propiedades universales y configuración del cuerpo.
+    Se usa box-sizing: border-box en todo el documento
+    para facilitar el cálculo de anchos y alturas. */
 * { box-sizing: border-box; margin: 0; padding: 0 }
 
 /* Scroll padding para header sticky: deja espacio al hacer scroll a anclas */
@@ -13,39 +16,51 @@ html {
   scroll-padding-top: 4rem;
 }
 
-/* Cuerpo de la página */
 body {
   margin: 0;
   font-family: Arial, sans-serif;
   background: #f3f6f4;
   color: #20352a;
 }
+
 main {
   max-width: 850px;
   margin: 30px auto;
 }
+
+/* --- Formularios y controles ---
+    Estilos comunes para inputs y buttons.
+    Se comparten padding, fuente y bordes redondeados. */
 form {
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
   align-items: center;
 }
+
 input, button {
   padding: 12px;
   font: inherit;
   border-radius: 8px;
 }
+
 input {
   border: 1px solid #687a70;
   flex: 1;
   min-width: 160px;
 }
+
 button {
   border: 0;
   background: #216343;
   color: white;
   cursor: pointer;
 }
+
+/* --- Lista y grid ---
+    El ul principal usa grid responsivo.
+    repeat(auto-fit, minmax(240px, 1fr)) hace que las tarjetas
+    se ajusten automáticamente según el ancho disponible. */
 ul {
   padding: 0;
   list-style: none;
@@ -53,23 +68,30 @@ ul {
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 16px;
 }
+
 li {
   background: white;
   padding: 20px;
   border: 1px solid #d0dcd4;
   border-radius: 12px;
 }
+
 li h2 { margin-top: 0; font-size: 20px; }
 li p { margin-bottom: 0; }
 
-/* Contenedor máximo: 850px, centrado en pantalla */
-.max-w { 
-  max-width: 850px; 
-  margin: 0 auto; 
-  padding: 0.5rem 1rem 0; 
+/* --- Contenedor máximo ---
+    El wrapper centrado de 850px evita que el contenido
+    se estire demasiado en pantallas muy amplias. */
+.max-w {
+  max-width: 850px;
+  margin: 0 auto;
+  padding: 0.5rem 1rem 0;
 }
 
-/* --- Header (navegación principal) --- */
+/* --- Header (navegación principal) ---
+    Header sticky con el brand "Aula Circular".
+    Position sticky + z-index para que esté siempre visible
+    al hacer scroll. */
 header {
   background: var(--verde-petróleo);
   color: white;
@@ -85,7 +107,10 @@ header {
   font-size: clamp(1.5rem, 4vw, 2rem);
 }
 
-/* --- Nav principal --- */
+/* --- Nav principal ---
+    Flexbox con enlaces del menú.
+    display: flex con wrap permite que los enlaces
+    se ajusten a móvil o desktop según el ancho. */
 .nav {
   display: flex;
   gap: 1rem;
@@ -94,7 +119,10 @@ header {
   margin-top: .5rem;
 }
 
-/* Enlaces del menú */
+/* Enlaces del menú ---
+    Estilo base de cada enlace del menú.
+    Se usan colores blancos con hover en crema.
+    focus-visible se gestiona en la sección de accesibilidad. */
 .nav-link {
   color: white;
   text-decoration: none;
@@ -106,27 +134,44 @@ header {
 
 .nav-link:hover { background: rgba(255,255,255,.2); }
 
-/* ==============================================================
-   MODOS RESPONSIVE
-   ============================================================== */
+/* --- MODOS RESPONSIVE ---
+    Las media queries se aplican de fuera hacia dentro:
+    escritorio > 768px, luego móviles progresivamente más estrechos.
+    Cada breakpoint modula el diseño sin anular completamente
+    las reglas anteriores (cascada CSS). */
 
-/* ESCRITORIO > 768px */
-@media(min-width:769px) { 
-  .nav { gap: 1.5rem; } 
+@media(min-width:769px) {
+  .nav { gap: 1.5rem; }
 }
 
-/* MÓVIL < 768px */
-@media(max-width:768px) { 
+/* MÓVIL < 768px ---
+    En pantallas pequeñas, los enlaces se apilan
+    y se les da un ancho percentage para que quepan. */
+@media(max-width:768px) {
   .nav { justify-content: space-between; }
   .nav-link { width: 45%; margin: .2rem 0; }
 }
 
-/* MÓVIL MUY ESTRECHO < 480px */
-@media(max-width:480px) { 
+/* MÓVIL ESTRECHO < 390px ---
+    Cuando la ventana es muy corta (algunos phones),
+    permitimos scroll horizontal en el nav y quitamos
+    el ancho fijo de los enlaces. */
+@media(max-width:390px) {
   .nav { overflow-x: auto; white-space: nowrap; }
   .nav-link { width: auto; margin: .1rem 0; }
 }
 
+/* MÓVIL MUY ESTRECHO < 320px ---
+    Punto de ruptura extremo para phones con ancho < 320px.
+    Se ajusta el mínimo margen entre enlaces. */
+@media(max-width:320px) {
+  .nav { overflow-x: auto; white-space: nowrap; }
+  .nav-link { width: auto; margin: .05rem 0; }
+}
+
+/* --- Grid de tarjetas ---
+    El contenedor de la lista de recursos.
+    Igual que el ul principal, usa auto-fit para adaptarse. */
 .tarjeta-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -136,6 +181,9 @@ header {
   padding: 1rem;
 }
 
+/* --- Tarjeta individual ---
+    Cada recurso se muestra como una tarjeta con fondo blanco,
+    borde suave y sombra implícita por el background. */
 .tarjeta {
   background: white;
   border: 1px solid #d0dcd4;
@@ -143,17 +191,27 @@ header {
   padding: 1rem;
 }
 
+/* --- Sección ---
+    Espaciado entre secciones del contenido.
+    min-height: 320px asegura un espacio mínimo visual
+    incluso si el contenido es breve. */
 .seccion {
   min-height: 320px;
   margin-bottom: 2rem;
   scroll-margin-top: 4rem;
 }
 
-/* ==============================================================
-   Sprint 1 · menú móvil, insignias de tipo y accesibilidad
-   ============================================================== */
+/* --- Sprint 1 · menú móvil, insignias de tipo y accesibilidad ---
+    Bloque agrupador de estilos específicos del sprint 1.
+    Aquí están el menú hamburguesa, las insignias por tipo de recurso
+    y las reglas de accesibilidad (focus-visible, reduced motion). */
+
 .menu-boton { display: none; }
 
+/* Menú móvil ---
+    Cuando el cuerpo tiene la clase `js` y el menú tiene `.abierto`,
+    se muestra el menú en columna con enlaces de mínimo 44px
+    para cumplimiento de accesibilidad táctil. */
 @media(max-width:768px) {
   .js .menu-boton {
     display: inline-block;
@@ -169,9 +227,18 @@ header {
     overflow: visible;
     white-space: normal;
   }
-  .js .nav-link { width: 100%; min-height: 44px; display: flex; align-items: center; }
+  .js .nav-link {
+    width: 100%;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
 }
 
+/* --- Insignias por tipo ---
+    Cada tipo de recurso (préstamo, anuncio, digital, enlace)
+    tiene un borde y color de fondo característico.
+    Sirven para identificar rápidamente la naturaleza del recurso. */
 .insignia {
   display: inline-block;
   font-size: .8rem;
@@ -181,39 +248,62 @@ header {
   border: 2px solid;
   margin-bottom: .5rem;
 }
-.t-prestamo { border-color: #17614d; background: #e5f2ea; border-style: solid; }
-.t-anuncio  { border-color: #7a4b00; background: #fff5dc; border-style: dashed; }
-.t-digital  { border-color: #274a8a; background: #e8eefb; border-style: double; }
-.t-enlace   { border-color: #5b3a8a; background: #f0e9fa; border-style: dotted; }
+
+.t-prestamo { border-color: #17614d; background: #e5f2ea; }
+.t-anuncio  { border-color: #7a4b00; background: #fff5dc; }
+.t-digital  { border-color: #274a8a; background: #e8eefb; }
+.t-enlace   { border-color: #5b3a8a; background: #f0e9fa; }
+
 li h3 { font-size: 1.1rem; margin: .25rem 0; }
 #estado { margin-top: 1rem; }
 
+/* --- Accesibility y reduced motion ---
+    Estilos para cursor y outline visible.
+    Se respetan las preferencias de motion-reduced del usuario. */
 a:focus-visible, button:focus-visible, input:focus-visible {
   outline: 3px solid #db7868;
   outline-offset: 3px;
 }
+
 header a:focus-visible, header button:focus-visible { outline-color: white; }
 
 @media(prefers-reduced-motion:reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }
 
-/* Catálogo de muestra (traído del laboratorio) */
+/* --- Catálogo de muestra (traído del laboratorio) ---
+    Estilos específicos de la sección de catálogo.
+    Controles de filtro, etiquetas y estado del contador. */
+
 .presentacion h1 { font-size: clamp(1.8rem, 4vw, 3rem); line-height: 1.15; margin: 8px 0 16px; }
 .presentacion h2 { margin: 24px 0 12px; }
-.etiqueta { font-size: .75rem; font-weight: 800; letter-spacing: .08em; color: #355b43; }
-.filtros-lab { display: grid; grid-template-columns: 1fr 1.6fr 1fr; gap: 12px; align-items: end; }
+
+.etiqueta {
+  font-size: .75rem;
+  font-weight: 800;
+  letter-spacing: .08em;
+  color: #355b43;
+}
+
+.filtros-lab {
+  display: grid;
+  grid-template-columns: 1fr 1.6fr 1fr;
+  gap: 12px;
+  align-items: end;
+}
+
 .filtros-lab label { display: block; font-weight: 650; margin-bottom: 6px; }
 .filtros-lab select { width: 100%; min-height: 44px; padding: 10px 12px; border: 1px solid #687a70; border-radius: 8px; font: inherit; background: white; }
 .filtros-lab input[type=search] { width: 100%; min-height: 44px; }
+
 .filtros-lab .casilla {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  min-height: 44px;      /* Garantiza que tenga la misma altura visual que los inputs */
-  margin-bottom: 0;       /* Anula el margin-bottom de los labels generales */
+  min-height: 44px;
+  margin-bottom: 0;
   cursor: pointer;
-  white-space: nowrap;   /* Evita que el texto salte de línea */
+  white-space: nowrap;
 }
 .filtros-lab .casilla label { white-space: nowrap; display: inline-flex; align-items: center; }
 .filtros-lab input[type=checkbox] {
@@ -223,7 +313,7 @@ header a:focus-visible, header button:focus-visible { outline-color: white; }
   margin: 0;
   cursor: pointer;
 }
+
 .tarjeta { overflow-wrap: anywhere; }
 .tarjeta .estado { font-size: .85rem; font-weight: 700; }
 #lab-cuenta { margin-top: 1rem; }
-@media(max-width:768px) { .filtros-lab { grid-template-columns: 1fr; } }
