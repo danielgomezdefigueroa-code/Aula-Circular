@@ -9,6 +9,7 @@ import {
 } from './cuentas/sesiones.mjs';
 import { crearRutasCuentas } from './cuentas/rutas.mjs';
 import { crearRutasGestion } from './cuentas/gestion.mjs';
+import { crearRutasBiblioteca } from './biblioteca/rutas.mjs';
 
 const puerto = Number(process.env.PORT ?? 3000);
 
@@ -51,24 +52,40 @@ app.get('/api/salud', async (_req, res, next) => {
   }
 });
 
-// Catálogo protegido: exige identidad, cuenta activa y rol participante.
-// Un administrador sin rol alumno/docente no obtiene acceso por ser admin.
-app.get('/api/biblioteca',
+
+/**
+ * ============================================================
+ * AULA CIRCULAR - BIBLIOTECA Y DOCUMENTOS
+ * Incorporar las rutas del catálogo definitivo al servidor.
+ *
+ * SEGURIDAD:
+ * Reutilizamos los controles existentes del proyecto:
+ * 1. Sesión válida.
+ * 2. Cuenta activa.
+ * 3. Rol de alumno o docente.
+ *
+ * El curso se utilizará únicamente como filtro
+ * de búsqueda, no como restricción de acceso.
+ *
+ * Las consultas SQL se encuentran en:
+ * src/biblioteca/rutas.mjs
+ * ============================================================
+ */
+
+app.use(
+  '/api',
+
+  // Verifica que el usuario haya iniciado sesión.
   requiereSesion(pool),
+
+  // Comprueba que su cuenta está activa.
   requiereCuentaActiva,
+
+  // Autoriza el acceso a alumnado y profesorado.
   requiereRol('alumno', 'docente'),
-  async (req, res, next) => {
-    try {
-      const texto = String(req.query.q ?? '').trim().slice(0, 80);
-      const resultado = await pool.query(
-        'SELECT id, titulo, tipo FROM recurso_demo WHERE titulo ILIKE $1 ORDER BY id',
-        ['%' + texto + '%']
-      );
-      res.json({ datos: resultado.rows });
-    } catch (error) {
-      next(error);
-    }
-  }
+
+  // Incorpora las rutas del catálogo de Biblioteca.
+  crearRutasBiblioteca(pool)
 );
 
 app.use(express.static(
