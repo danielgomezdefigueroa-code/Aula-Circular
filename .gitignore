@@ -3,3 +3,5 @@
 almacen_privado/
 copias_locales/
 *.log
+
+.cuentas-ensayo.json

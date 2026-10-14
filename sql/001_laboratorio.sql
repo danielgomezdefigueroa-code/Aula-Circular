@@ -2,38 +2,20 @@
 -- TABLA DE RECURSOS DE AULA CIRCULAR
 -- ============================================================
 
--- Creamos la tabla que almacena los recursos del catálogo.
+-- Inicialización del laboratorio: ejecutar una vez en una base nueva.
+-- No es idempotente: repetirlo falla si la tabla ya existe.
+-- La aplicación se conecta como aula_app, propietario de aula_circular.
 CREATE TABLE recurso_demo (
-
-  -- Identificador único generado automáticamente por PostgreSQL.
+    -- Identificador único y generado automáticamente por PostgreSQL.
   id integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-
-  -- Título del recurso.
-  -- Debe tener entre 1 y 120 caracteres.
-  titulo text NOT NULL
-    CHECK (length(trim(titulo)) BETWEEN 1 AND 120),
-
+  -- Rechaza NULL, títulos vacíos y longitudes fuera de 1 a 120.
+  titulo text NOT NULL CHECK (length(trim(titulo)) BETWEEN 1 AND 120),
   -- Tipo o categoría principal del recurso.
   -- Solo se permiten las categorías acordadas.
   -- Introducimos aquí la categoría estudiantil que pide en la tarea del sprint 1 del equipo de Biblioteca y Documentos.
-  tipo text NOT NULL
-    CHECK (
-      tipo IN (
-        'fisico',
-        'digital',
-        'enlace',
-        'estudiantil'
-      )
-    )
+  tipo text NOT NULL CHECK (tipo IN ('fisico', 'digital', 'enlace', 'estudiantil'))
 );
 
-
--- ============================================================
--- DATOS FICTICIOS DE PRUEBA
--- ============================================================
-
--- Insertamos recursos de ejemplo para poder comprobar
--- posteriormente que la clasificación funciona correctamente.
 INSERT INTO recurso_demo (titulo, tipo)
 VALUES
   -- Recurso físico del centro.
