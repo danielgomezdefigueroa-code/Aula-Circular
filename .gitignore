@@ -3,3 +3,4 @@
 almacen_privado/
 copias_locales/
 *.log
+.docente-local.json
