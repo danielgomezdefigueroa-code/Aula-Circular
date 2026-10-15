@@ -220,6 +220,12 @@ comprobar(
 );
 
 assert.equal(listado.contenido.datos.length, 4);
+// Verificamos que las cuatro fichas esperadas aparecen
+// exactamente una vez, independientemente del orden.
+assert.deepEqual(
+  listado.contenido.datos.map(recurso => recurso.id).sort((a, b) => a - b),
+  [1, 2, 3, 4]
+);
 
 // CASO 2: Curso DAW-1.
 // El curso con ID 1 tiene tres recursos asociados.
@@ -237,6 +243,14 @@ comprobar(
 
 assert.equal(cursoExistente.contenido.datos.length, 3);
 
+// DAW-1 debe contener exactamente estos tres recursos.
+// Así evitamos dar por válida una lista con otros IDs.
+assert.deepEqual(
+  cursoExistente.contenido.datos
+    .map(recurso => recurso.id)
+    .sort((a, b) => a - b),
+  [1, 2, 3]
+);
 // CASO 3: Curso inexistente.
 // El filtro debe devolver una lista vacía.
 const cursoVacio = await peticion(
@@ -252,6 +266,10 @@ comprobar(
 );
 
 assert.equal(cursoVacio.contenido.datos.length, 0);
+
+// La respuesta debe ser un array vacío y su total cero.
+assert.deepEqual(cursoVacio.contenido.datos, []);
+assert.equal(cursoVacio.contenido.paginacion.total, 0);
 
 // CASO 4: Categoría Material de estudio.
 // En nuestro ensayo tiene ID 1 y dos recursos.
@@ -482,7 +500,7 @@ const detalleManual = await peticion(
 /**
  * ============================================================
  * AULA CIRCULAR - BIBLIOTECA Y DOCUMENTOS
- * PUNTO 3: PRUEBAS DE ACCIONES SEGÚN TIPO
+ * PUNTO 3 T4: PRUEBAS DE ACCIONES SEGÚN TIPO
  *
  * Casos 13 a 16
  * 
