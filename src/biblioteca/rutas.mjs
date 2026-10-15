@@ -18,6 +18,7 @@
  */
 
 import { Router } from 'express';
+import { obtenerAccionRecurso } from './acciones.mjs';
 
 /**
  * Valida un número entero recibido en los parámetros
@@ -111,62 +112,6 @@ export function crearRutasBiblioteca(pool) {
       // la página solicitada.
       const desplazamiento = (pagina - 1) * limite;
 
-     
-/**
- * ----------------------------------------------------------
- * CONSULTAS SQL PARAMETRIZADAS DEL CATÁLOGO
- *
- * OBJETIVO:
- * Obtener los recursos de la página solicitada y el
- * número total de coincidencias de forma independiente.
- *
- * MOTIVO DE LA CORRECCIÓN:
- * COUNT(*) OVER() no permite recuperar el total cuando
- * OFFSET deja la página sin filas.
- *
- * Utilizamos un CTE (WITH) para aplicar exactamente los
- * mismos filtros al recuento y al listado.
- *
- * SEGURIDAD:
- * Los valores se envían mediante parámetros $1 a $5.
- * No se concatenan entradas del usuario en el SQL.
- * ----------------------------------------------------------
- */
-
-// Filtros comunes para el recuento y el listado.
-const filtrosSql = `
-FROM recurso AS r
-INNER JOIN categoria AS c
-  ON c.id = r.categoria_id
-WHERE r.estado_editorial = 'publicado'
-  AND c.activo = true
-
-  -- Filtrado opcional por curso.
-  -- EXISTS evita duplicar recursos asociados a varios cursos.
-  AND (
-    $1::integer IS NULL
-    OR EXISTS (
-      SELECT 1
-      FROM recurso_curso AS rc
-      WHERE rc.recurso_id = r.id
-        AND rc.curso_id = $1::integer
-    )
-  )
-
-  -- Filtrado opcional por categoría.
-  AND (
-    $2::integer IS NULL
-    OR r.categoria_id = $2::integer
-  )
-
-  -- Búsqueda de texto en título o descripción.
-  AND (
-    $3::text = ''
-    OR r.titulo ILIKE '%' || $3::text || '%'
-    OR COALESCE(r.descripcion, '') ILIKE '%' || $3::text || '%'
-  )
-`;
-
 /**
 * CONSULTA PRINCIPAL
 *
@@ -191,8 +136,57 @@ WITH coincidencias AS (
     r.estado_editorial,
     r.url,
     c.id AS categoria_id,
-    c.nombre AS categoria
-  ${filtrosSql}
+    c.nombre AS categoria,
+
+    -- Cuenta los ejemplares disponibles del recurso.
+    (
+      SELECT COUNT(*)::integer
+      FROM ejemplar AS e
+      WHERE e.recurso_id = r.id
+        AND e.estado_servicio = 'disponible'
+    ) AS ejemplares_disponibles,
+
+    -- Metadatos descriptivos del documento digital.
+    md.formato AS formato_digital,
+    md.version_documento AS version_digital,
+    md.descarga_disponible
+
+  FROM recurso AS r
+
+  INNER JOIN categoria AS c
+    ON c.id = r.categoria_id
+
+  -- Relación opcional: solo los recursos digitales
+  -- disponen de metadatos en esta tabla.
+  LEFT JOIN metadato_digital AS md
+    ON md.recurso_id = r.id
+
+  WHERE r.estado_editorial = 'publicado'
+    AND c.activo = true
+
+    -- Filtro opcional por curso sin duplicar recursos.
+    AND (
+      $1::integer IS NULL
+      OR EXISTS (
+        SELECT 1
+        FROM recurso_curso AS rc
+        WHERE rc.recurso_id = r.id
+          AND rc.curso_id = $1::integer
+      )
+    )
+
+    -- Filtro opcional por categoría.
+    AND (
+      $2::integer IS NULL
+      OR r.categoria_id = $2::integer
+    )
+
+    -- Búsqueda por título o descripción.
+    AND (
+      $3::text = ''
+      OR r.titulo ILIKE '%' || $3::text || '%'
+      OR COALESCE(r.descripcion, '') ILIKE '%' || $3::text || '%'
+    )
 ),
 recuento AS (
   SELECT COUNT(*)::integer AS total
@@ -208,8 +202,16 @@ SELECT
   pagina.estado_editorial,
   pagina.url,
   pagina.categoria_id,
-  pagina.categoria
+  pagina.categoria,
+
+  -- Información para las acciones según tipo.
+  pagina.ejemplares_disponibles,
+  pagina.formato_digital,
+  pagina.version_digital,
+  pagina.descarga_disponible
+
 FROM recuento
+
 LEFT JOIN LATERAL (
   SELECT *
   FROM coincidencias
@@ -237,18 +239,63 @@ const resultado = await pool.query(sql, valores);
 const total = resultado.rows[0]?.total ?? 0;
 
 /**
-* Si la página está vacía, el LEFT JOIN devuelve una fila
-* cuyo identificador de recurso es NULL.
-*
-* Por eso excluimos las filas sin recurso antes de generar
-* la respuesta JSON.
-*
-* También eliminamos el campo interno "total", que no
-* debe repetirse dentro de cada recurso.
-*/
+ * ============================================================
+ * CONSTRUCCIÓN DE LA RESPUESTA DEL CATÁLOGO
+ * 
+ * Transformar los resultados de PostgreSQL en fichas
+ * que incluyan la acción correspondiente a cada tipo.
+ *
+ * Los campos auxiliares obtenidos mediante SQL se utilizan
+ * para calcular las acciones, pero no se devuelven como
+ * propiedades independientes de cada ficha.
+ *
+ * La función obtenerAccionRecurso() diferencia:
+ * - Físico: solicitar préstamo.
+ * - Digital: descarga pendiente de integración.
+ * - Enlace: abrir dirección HTTPS.
+ *
+ * No se incluyen datos personales de propietarios.
+ * ============================================================
+ */
+
 const datos = resultado.rows
-.filter(fila => fila.id !== null)
-.map(({ total: _total, ...recurso }) => recurso);
+  // La página vacía produce una fila sin recurso.
+  // La excluimos para devolver correctamente datos: [].
+  .filter(fila => fila.id !== null)
+
+  // Construimos la ficha pública y su acción.
+  .map(({
+    total: _total,
+    ejemplares_disponibles,
+    formato_digital,
+    version_digital,
+    descarga_disponible,
+    ...recurso
+  }) => {
+
+    // Preparamos los metadatos del documento digital,
+    // si el recurso dispone de ellos.
+    const metadatos = recurso.tipo === 'digital'
+      ? {
+          formato: formato_digital,
+          version_documento: version_digital,
+          descarga_disponible
+        }
+      : null;
+
+    // Calculamos la acción correspondiente al tipo.
+    const accion = obtenerAccionRecurso(recurso, {
+      ejemplaresDisponibles: ejemplares_disponibles,
+      metadatos
+    });
+
+    // Devolvemos la ficha de catálogo junto a la acción.
+    return {
+      ...recurso,
+      accion
+    };
+  });
+
 
 // Respuesta pública del catálogo.
 res.json({
@@ -398,22 +445,78 @@ paginacion: {
         [id]
       );
 
-      // ------------------------------------------------------
-      // 5. RESPUESTA DEL DETALLE
-      //
-      // Agrupamos la ficha general, los cursos y las
-      // unidades físicas en una sola respuesta JSON.
-      //
-      // Para recursos digitales y enlaces, el array de
-      // ejemplares será siempre vacío.
-      // ------------------------------------------------------
-      res.json({
-        datos: {
-          ...recurso,
-          cursos: resultadoCursos.rows,
-          ejemplares
-        }
-      });
+     
+/**
+ * ============================================================
+ * ACCIONES EN EL DETALLE DEL RECURSO
+ *
+ * Incorporar al detalle la acción correspondiente
+ * al tipo del recurso consultado.
+ *
+ * FÍSICO:
+ * Contamos los ejemplares disponibles para determinar
+ * si se puede mostrar la solicitud de préstamo.
+ *
+ * DIGITAL:
+ * Consultamos sus metadatos descriptivos sin ofrecer
+ * todavía una descarga protegida.
+ *
+ * ENLACE:
+ * Utilizamos la URL HTTPS almacenada en el recurso.
+ *
+ * SEGURIDAD:
+ * No se consultan ni devuelven datos personales.
+ * ============================================================
+ */
+
+// 1. Contamos los ejemplares disponibles del recurso físico.
+// Para documentos digitales y enlaces el valor será cero.
+const ejemplaresDisponibles = recurso.tipo === 'fisico'
+? ejemplares.filter(
+    ejemplar => ejemplar.estado_servicio === 'disponible'
+  ).length
+: 0;
+
+// 2. Consultamos los metadatos únicamente si el recurso
+// es digital. No recuperamos archivos ni rutas privadas.
+let metadatos = null;
+
+if (recurso.tipo === 'digital') {
+const resultadoMetadatos = await pool.query(
+  `SELECT
+     formato,
+     version_documento,
+     descarga_disponible
+   FROM metadato_digital
+   WHERE recurso_id = $1`,
+  [id]
+);
+
+metadatos = resultadoMetadatos.rows[0] ?? null;
+}
+
+// 3. Construimos la acción mediante la función compartida.
+// Así aplicamos las mismas reglas que en el listado.
+const accion = obtenerAccionRecurso(recurso, {
+ejemplaresDisponibles,
+metadatos
+});
+
+// 4. Devolvemos el detalle completo del catálogo.
+//
+// Los ejemplares físicos incluyen únicamente su código,
+// estado y conservación, nunca información del propietario.
+//
+// La descarga protegida sigue pendiente de integración.
+res.json({
+datos: {
+  ...recurso,
+  cursos: resultadoCursos.rows,
+  ejemplares,
+  accion
+}
+});
+
 
     } catch (error) {
       // Delegamos los errores inesperados al middleware

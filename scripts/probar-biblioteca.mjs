@@ -479,6 +479,126 @@ const detalleManual = await peticion(
   
   console.log('\nPrivacidad de los ejemplares: correcta');
 
+/**
+ * ============================================================
+ * AULA CIRCULAR - BIBLIOTECA Y DOCUMENTOS
+ * PUNTO 3: PRUEBAS DE ACCIONES SEGÚN TIPO
+ *
+ * Casos 13 a 16
+ * 
+ * Comprobar que las respuestas del catálogo indican
+ * la acción adecuada para recursos físicos, digitales
+ * y enlaces.
+ *
+ * ALCANCE:
+ * Solo comprobamos los metadatos de las acciones.
+ * No ejecutamos préstamos ni descargas protegidas.
+ *
+ * SEGURIDAD:
+ * No se muestran cookies, contraseñas ni tokens.
+ * ============================================================
+ */
+
+// ------------------------------------------------------------
+// CASO 13: ACCIÓN DE UN RECURSO FÍSICO
+//
+// El Manual de SQL tiene dos ejemplares disponibles.
+// Debe permitir representar la solicitud de préstamo.
+// ------------------------------------------------------------
+
+const accionManual = detalleManual.contenido.datos.accion;
+
+assert.equal(accionManual.tipo, 'solicitar_prestamo');
+assert.equal(accionManual.habilitada, true);
+assert.equal(accionManual.ejemplaresDisponibles, 2);
+
+console.log('\nCaso 13 - Acción del Manual de SQL');
+console.log('Esperado: solicitar_prestamo, habilitada, 2 ejemplares');
+console.log('Observado:', accionManual);
+
+// ------------------------------------------------------------
+// CASO 14: ACCIÓN DE UN RECURSO DIGITAL
+//
+// La guía tiene metadatos PDF, versión v1.
+// Su descarga continúa deshabilitada porque todavía
+// no se ha integrado el sistema de archivos protegidos.
+// ------------------------------------------------------------
+
+const accionDigital = detalleDigital.contenido.datos.accion;
+
+assert.equal(accionDigital.tipo, 'descargar');
+assert.equal(accionDigital.habilitada, false);
+assert.equal(accionDigital.descargaDisponible, false);
+assert.equal(accionDigital.formato, 'PDF');
+assert.equal(accionDigital.version, 'v1');
+assert.equal(accionDigital.url, null);
+
+console.log('\nCaso 14 - Acción de la guía digital');
+console.log('Esperado: descargar deshabilitada, PDF, v1');
+console.log('Observado:', accionDigital);
+
+// ------------------------------------------------------------
+// CASO 15: ACCIÓN DE UN RECURSO DE TIPO ENLACE
+//
+// El recurso 4 contiene la documentación de PostgreSQL.
+// Debe ofrecer una URL HTTPS válida.
+// ------------------------------------------------------------
+
+const detalleEnlace = await peticion(
+  'GET',
+  '/api/biblioteca/4'
+);
+
+assert.equal(detalleEnlace.codigo, 200);
+
+const accionEnlace = detalleEnlace.contenido.datos.accion;
+
+assert.equal(accionEnlace.tipo, 'abrir_enlace');
+assert.equal(accionEnlace.habilitada, true);
+assert.equal(
+  accionEnlace.url,
+  'https://www.postgresql.org/docs/'
+);
+
+console.log('\nCaso 15 - Acción de enlace externo');
+console.log('Esperado: abrir_enlace habilitada, URL HTTPS');
+console.log('Observado:', accionEnlace);
+
+// ------------------------------------------------------------
+// CASO 16: COHERENCIA ENTRE LISTADO Y DETALLE
+//
+// Comprobamos que una misma ficha tenga la misma acción
+// tanto en el listado como en su endpoint de detalle.
+// ------------------------------------------------------------
+
+for (const detalle of [
+  detalleManual,
+  detalleDigital,
+  detalleEnlace
+]) {
+  const recursoDetalle = detalle.contenido.datos;
+
+  const recursoListado = listado.contenido.datos.find(
+    recurso => recurso.id === recursoDetalle.id
+  );
+
+  assert.ok(
+    recursoListado,
+    `No aparece el recurso ${recursoDetalle.id} en el listado`
+  );
+
+  assert.deepEqual(
+    recursoListado.accion,
+    recursoDetalle.accion,
+    `Acción diferente para el recurso ${recursoDetalle.id}`
+  );
+}
+
+console.log('\nCaso 16 - Acciones de listado y detalle');
+console.log('Esperado: acciones equivalentes');
+console.log('Observado: acciones equivalentes');
+
+
 // CASO 8: Límite mayor que veinte.
 // La API debe rechazar el parámetro incorrecto.
 const limiteInvalido = await peticion(
