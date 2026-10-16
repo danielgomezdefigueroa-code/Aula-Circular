@@ -5,7 +5,7 @@
 
 **Aula Circular** es una aplicación web responsive ccuyo objetivo es centralizar la biblioteca del centro, facilitar la cesión, préstamo e intercambio de libros entre alumnado y organizar la documentación académica.
 
-## ✨ Funcionalidades
+## ✨ Funcionalidades previstas del proyecto completo
 
 * 🏠 **Inicio** — Registro, acceso y novedades.
 * 📚 **Biblioteca** — Recursos físicos, digitales y enlaces.
@@ -48,3 +48,7 @@ El proyecto utiliza **HTML, CSS y JavaScript sin frameworks de cliente**, junto 
 [![Node.js](https://img.shields.io/badge/Node.js-24-339933?style=for-the-badge\&logo=node.js\&logoColor=white)](https://nodejs.org/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-4169E1?style=for-the-badge\&logo=postgresql\&logoColor=white)](https://www.postgresql.org/)
 
+
+## Laboratorio del sprint 1
+
+El código de esta rama implementa un catálogo de ejemplo con búsqueda. Las cuentas, préstamos, archivos privados y roles del proyecto completo aún no están implementados. Consulta [la guía de instalación y código](docs/GUIA-LABORATORIO.md).

@@ -1,5 +1,5 @@
 /* --- Datos ficticios para el catálogo local ---
-    Este archivo contiene 13 recursos de ejemplo que se utilizan
+    Este archivo contiene 9 recursos de ejemplo que se utilizan
     cuando no hay conexión a la base de datos PostgreSQL o para
     pruebas iniciales del sprint 1.
     Los recursos cubren las tres áreas del centro:

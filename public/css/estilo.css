@@ -105,6 +105,8 @@ header {
   font-weight: 750;
   letter-spacing: .03em;
   font-size: clamp(1.5rem, 4vw, 2rem);
+  color: inherit;
+  text-decoration: none;
 }
 
 /* --- Nav principal ---
@@ -133,6 +135,9 @@ header {
 }
 
 .nav-link:hover { background: rgba(255,255,255,.2); }
+
+/* Enlace de la página actual (lo marca el shell con aria-current). */
+.nav-link[aria-current="page"] { background: rgba(255,255,255,.25); font-weight: 700; }
 
 /* --- MODOS RESPONSIVE ---
     Las media queries se aplican de fuera hacia dentro:
@@ -236,7 +241,7 @@ header {
 }
 
 /* --- Insignias por tipo ---
-    Cada tipo de recurso (préstamo, anuncio, digital, enlace)
+    Cada tipo de recurso (préstamo, anuncio y digital)
     tiene un borde y color de fondo característico.
     Sirven para identificar rápidamente la naturaleza del recurso. */
 .insignia {
@@ -252,10 +257,8 @@ header {
 .t-prestamo { border-color: #17614d; background: #e5f2ea; }
 .t-anuncio  { border-color: #7a4b00; background: #fff5dc; }
 .t-digital  { border-color: #274a8a; background: #e8eefb; }
-.t-enlace   { border-color: #5b3a8a; background: #f0e9fa; }
 
 li h3 { font-size: 1.1rem; margin: .25rem 0; }
-#estado { margin-top: 1rem; }
 
 /* --- Accesibility y reduced motion ---
     Estilos para cursor y outline visible.
@@ -275,8 +278,8 @@ header a:focus-visible, header button:focus-visible { outline-color: white; }
     Estilos específicos de la sección de catálogo.
     Controles de filtro, etiquetas y estado del contador. */
 
-.presentacion h1 { font-size: clamp(1.8rem, 4vw, 3rem); line-height: 1.15; margin: 8px 0 16px; }
-.presentacion h2 { margin: 24px 0 12px; }
+h1 { font-size: clamp(1.8rem, 4vw, 3rem); line-height: 1.15; margin: 8px 0 16px; }
+h2 { margin: 24px 0 12px; }
 
 .etiqueta {
   font-size: .75rem;
@@ -305,7 +308,6 @@ header a:focus-visible, header button:focus-visible { outline-color: white; }
   cursor: pointer;
   white-space: nowrap;
 }
-.filtros-lab .casilla label { white-space: nowrap; display: inline-flex; align-items: center; }
 .filtros-lab input[type=checkbox] {
   width: 18px;
   height: 18px;
@@ -317,3 +319,100 @@ header a:focus-visible, header button:focus-visible { outline-color: white; }
 .tarjeta { overflow-wrap: anywhere; }
 .tarjeta .estado { font-size: .85rem; font-weight: 700; }
 #lab-cuenta { margin-top: 1rem; }
+
+/* --- Cuenta: registro, acceso y estados (tarea 2.2.3) ---
+    Formularios con etiqueta visible, ayuda y error junto a cada campo.
+    El resumen de errores recibe el foco; sus enlaces llevan a cada campo. */
+
+[hidden] { display: none !important; }
+
+.cuenta { margin: 1.5rem 0 2rem; }
+.cuenta-estado { min-height: 1.5rem; color: #355b43; }
+
+.cuenta-cambio { display: flex; flex-wrap: wrap; gap: 12px; margin: 12px 0; }
+
+.form-auth {
+  display: block;
+  max-width: 34rem;
+  background: white;
+  border: 1px solid #d0dcd4;
+  border-radius: 12px;
+  padding: 1.25rem;
+}
+.form-auth h3 { font-size: 1.2rem; margin-bottom: 1rem; }
+
+.campo { margin-bottom: 1.1rem; }
+.campo label { display: block; font-weight: 650; margin-bottom: 4px; }
+.campo input, .campo select { width: 100%; min-height: 44px; }
+.campo select {
+  padding: 10px 12px;
+  border: 1px solid #687a70;
+  border-radius: 8px;
+  font: inherit;
+  background: white;
+}
+.ayuda { display: block; font-size: .9rem; color: #3d5246; margin-bottom: 6px; }
+.fila-clave { display: flex; gap: 8px; align-items: stretch; }
+.fila-clave input { width: auto; flex: 1; }
+
+.campo input[aria-invalid="true"], .campo select[aria-invalid="true"] { border: 2px solid #9b1c1c; }
+.campo-error { color: #9b1c1c; font-weight: 700; font-size: .95rem; margin-top: 6px; }
+.campo-error:empty { display: none; }
+
+.resumen-errores {
+  max-width: 34rem;
+  margin: 12px 0;
+  padding: 12px 16px;
+  background: #fdecea;
+  border: 2px solid #9b1c1c;
+  border-radius: 8px;
+}
+.resumen-errores h3 { font-size: 1rem; margin-bottom: 6px; }
+.resumen-errores p + p { margin-top: 4px; }
+.resumen-errores a { color: #7d1414; font-weight: 700; }
+
+.boton-sec {
+  background: transparent;
+  color: #216343;
+  border: 2px solid #216343;
+  min-height: 44px;
+  font-weight: 650;
+}
+.boton-sec[aria-pressed="true"] { background: #216343; color: white; }
+button[type="submit"] { min-height: 44px; font-weight: 700; }
+button[aria-disabled="true"] { opacity: .65; cursor: progress; }
+
+.aviso-cuenta {
+  max-width: 40rem;
+  padding: 1rem 1.25rem;
+  background: #e5f2ea;
+  border-left: 6px solid #216343;
+  border-radius: 8px;
+}
+.aviso-cuenta h3 { font-size: 1.2rem; margin-bottom: 8px; }
+.aviso-cuenta p + p { margin-top: 8px; }
+
+.zona-sesion {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  margin-top: .5rem;
+}
+
+.area { min-height: 0; }
+
+select:focus-visible { outline: 3px solid #db7868; outline-offset: 3px; }
+
+/* --- Pie común ---
+    Pie compartido por todas las páginas: mismo ancho que el
+    contenido, tono suave y separación ligera del cuerpo. */
+.pie {
+  max-width: 850px;
+  margin: 0 auto 2rem;
+  padding: 1rem;
+  border-top: 1px solid #d0dcd4;
+  color: #3d5246;
+  font-size: .9rem;
+  text-align: center;
+}

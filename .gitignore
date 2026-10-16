@@ -3,5 +3,8 @@
 almacen_privado/
 copias_locales/
 *.log
+
 conocimiento/
 AGENTS.md
+
+.cuentas-ensayo.json

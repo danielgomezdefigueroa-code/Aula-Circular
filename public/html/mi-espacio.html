@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Aula Circular · Mi espacio</title>
+  <link rel="stylesheet" href="../css/estilo.css">
+</head>
+<body>
+    <header>
+      <div class="max-w">
+        <a class="brand" href="index.html">Aula Circular</a>
+        <button type="button" id="menu-boton" class="menu-boton" aria-expanded="false" aria-controls="menu-principal">Abrir menú</button>
+        <nav id="menu-principal" class="nav" aria-label="Navegación principal">
+          <a href="index.html" class="nav-link">Inicio</a>
+          <a href="biblioteca.html" class="nav-link" data-area="biblioteca" hidden>Biblioteca</a>
+          <a href="libros.html" class="nav-link" data-area="libros" hidden>Libros</a>
+          <a href="documentacion.html" class="nav-link" data-area="documentacion" hidden>Documentación</a>
+          <a href="mi-espacio.html" class="nav-link" data-area="mi-espacio" hidden>Mi espacio</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="contenido">
+      <p id="aviso-sesion" class="resumen-errores" role="alert" hidden></p>
+      <p id="aviso-estado" class="aviso-cuenta" role="status" aria-live="polite" hidden></p>
+
+      <section class="seccion area" aria-labelledby="titulo-mi-espacio">
+        <h1 id="titulo-mi-espacio">Mi espacio</h1>
+        <!-- Zona de sesión (alias y cierre de sesión). La gestiona shell.mjs;
+             vive en esta página y está disponible para toda cuenta con sesión. -->
+        <div id="zona-sesion" class="zona-sesion" hidden>
+          <h2><span id="sesion-alias"></span></h2>
+          <button type="button" id="boton-salir" class="boton-sec">Cerrar sesión</button>
+        </div>
+      </section>
+    </main>
+
+    <footer class="pie">
+      <p>Aula Circular · Centro ficticio · Datos de ensayo</p>
+    </footer>
+
+    <!-- Shell común: sesión, menú por permisos, avisos y cierre de sesión. -->
+    <script type="module" src="../mjs/shell.mjs"></script>
+  </body>
+</html>

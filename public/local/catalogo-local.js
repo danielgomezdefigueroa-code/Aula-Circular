@@ -15,7 +15,7 @@
        mostrados o un mensaje de "no hay coincidencias".
 
     Dependencias:
-    - `datos.js` -> `recursosAula` (array de 13 recursos ficticios).
+    - `datos.js` -> `recursosAula` (array de 9 recursos ficticios).
     - `motor.js` -> `motorAula.filtrar()`, `motorAula.normalizar()`.
 
     Selectores HTML esperados (debes tener estos elementos en index.html):

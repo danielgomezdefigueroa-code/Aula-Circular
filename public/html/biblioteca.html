@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Aula Circular · Biblioteca</title>
+  <link rel="stylesheet" href="../css/estilo.css">
+</head>
+<body>
+    <header>
+      <div class="max-w">
+        <a class="brand" href="index.html">Aula Circular</a>
+        <button type="button" id="menu-boton" class="menu-boton" aria-expanded="false" aria-controls="menu-principal">Abrir menú</button>
+        <nav id="menu-principal" class="nav" aria-label="Navegación principal">
+          <a href="index.html" class="nav-link">Inicio</a>
+          <a href="biblioteca.html" class="nav-link" data-area="biblioteca" hidden>Biblioteca</a>
+          <a href="libros.html" class="nav-link" data-area="libros" hidden>Libros</a>
+          <a href="documentacion.html" class="nav-link" data-area="documentacion" hidden>Documentación</a>
+          <a href="mi-espacio.html" class="nav-link" data-area="mi-espacio" hidden>Mi espacio</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="contenido">
+      <p id="aviso-sesion" class="resumen-errores" role="alert" hidden></p>
+      <p id="aviso-estado" class="aviso-cuenta" role="status" aria-live="polite" hidden></p>
+
+      <section class="seccion area" aria-labelledby="titulo-biblioteca">
+        <h1 id="titulo-biblioteca">Biblioteca</h1>
+        <p class="area-estado" role="status" aria-live="polite"></p>
+        <ul class="tarjeta-grid area-lista" data-muestra="biblioteca"></ul>
+      </section>
+    </main>
+
+    <footer class="pie">
+      <p>Aula Circular · Centro ficticio · Datos de ensayo</p>
+    </footer>
+
+    <!-- Datos de ejemplo y muestra temporal del área.
+         Se retira cuando esta página consulte la API (ver muestra-area.js). -->
+    <script src="../local/datos.js"></script>
+    <script src="../local/muestra-area.js"></script>
+
+    <!-- Shell común: sesión, menú por permisos, avisos y cierre de sesión. -->
+    <script type="module" src="../mjs/shell.mjs"></script>
+  </body>
+</html>

@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Aula Circular · Entrar</title>
+  <link rel="stylesheet" href="../css/estilo.css">
+</head>
+<body>
+    <header>
+      <div class="max-w">
+        <span class="brand">Aula Circular</span>
+      </div>
+    </header>
+    <main id="contenido">
+      <!-- Página de acceso: el index llama aquí cuando no hay sesión.
+           Al entrar o al registrarse se pasa a index.html; allí se ve el
+           estado de las cuentas pendientes o suspendidas. -->
+      <section class="seccion" aria-labelledby="titulo-login">
+        <h1 id="titulo-login" tabindex="-1">Tu cuenta de Aula Circular.</h1>
+
+        <div id="cuenta" class="cuenta" aria-labelledby="titulo-login">
+          <p id="aviso-carga" class="resumen-errores" role="alert">Los formularios no están activos. Abre esta página desde el servidor (por ejemplo http://127.0.0.1:3000), no como archivo, y con JavaScript activado.</p>
+          <p id="cuenta-estado" class="cuenta-estado" role="status" aria-live="polite"></p>
+          <div id="resumen-errores" class="resumen-errores" role="alert" tabindex="-1" hidden></div>
+
+          <div id="cuenta-visitante">
+            <div class="cuenta-cambio" role="group" aria-label="Elegir formulario">
+              <button type="button" id="ir-registro" class="boton-sec" aria-pressed="false">Crear cuenta</button>
+              <button type="button" id="ir-acceso" class="boton-sec" aria-pressed="true">Entrar</button>
+            </div>
+
+            <form id="form-registro" class="form-auth" method="post" novalidate aria-labelledby="titulo-registro" hidden>
+              <h3 id="titulo-registro">Crear cuenta</h3>
+              <div class="campo">
+                <label for="reg-alias">Alias</label>
+                <span class="ayuda" id="reg-alias-ayuda">Es el nombre que verán otras personas. Usa un alias ficticio.</span>
+                <input id="reg-alias" name="alias" type="text" autocomplete="nickname" required aria-describedby="reg-alias-ayuda reg-alias-error">
+                <p class="campo-error" id="reg-alias-error"></p>
+              </div>
+              <div class="campo">
+                <label for="reg-correo">Correo electrónico</label>
+                <span class="ayuda" id="reg-correo-ayuda">Lo usarás para entrar. En esta práctica usa uno ficticio, como ana@example.test.</span>
+                <input id="reg-correo" name="correo" type="email" autocomplete="email" required aria-describedby="reg-correo-ayuda reg-correo-error">
+                <p class="campo-error" id="reg-correo-error"></p>
+              </div>
+              <div class="campo">
+                <label for="reg-curso">Curso solicitado</label>
+                <span class="ayuda" id="reg-curso-ayuda">Un docente confirmará que perteneces a este curso.</span>
+                <select id="reg-curso" name="curso" required aria-describedby="reg-curso-ayuda reg-curso-error">
+                  <option value="">Selecciona un curso</option>
+                  <option value="DAW-1">DAW-1</option>
+                  <option value="DAW-2">DAW-2</option>
+                </select>
+                <p class="campo-error" id="reg-curso-error"></p>
+              </div>
+              <div class="campo">
+                <label for="reg-contrasena">Contraseña</label>
+                <span class="ayuda" id="reg-contrasena-ayuda">De 15 a 128 caracteres. Puede ser una frase con espacios.</span>
+                <div class="fila-clave">
+                  <input id="reg-contrasena" name="contrasena" type="password" autocomplete="new-password" required aria-describedby="reg-contrasena-ayuda reg-contrasena-error">
+                  <button type="button" class="boton-sec" data-ver-clave="reg-contrasena" aria-pressed="false">Mostrar</button>
+                </div>
+                <p class="campo-error" id="reg-contrasena-error"></p>
+              </div>
+              <button type="submit" id="boton-registro">Crear cuenta</button>
+            </form>
+
+            <form id="form-acceso" class="form-auth" method="post" novalidate aria-labelledby="titulo-acceso">
+              <h3 id="titulo-acceso">Entrar</h3>
+              <div class="campo">
+                <label for="acc-correo">Correo electrónico</label>
+                <input id="acc-correo" name="correo" type="email" autocomplete="email" required aria-describedby="acc-correo-error">
+                <p class="campo-error" id="acc-correo-error"></p>
+              </div>
+              <div class="campo">
+                <label for="acc-contrasena">Contraseña</label>
+                <div class="fila-clave">
+                  <input id="acc-contrasena" name="contrasena" type="password" autocomplete="current-password" required aria-describedby="acc-contrasena-error">
+                  <button type="button" class="boton-sec" data-ver-clave="acc-contrasena" aria-pressed="false">Mostrar</button>
+                </div>
+                <p class="campo-error" id="acc-contrasena-error"></p>
+              </div>
+              <button type="submit" id="boton-acceso">Entrar</button>
+            </form>
+          </div>
+
+          <div id="cuenta-pendiente" class="aviso-cuenta" hidden>
+            <h3 id="titulo-pendiente-texto">Validación docente pendiente</h3>
+            <p id="texto-pendiente"></p>
+            <p>Cuando te validen, entra con tu correo y tu contraseña. No necesitas registrarte otra vez.</p>
+            <div class="cuenta-cambio">
+              <button type="button" id="boton-comprobar" class="boton-sec">Comprobar mi estado</button>
+              <button type="button" id="boton-ir-acceso" class="boton-sec">Ir a Entrar</button>
+            </div>
+          </div>
+
+          <div id="cuenta-activa" class="aviso-cuenta" hidden>
+            <h3>Cuenta activa</h3>
+            <p>Hola, <span id="alias-activo"></span>. Ya puedes usar Biblioteca, Libros y Documentación desde el menú.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="pie">
+      <p>Aula Circular · Centro ficticio · Datos de ensayo</p>
+    </footer>
+
+    <script type="module" src="../mjs/login.mjs"></script>
+  </body>
+</html>

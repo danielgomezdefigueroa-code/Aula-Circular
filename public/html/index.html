@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Aula Circular · Inicio</title>
+  <link rel="stylesheet" href="../css/estilo.css">
+</head>
+<body>
+    <header>
+      <div class="max-w">
+        <a class="brand" href="index.html">Aula Circular</a>
+        <button type="button" id="menu-boton" class="menu-boton" aria-expanded="false" aria-controls="menu-principal">Abrir menú</button>
+        <nav id="menu-principal" class="nav" aria-label="Navegación principal">
+          <a href="index.html" class="nav-link">Inicio</a>
+          <a href="biblioteca.html" class="nav-link" data-area="biblioteca" hidden>Biblioteca</a>
+          <a href="libros.html" class="nav-link" data-area="libros" hidden>Libros</a>
+          <a href="documentacion.html" class="nav-link" data-area="documentacion" hidden>Documentación</a>
+          <a href="mi-espacio.html" class="nav-link" data-area="mi-espacio" hidden>Mi espacio</a>
+        </nav>
+      </div>
+    </header>
+    <main id="contenido">
+
+      <p id="aviso-sesion" class="resumen-errores" role="alert" hidden></p>
+      <p id="aviso-estado" class="aviso-cuenta" role="status" aria-live="polite" hidden></p>
+
+      <section id="inicio" class="seccion" aria-labelledby="titulo-inicio">
+        <h1 id="titulo-inicio">Catálogo de muestra</h1>
+        <p><strong>Biblioteca:</strong> recursos del centro, como libros, revistas y documentos.</p>
+        <p><strong>Libros:</strong> materiales del alumnado, como trabajos y proyectos.</p>
+        <p><strong>Documentación:</strong> información y formularios por curso, como horarios y guías </p>
+        <br>
+        <!-- La cuenta (registro, acceso y sus estados) vive en login.html.
+             El index la llama al abrirse: sin sesión se vuelve a login.html. -->
+        <div class="filtros-lab">
+          <div>
+            <label for="lab-seccion">Área</label>
+            <select id="lab-seccion">
+              <option value="todas">Todas las áreas</option>
+              <option value="biblioteca">Biblioteca</option>
+              <option value="libros">Libros</option>
+              <option value="documentacion">Documentación</option>
+            </select>
+          </div>
+          <div>
+            <label for="lab-busqueda">Buscar por título o curso</label>
+            <input id="lab-busqueda" type="search" placeholder="Por ejemplo: programación">
+          </div>
+          <div>
+            <label class="casilla" for="lab-disponibles">
+              <input type="checkbox" id="lab-disponibles">
+              <span>Solo disponibles o publicados</span>
+            </label>
+          </div>
+        </div>
+        <p id="lab-cuenta" role="status" aria-live="polite"></p>
+        <ul id="lab-catalogo" class="tarjeta-grid"></ul>
+      </section>
+    </main>
+
+    <footer class="pie">
+      <p>Aula Circular · Centro ficticio · Datos de ensayo</p>
+    </footer>
+
+    <script src="../local/datos.js"></script>
+    <script src="../local/motor.js"></script>
+    <script src="../local/catalogo-local.js"></script>
+    <script type="module" src="../mjs/shell.mjs"></script>
+
+  </body>
+</html>
