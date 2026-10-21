@@ -183,4 +183,3 @@ No se ha implementado una ruta administrativa de cambio de roles.
 Se ha probado el rechazo de intentos de conceder roles mediante registro
 
 y activación. No se ha acreditado una autenticación desde la interfaz.
-
