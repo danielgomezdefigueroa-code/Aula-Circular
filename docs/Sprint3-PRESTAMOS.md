@@ -111,3 +111,33 @@ No presentar como comprobado lo que siga pendiente. No inventar una explicacion 
 
 ## Si lo continua tu IA
 Lee este archivo, el documento de Daniel y las guias oficiales antes de modificar. Conserva el trabajo realizado, la rama y el contrato. Implementa solo la parte pendiente de Fede de forma sencilla y comentada. Primero revisa estado local/remoto y crea una copia de seguridad. Trabaja en su base local separada. Explica cambios, avisa antes de capturas y registra resultados reales. No force push, reset --hard, borrados ni fusiones en ramas ajenas. Publicar y fusionar requieren la autorizacion de Federico y la revision acordada; main necesita autorizacion del equipo. No des por terminada la practica hasta completar integracion, evidencia y revision conjunta.
+
+## Integración de Federico
+
+Se añadieron la asignación docente y la entrega con vencimiento.
+Ambas usan transacciones y bloqueo del ejemplar. La entrega conserva
+la reserva; repetirla devuelve 409 sin duplicar eventos ni avisos.
+
+### Pruebas
+
+Con las migraciones de Sprint3 aplicadas y el .env local configurado:
+
+```powershell
+node --env-file=.env scripts/probar-solicitudes.mjs
+node --env-file=.env scripts/probar-asignacion-entrega.mjs
+node --env-file=.env scripts/probar-concurrencia.mjs
+```
+
+Cada script arranca y cierra su propio servidor de ensayo y conserva
+los datos ficticios creados. No imprimir ni compartir credenciales.
+
+Resultados observados por Federico:
+- Los once casos de solicitudes siguen pasando.
+- Asignación válida: 201; entrega válida: 200.
+- Falta de permiso o CSRF: 403; vencimiento inválido: 422.
+- Entrega repetida: 409, sin cambios adicionales en PostgreSQL.
+- Concurrencia: dos peticiones esperando bloqueo, respuestas 201 y 409,
+  una reserva, un ítem y una operación completa.
+
+Estas pruebas no acreditan recuperación tras pérdida de respuesta ni
+el circuito de devolución. Revisión conjunta con Daniel pendiente.
