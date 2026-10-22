@@ -1,11 +1,13 @@
 # Sprint 2: cuentas y continuación del trabajo
 
+> **Documento histórico (Sprint 2).** Describe un estado intermedio y no es la guía de montaje actual. La aplicación activa usa `src/aplicacion.mjs`; `src/cuentas/*` y `tests/*` son legado. Consulta [GUIA-LABORATORIO.md](GUIA-LABORATORIO.md) y [REVISION-2026-10-22.md](REVISION-2026-10-22.md).
+
 ## Estado y reparto
 Rama: Sprint2, creada desde sprint1-servidor-y-datos. Daniel prepara esquema, contraseñas y registro; Federico continúa sesiones, CSRF, acceso/salida, activación y permisos. La integración y revisión son conjuntas.
 La base de cuentas está probada directamente en PostgreSQL. Todavía no hay rutas HTTP nuevas montadas en src/app.mjs ni autenticación completa. Faltan semillas activa/docente/admin y su alta local segura.
 
 ## Archivos
-- sql/002_cuentas.sql: tablas curso, usuario y usuario_rol; dos cursos ficticios.
+- sql/historico/002_cuentas.sql: tablas curso, usuario y usuario_rol; dos cursos ficticios (documento histórico).
 - src/cuentas/contraseñas.mjs: scrypt asíncrono con sal aleatoria; crearHash y comprobarClave.
 - src/cuentas/registro.mjs: validarRegistro y registrarCuenta; alumno pendiente, campos rol/estado ignorados y respuesta genérica al repetir correo.
 - tests/cuentas.test.mjs: dos pruebas locales de contraseña y validación.

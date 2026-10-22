@@ -1,6 +1,6 @@
 /* --- Shell común de las páginas (componente compartido) ---
     Sesión, menú por permisos, avisos, cierre de sesión y menú móvil
-    de las cinco páginas con menú. login.html no lo carga.
+    de las páginas con menú. login.html no lo carga.
 
     Al incluirlo, cada página obtiene:
       - comprobación de sesión: sin sesión vuelve a login.html; con
@@ -13,10 +13,10 @@
 
     Contrato para los módulos de cada página:
       - listo: promesa con la identidad de la primera comprobación
-        ({ alias, estado, roles }) o null si no hay sesión;
+        ({ id, alias, estado, roles, cursos }) o null si no hay sesión;
       - evento 'aula:sesion' en document: identidad actualizada tras
         cada recomprobación (solo en popstate/pageshow);
-      - pedir(ruta) y enviar(ruta, cuerpo): GET y POST con CSRF;
+      - pedir(ruta) y enviar(ruta, cuerpo, metodo): GET y POST/PATCH con CSRF;
       - leerJson(respuesta): lectura tolerante;
       - irALogin(): vuelve a login.html sin dejar entrada en el historial;
       - puedeVerAreas(identidad): representación visual; la API autoriza;
@@ -40,9 +40,18 @@ function leerToken(cuerpo) {
   return cuerpo?.datos?.csrf ?? cuerpo?.datos?.token ?? cuerpo?.csrf ?? cuerpo?.token ?? null;
 }
 
-function leerIdentidad(cuerpo) {
+export function leerIdentidad(cuerpo) {
   const d = cuerpo?.datos ?? cuerpo ?? {};
-  return { alias: String(d.alias ?? ''), estado: String(d.estado ?? ''), roles: d.roles };
+  return {
+    id: d.id ?? null,
+    alias: String(d.alias ?? ''),
+    estado: String(d.estado ?? ''),
+    roles: Array.isArray(d.roles) ? d.roles : [],
+    curso_solicitado: d.curso_solicitado ?? null,
+    curso_confirmado: d.curso_confirmado ?? null,
+    curso_solicitado_id: d.curso_solicitado_id ?? null,
+    curso_confirmado_id: d.curso_confirmado_id ?? null
+  };
 }
 
 /* --- Red --- */
@@ -54,11 +63,11 @@ async function pedirCsrf() {
 }
 
 // POST con cookie de sesión y X-CSRF-Token. Si el token caducó (403), lo renueva y reintenta una vez.
-export async function enviar(ruta, cuerpo) {
+export async function enviar(ruta, cuerpo, metodo = 'POST') {
   for (let intento = 0; intento < 2; intento++) {
     if (!estado.csrf) await pedirCsrf();
     const respuesta = await fetch(API + ruta, {
-      method: 'POST',
+      method: metodo,
       credentials: 'same-origin',
       cache: 'no-store',
       headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': estado.csrf },
@@ -98,13 +107,21 @@ export function puedeVerAreas(identidad) {
   return !Array.isArray(identidad.roles) || identidad.roles.some((r) => r === 'alumno' || r === 'docente');
 }
 
+export function puedeGestionarAnuncios(identidad) {
+  return Boolean(identidad && identidad.estado === 'activo' &&
+    Array.isArray(identidad.roles) && identidad.roles.includes('alumno'));
+}
+
 // Mi espacio está disponible para cualquier sesión (allí vive el cierre
 // de sesión); las tres áreas protegidas, solo para cuentas activas.
 function pintarMenu(identidad) {
   const activa = identidad ? puedeVerAreas(identidad) : false;
+  const roles = Array.isArray(identidad?.roles) ? identidad.roles : [];
   document.querySelectorAll('[data-area]').forEach((enlace) => {
     const soloActiva = enlace.dataset.area !== 'mi-espacio';
-    enlace.hidden = !identidad || (soloActiva && !activa);
+    const soloDocente = enlace.dataset.rol === 'docente';
+    enlace.hidden = !identidad || (soloActiva && !activa) ||
+      (soloDocente && !roles.includes('docente'));
   });
 }
 
@@ -135,6 +152,21 @@ function montarMenu() {
   });
   menu.querySelectorAll('a').forEach((a) =>
     a.addEventListener('click', () => abrir(false)));
+}
+
+/* --- Enlace de validación docente ---
+    Se añade una sola vez al menú común. pintarMenu lo oculta salvo que
+    la sesión sea de un docente activo. */
+function insertarEnlaceDocencia() {
+  const menu = $('menu-principal');
+  if (!menu || menu.querySelector('a[href="docencia.html"]')) return;
+  const enlace = document.createElement('a');
+  enlace.href = 'docencia.html';
+  enlace.className = 'nav-link';
+  enlace.dataset.area = 'docencia';
+  enlace.dataset.rol = 'docente';
+  enlace.textContent = 'Validación';
+  menu.append(enlace);
 }
 
 /* --- Página actual --- */
@@ -221,6 +253,7 @@ window.addEventListener('popstate', () => recomprobar());
 
 /* --- Arranque --- */
 document.documentElement.classList.add('js');
+insertarEnlaceDocencia();
 marcarActual();
 montarMenu();
 export const listo = comprobarSesion();

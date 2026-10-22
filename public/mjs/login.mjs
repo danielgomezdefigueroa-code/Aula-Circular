@@ -4,13 +4,13 @@
     a la página principal (index.html). Usa la API del servidor montado
     (src/cuentas/*), con los nombres de campo del Sprint 2:
       GET  /api/csrf     token CSRF (se guarda solo en memoria)
-      POST /api/registro alias, correo, cursoSolicitadoId (entero), clave
+      GET  /api/cursos   cursos activos para el registro
+      POST /api/registro alias, correo, cursoId (entero), clave
       POST /api/acceso   correo y clave; regenera la sesión
       GET  /api/yo       identidad y estado actuales
 
-    El mapa CURSOS traduce el código visible del curso (DAW-1) al id de
-    la tabla curso; si el contrato pasara a enviar el código tal cual,
-    solo se tocan estas líneas y las de los formularios.
+    Los cursos se cargan de la API. El valor de cada opción es el id
+    que espera el servidor en el campo cursoId.
 
     Reglas que cumple:
     - Nada se guarda en localStorage, sessionStorage ni IndexedDB.
@@ -25,18 +25,15 @@
 const API = '/api';
 const DESTINO = 'index.html';   // la página principal: se pasa al entrar o al registrarse
 
-// Código visible del curso -> id de la tabla curso (sql/002_cuentas.sql).
-const CURSOS = { 'DAW-1': 1, 'DAW-2': 2 };
-
 // Campo del formulario -> id del control. El servidor devuelve errores 422 como
 // { error: 'DATOS_INVALIDOS', campos: { nombreDelCampo: 'mensaje' } }. Se admiten
 // los dos nombres usados por las variantes del servidor (clave/contrasena).
 const CAMPOS = {
-  registro: { alias: 'reg-alias', correo: 'reg-correo', curso: 'reg-curso', cursoSolicitadoId: 'reg-curso', contrasena: 'reg-contrasena', clave: 'reg-contrasena' },
+  registro: { alias: 'reg-alias', correo: 'reg-correo', cursoId: 'reg-curso', curso: 'reg-curso', contrasena: 'reg-contrasena', clave: 'reg-contrasena' },
   acceso: { correo: 'acc-correo', contrasena: 'acc-contrasena', clave: 'acc-contrasena' }
 };
 
-const estado = { csrf: null, identidad: null, ocupado: false };
+const estado = { csrf: null, identidad: null, ocupado: false, cursosCargados: false };
 
 const $ = (id) => document.getElementById(id);
 
@@ -78,6 +75,36 @@ async function enviar(ruta, cuerpo) {
 
 async function pedir(ruta) {
   return fetch(API + ruta, { credentials: 'same-origin', cache: 'no-store' });
+}
+
+// El select se rellena con los cursos activos de la base. El valor es el id
+// numérico que espera POST /api/registro en el campo cursoId.
+async function cargarCursos() {
+  const respuesta = await pedir('/cursos');
+  if (!respuesta.ok) throw new Error('cursos');
+  const cuerpo = await leerJson(respuesta);
+  const cursos = Array.isArray(cuerpo?.datos) ? cuerpo.datos : [];
+  const select = $('reg-curso');
+  select.replaceChildren();
+  const inicial = document.createElement('option');
+  inicial.value = '';
+  inicial.textContent = 'Selecciona un curso';
+  select.append(inicial);
+  let validos = 0;
+  for (const curso of cursos) {
+    if (!Number.isSafeInteger(curso.id) || typeof curso.nombre !== 'string') continue;
+    const opcion = document.createElement('option');
+    opcion.value = String(curso.id);
+    opcion.textContent = curso.nombre;
+    select.append(opcion);
+    validos += 1;
+  }
+  estado.cursosCargados = validos > 0;
+  if (!estado.cursosCargados) {
+    select.disabled = true;
+    $('boton-registro').disabled = true;
+    anunciar('No hay cursos activos. El registro no está disponible.');
+  }
 }
 
 /* --- Mensajes accesibles --- */
@@ -269,7 +296,7 @@ $('form-registro').addEventListener('submit', async (evento) => {
   const cuerpo = {
     alias: $('reg-alias').value.trim(),
     correo: $('reg-correo').value.trim(),
-    cursoSolicitadoId: CURSOS[$('reg-curso').value] ?? 0,
+    cursoId: Number($('reg-curso').value),
     clave: $('reg-contrasena').value
   };
   const credenciales = { correo: cuerpo.correo, clave: cuerpo.clave };
@@ -364,4 +391,12 @@ window.addEventListener('pageshow', (e) => {
 $('aviso-carga').hidden = true;   // si el módulo no carga, este aviso sigue visible
 mostrarPanel('visitante', false);
 elegirFormulario('acceso');
+try {
+  await cargarCursos();
+} catch {
+  estado.cursosCargados = false;
+  $('reg-curso').disabled = true;
+  $('boton-registro').disabled = true;
+  anunciar('No se pudieron cargar los cursos. El acceso sigue disponible.');
+}
 comprobarSesion();   // si ya hay sesión, se pasa directo a la página principal

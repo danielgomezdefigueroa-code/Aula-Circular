@@ -1,9 +1,11 @@
 # Aula-Circular
+
+Instrucciones del desarrollo local: [cuentas y sesiones](docs/CUENTAS.md) y [anuncios propios](docs/ANUNCIOS.md).
 # 📚 Aula Circular
 
 > 🌱 Plataforma web para la **gestión y reutilización de recursos educativos**.
 
-**Aula Circular** es una aplicación web responsive ccuyo objetivo es centralizar la biblioteca del centro, facilitar la cesión, préstamo e intercambio de libros entre alumnado y organizar la documentación académica.
+**Aula Circular** es una aplicación web responsive cuyo objetivo es centralizar la biblioteca del centro, facilitar la cesión, préstamo e intercambio de libros entre alumnado y organizar la documentación académica.
 
 ## ✨ Funcionalidades previstas del proyecto completo
 
@@ -49,6 +51,6 @@ El proyecto utiliza **HTML, CSS y JavaScript sin frameworks de cliente**, junto 
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-4169E1?style=for-the-badge\&logo=postgresql\&logoColor=white)](https://www.postgresql.org/)
 
 
-## Laboratorio del sprint 1
+## Estado actual
 
-El código de esta rama implementa un catálogo de ejemplo con búsqueda. Las cuentas, préstamos, archivos privados y roles del proyecto completo aún no están implementados. Consulta [la guía de instalación y código](docs/GUIA-LABORATORIO.md).
+La rama integra cuentas y sesiones, validación docente, anuncios propios y el catálogo de Biblioteca, Libros y Documentación contra la API. Los préstamos, reservas, la descarga de documentos y la administración de roles del proyecto completo aún no están implementados. Consulta [la guía de instalación y código](docs/GUIA-LABORATORIO.md).

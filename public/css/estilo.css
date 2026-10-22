@@ -263,7 +263,8 @@ li h3 { font-size: 1.1rem; margin: .25rem 0; }
 /* --- Accesibility y reduced motion ---
     Estilos para cursor y outline visible.
     Se respetan las preferencias de motion-reduced del usuario. */
-a:focus-visible, button:focus-visible, input:focus-visible {
+a:focus-visible, button:focus-visible, input:focus-visible,
+textarea:focus-visible, select:focus-visible {
   outline: 3px solid #db7868;
   outline-offset: 3px;
 }
@@ -341,9 +342,64 @@ h2 { margin: 24px 0 12px; }
 }
 .form-auth h3 { font-size: 1.2rem; margin-bottom: 1rem; }
 
+.form-datos {
+  display: block;
+  max-width: 44rem;
+  background: white;
+  border: 1px solid #d0dcd4;
+  border-radius: 12px;
+  padding: 1.25rem;
+}
+.form-datos h2, .form-datos h3 { margin-top: 0; }
+.form-datos fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
+.form-datos legend { font-size: 1.2rem; font-weight: 700; margin-bottom: 1rem; padding: 0; }
+
+.acciones-form, .acciones-tarjeta {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: 12px;
+}
+
+.paginacion {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: 1rem;
+}
+
+.perfil-datos {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 6px 16px;
+  margin: 1rem 0;
+}
+.perfil-datos dt { font-weight: 700; }
+.perfil-datos dd { margin: 0; overflow-wrap: anywhere; }
+
+.lista-anuncios .tarjeta { display: flex; flex-direction: column; }
+.lista-anuncios .tarjeta p { margin-top: 4px; }
+#mensaje { min-height: 1.5rem; white-space: pre-line; }
+
+.lista-historial {
+  display: block;
+  list-style: none;
+  padding: 0;
+  margin-top: 1rem;
+}
+.lista-historial li {
+  background: white;
+  border: 1px solid #d0dcd4;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 8px;
+}
+
 .campo { margin-bottom: 1.1rem; }
 .campo label { display: block; font-weight: 650; margin-bottom: 4px; }
-.campo input, .campo select { width: 100%; min-height: 44px; }
+.campo input, .campo select, .campo textarea { width: 100%; min-height: 44px; }
 .campo select {
   padding: 10px 12px;
   border: 1px solid #687a70;
@@ -351,11 +407,20 @@ h2 { margin: 24px 0 12px; }
   font: inherit;
   background: white;
 }
+.campo textarea {
+  min-height: 96px;
+  padding: 10px 12px;
+  border: 1px solid #687a70;
+  border-radius: 8px;
+  font: inherit;
+  resize: vertical;
+}
 .ayuda { display: block; font-size: .9rem; color: #3d5246; margin-bottom: 6px; }
 .fila-clave { display: flex; gap: 8px; align-items: stretch; }
 .fila-clave input { width: auto; flex: 1; }
 
-.campo input[aria-invalid="true"], .campo select[aria-invalid="true"] { border: 2px solid #9b1c1c; }
+.campo input[aria-invalid="true"], .campo select[aria-invalid="true"],
+.campo textarea[aria-invalid="true"] { border: 2px solid #9b1c1c; }
 .campo-error { color: #9b1c1c; font-weight: 700; font-size: .95rem; margin-top: 6px; }
 .campo-error:empty { display: none; }
 
@@ -401,8 +466,6 @@ button[aria-disabled="true"] { opacity: .65; cursor: progress; }
 }
 
 .area { min-height: 0; }
-
-select:focus-visible { outline: 3px solid #db7868; outline-offset: 3px; }
 
 /* --- Pie común ---
     Pie compartido por todas las páginas: mismo ancho que el

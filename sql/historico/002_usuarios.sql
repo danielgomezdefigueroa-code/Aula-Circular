@@ -1,5 +1,5 @@
 -- Tarea 2.2.2 · cuentas, cursos y roles (modelo de referencia de 06 · Datos).
--- Ejecutar una vez, después de 001_laboratorio.sql:  psql -d aula_circular -f sql/002_usuarios.sql
+-- Modelo histórico. No ejecutar sobre el esquema actual: sql/historico/002_usuarios.sql
 -- La tabla de sesiones la crea connect-pg-simple (createTableIfMissing) mientras dure el laboratorio.
 
 CREATE TABLE curso (

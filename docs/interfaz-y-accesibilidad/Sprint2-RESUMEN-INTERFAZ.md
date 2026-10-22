@@ -1,5 +1,7 @@
 # Sprint 2 · Resumen de la interfaz y el montaje local
 
+> Nota posterior: `public/local` se retiró cuando Inicio, Biblioteca y Documentación pasaron a consultar la API. Este documento conserva el estado del sprint en que se creó. Para el estado actual, consulta [GUIA-LABORATORIO.md](../GUIA-LABORATORIO.md) y [REVISION-2026-10-22.md](../REVISION-2026-10-22.md).
+
 **Fecha:** 16 de octubre de 2026
 **Rama:** `sprint1-interfaz-y-accesibilidad`
 
@@ -79,7 +81,7 @@ Avisa en `document` con el evento `aula:sesion` cuando recomprueba la sesión (i
 1. **Entrada `/` (decide el equipo)**: opción A, recomendada: borrar la puerta y añadir `app.get('/', res.redirect('/html/index.html'))` a `src/app.mjs`, antes de `express.static`; opción B: renombrar `html/index.html` a `inicio.html` y mantener la puerta.
 2. **Paso 3 (siguiente trabajo)**: un módulo de API por página. Biblioteca contra `/api/biblioteca`; Libros y Documentación mostrarán «todavía no disponible» si el servidor responde 404; Mi espacio queda hueco provisional. El Inicio ya está en su forma definitiva: sin secciones de área, sin el bloque muerto `#zona-forms` y cargando `shell.mjs` directamente.
 3. **Pruebas en navegador y teclado** (sin sesión, pendiente, activa, cierre y botón atrás) con A01 y D01. Con el recorrido anotado se preparará la **evidencia de la tarea 2.2.3** (PDF de ≤5 páginas y ≤10 MB).
-4. **Documentación**: actualizar `docs/GUIA-LABORATORIO.md`, que aún cita rutas antiguas (p. ej. `public/catalogo.mjs`).
+4. **Documentación**: `docs/GUIA-LABORATORIO.md` actualizada con las rutas de `public/laboratorio/`.
 5. **Sin decidir**: campos de filtro (buscar / solo disponibles) en las páginas de área; mostrar u ocultar la muestra según la sesión; ubicación del enlace «Ayuda»; nombre del endpoint de Mi espacio (coordinar con la tarea 2.2.5).
 
 ## 7. Ver también

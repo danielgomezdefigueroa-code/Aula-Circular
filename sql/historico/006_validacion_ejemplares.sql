@@ -9,7 +9,7 @@
 -- prestable por lo que no debe tener ejemplares.
 --
 -- DEPENDENCIA:
--- Ejecutar después de 005_catalogo_biblioteca.sql.
+-- Dependencia histórica: sql/historico/005_catalogo_biblioteca.sql.
 -- ============================================================
 BEGIN;
 -- ------------------------------------------------------------

@@ -28,7 +28,7 @@
       <section class="seccion area" aria-labelledby="titulo-biblioteca">
         <h1 id="titulo-biblioteca">Biblioteca</h1>
         <p class="area-estado" role="status" aria-live="polite"></p>
-        <ul class="tarjeta-grid area-lista" data-muestra="biblioteca"></ul>
+        <ul class="tarjeta-grid area-lista" aria-labelledby="titulo-biblioteca"></ul>
       </section>
     </main>
 
@@ -36,12 +36,7 @@
       <p>Aula Circular · Centro ficticio · Datos de ensayo</p>
     </footer>
 
-    <!-- Datos de ejemplo y muestra temporal del área.
-         Se retira cuando esta página consulte la API (ver muestra-area.js). -->
-    <script src="../local/datos.js"></script>
-    <script src="../local/muestra-area.js"></script>
-
-    <!-- Shell común: sesión, menú por permisos, avisos y cierre de sesión. -->
     <script type="module" src="../mjs/shell.mjs"></script>
+    <script type="module" src="../mjs/biblioteca.mjs"></script>
   </body>
 </html>

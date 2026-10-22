@@ -7,7 +7,7 @@
 -- ni la descarga protegida de archivos.
 --
 -- DEPENDENCIA:
--- Ejecutar después de 005_catalogo_biblioteca.sql.
+-- Dependencia histórica: sql/historico/005_catalogo_biblioteca.sql.
 --
 -- IMPORTANTE:
 -- No se almacenan archivos, rutas privadas ni tokens.
