@@ -67,7 +67,8 @@ export function rutasAnuncios(pool,sesionNecesaria,activaNecesaria){
     if(!req.usuario.roles.some(r=>['alumno','docente'].includes(r))) return res.status(403).json({error:'PERMISO_INSUFICIENTE'});
     const p=paginacion(req,res);if(!p) return;
     const r=await pool.query(`SELECT a.id,r.titulo,r.descripcion,r.asignatura,r.edicion,r.isbn,c.nombre AS curso,
-      e.conservacion,e.codigo,a.modalidad FROM anuncio a JOIN ejemplar e ON e.id=a.ejemplar_id
+      e.conservacion,e.codigo,e.id AS ejemplar_id,a.modalidad,
+      NOT EXISTS(SELECT 1 FROM reserva_activa ra WHERE ra.ejemplar_id=e.id) AS disponible FROM anuncio a JOIN ejemplar e ON e.id=a.ejemplar_id
       JOIN recurso r ON r.id=e.recurso_id JOIN curso c ON c.id=r.curso_id
       WHERE a.estado_revision='publicado' AND e.estado_servicio='habilitado'
       ORDER BY a.id DESC LIMIT $1 OFFSET $2`,[p.limite,(p.pagina-1)*p.limite]);

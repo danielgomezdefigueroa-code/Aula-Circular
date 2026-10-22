@@ -50,3 +50,5 @@ El proyecto utiliza **HTML, CSS y JavaScript sin frameworks de cliente**, junto 
 [![Node.js](https://img.shields.io/badge/Node.js-24-339933?style=for-the-badge\&logo=node.js\&logoColor=white)](https://nodejs.org/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-4169E1?style=for-the-badge\&logo=postgresql\&logoColor=white)](https://www.postgresql.org/)
 
+
+Cesiones y moderación: [guía y comprobaciones](docs/CESIONES.md). Pantalla: `/cesiones.html`.

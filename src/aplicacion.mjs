@@ -6,6 +6,7 @@ import { randomBytes, randomUUID, createHash, timingSafeEqual } from 'node:crypt
 import { fileURLToPath } from 'node:url';
 import { crearHash, comprobarClave, claveValida, Ocupado } from './claves.mjs';
 import { rutasDocentes } from './docencia.mjs';
+import { rutasCesiones } from './cesiones.mjs';
 import { rutasAnuncios } from './anuncios.mjs';
 
 const token = () => randomBytes(32).toString('hex');
@@ -115,6 +116,7 @@ export async function crearAplicacion(pool, { origen, secreto, esquema='public',
   });
   app.get('/api/yo',sesionNecesaria,(req,res) => res.json({datos:req.usuario}));
   app.use('/api',rutasAnuncios(pool,sesionNecesaria,activaNecesaria));
+  app.use('/api',rutasCesiones(pool,sesionNecesaria,activaNecesaria));
   app.use('/api/gestion',rutasDocentes(pool,sesionNecesaria,activaNecesaria));
   app.post('/api/salida',sesionNecesaria,async(req,res) => {
     await destruir(req);res.clearCookie('aula.sid',cookie);res.sendStatus(204);
