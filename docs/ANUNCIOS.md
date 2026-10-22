@@ -2,11 +2,11 @@
 
 ## Qué funciona
 
-La cuenta activa con rol alumno abre `/mi-espacio.html`. Puede crear un ejemplar propio, guardar un borrador, editarlo y enviarlo a revisión. El propietario se obtiene de la sesión; no se admite como dato del formulario. El curso solicitado/confirmado del perfil sigue siendo de consulta: este formulario selecciona el curso del libro, no cambia el curso del usuario.
+La cuenta activa con rol alumno abre `/html/mi-espacio.html`. Puede crear un ejemplar propio, guardar un borrador, editarlo y enviarlo a revisión. El propietario se obtiene de la sesión; no se admite como dato del formulario. El curso solicitado/confirmado del perfil sigue siendo de consulta: este formulario selecciona el curso del libro, no cambia el curso del usuario.
 
 Campos del anuncio: título, descripción opcional, curso del libro, asignatura, edición, ISBN opcional, conservación y una única modalidad (cesión, préstamo o intercambio). El código del ejemplar se genera en el servidor. La fotografía no forma parte de este paso.
 
-`/libros.html` lista solamente anuncios publicados sin datos de contacto ni correo. Guardar o enviar un anuncio no lo publica. La revisión y aprobación docente de anuncios corresponde al siguiente paso; el panel docente actual solo valida cuentas.
+`/html/libros.html` lista solamente anuncios publicados sin datos de contacto ni correo. Guardar o enviar un anuncio no lo publica. La revisión y aprobación docente de anuncios corresponde al siguiente paso; el panel docente actual solo valida cuentas.
 
 ## Rutas
 
@@ -37,7 +37,7 @@ Las tablas de operaciones y reservas son la base de integridad del siguiente mó
 
 Ejecuta `npm.cmd run migrar` con Node 24. Aplica `004_anuncios.sql` sin repetir migraciones anteriores ni borrar datos. Reinicia el servidor si no estás usando `--watch`.
 
-1. Entra como alumno activo y abre Mis anuncios desde Mi cuenta.
+1. Entra como alumno activo y abre Mis anuncios desde Mi espacio (`/html/mi-espacio.html`).
 2. Crea un libro ficticio con edición y conservación claras. Puedes dejar vacío el ISBN.
 3. Guarda el borrador. Abre detalle/historial y comprueba el evento crear.
 4. Edita el borrador y guarda. Comprueba el evento editar.

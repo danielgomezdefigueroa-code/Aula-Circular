@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Aula Circular · Mi espacio</title>
+  <link rel="stylesheet" href="../css/estilo.css">
+</head>
+<body>
+    <header>
+      <div class="max-w">
+        <a class="brand" href="index.html">Aula Circular</a>
+        <button type="button" id="menu-boton" class="menu-boton" aria-expanded="false" aria-controls="menu-principal">Abrir menú</button>
+        <nav id="menu-principal" class="nav" aria-label="Navegación principal">
+          <a href="index.html" class="nav-link">Inicio</a>
+          <a href="biblioteca.html" class="nav-link" data-area="biblioteca" hidden>Biblioteca</a>
+          <a href="libros.html" class="nav-link" data-area="libros" hidden>Libros</a>
+          <a href="documentacion.html" class="nav-link" data-area="documentacion" hidden>Documentación</a>
+          <a href="mi-espacio.html" class="nav-link" data-area="mi-espacio" hidden>Mi espacio</a>
+        </nav>
+      </div>
+    </header>
+
+    <p><a href="cesiones.html">Cesiones, solicitudes e historial</a></p>
+<main id="contenido">
+      <p id="aviso-sesion" class="resumen-errores" role="alert" hidden></p>
+      <p id="aviso-estado" class="aviso-cuenta" role="status" aria-live="polite" hidden></p>
+
+      <section class="seccion area" aria-labelledby="titulo-mi-espacio">
+        <h1 id="titulo-mi-espacio">Mi espacio</h1>
+
+        <div id="zona-sesion" class="zona-sesion" hidden>
+          <h2><span id="sesion-alias"></span></h2>
+          <button type="button" id="boton-salir" class="boton-sec">Cerrar sesión</button>
+        </div>
+
+        <dl id="perfil-datos" class="perfil-datos" hidden>
+          <dt>Estado</dt>
+          <dd id="perfil-estado"></dd>
+          <dt>Roles</dt>
+          <dd id="perfil-roles"></dd>
+          <dt>Curso solicitado</dt>
+          <dd id="perfil-curso-solicitado"></dd>
+          <dt>Curso confirmado</dt>
+          <dd id="perfil-curso-confirmado"></dd>
+        </dl>
+
+        <p id="mensaje" role="status" aria-live="polite" tabindex="-1"></p>
+
+        <p id="aviso-alumno" class="aviso-cuenta" hidden>
+          La gestión de anuncios está disponible para cuentas de alumnado activas.
+        </p>
+        <p id="enlace-docencia" hidden>
+          <a href="docencia.html">Ir a Validación docente</a>
+        </p>
+      </section>
+
+      <section id="seccion-anuncios" class="seccion area" aria-labelledby="titulo-anuncios" hidden>
+        <h2 id="titulo-anuncios">Mis anuncios</h2>
+
+        <form id="anuncio" class="form-datos">
+          <fieldset id="campos" disabled>
+            <legend id="leyenda">Nuevo borrador</legend>
+
+            <div class="campo">
+              <label for="titulo">Título</label>
+              <input id="titulo" name="titulo" required maxlength="120">
+            </div>
+            <div class="campo">
+              <label for="curso">Curso del libro</label>
+              <select id="curso" name="cursoId" required>
+                <option value="">Selecciona un curso</option>
+              </select>
+            </div>
+            <div class="campo">
+              <label for="asignatura">Asignatura</label>
+              <input id="asignatura" name="asignatura" required maxlength="100">
+            </div>
+            <div class="campo">
+              <label for="edicion">Edición</label>
+              <input id="edicion" name="edicion" required maxlength="100" placeholder="Por ejemplo: edición 2024">
+            </div>
+            <div class="campo">
+              <label for="isbn">ISBN (opcional)</label>
+              <input id="isbn" name="isbn" maxlength="25">
+            </div>
+            <div class="campo">
+              <label for="conservacion">Estado de conservación</label>
+              <textarea id="conservacion" name="conservacion" required maxlength="500" rows="4" placeholder="Explica si tiene marcas, desgaste o páginas dañadas"></textarea>
+            </div>
+            <div class="campo">
+              <label for="modalidad">Modalidad</label>
+              <select id="modalidad" name="modalidad" required>
+                <option value="cesion">Cesión</option>
+                <option value="prestamo">Préstamo</option>
+                <option value="intercambio">Intercambio</option>
+              </select>
+            </div>
+            <div class="campo">
+              <label for="descripcion">Descripción (opcional)</label>
+              <textarea id="descripcion" name="descripcion" maxlength="2000" rows="4"></textarea>
+            </div>
+
+            <p>Se creará un ejemplar propio con un código único. No incluyas teléfonos ni direcciones.</p>
+            <div class="acciones-form">
+              <button type="submit" id="guardar">Guardar borrador</button>
+              <button type="button" id="nuevo" class="boton-sec">Empezar otro anuncio</button>
+            </div>
+          </fieldset>
+        </form>
+
+        <h3>Mis publicaciones</h3>
+        <div class="acciones-form">
+          <button type="button" id="actualizar" class="boton-sec">Actualizar listado</button>
+        </div>
+        <ul id="anuncios" class="tarjeta-grid area-lista lista-anuncios" aria-labelledby="titulo-anuncios"></ul>
+        <div class="paginacion">
+          <button type="button" id="anterior" class="boton-sec" disabled>Anterior</button>
+          <span id="pagina" aria-live="polite"></span>
+          <button type="button" id="siguiente" class="boton-sec" disabled>Siguiente</button>
+        </div>
+
+        <section id="detalle" class="seccion" aria-labelledby="titulo-historial" hidden>
+          <h3 id="titulo-historial">Historial del anuncio</h3>
+          <ul id="historial" class="lista-historial"></ul>
+        </section>
+      </section>
+    </main>
+
+    <footer class="pie">
+      <p>Aula Circular · Centro ficticio · Datos de ensayo</p>
+    </footer>
+
+    <script type="module" src="../mjs/shell.mjs"></script>
+    <script type="module" src="../mjs/mi-espacio.mjs"></script>
+  </body>
+</html>

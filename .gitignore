@@ -3,4 +3,8 @@
 almacen_privado/
 copias_locales/
 *.log
-.docente-local.json
+
+conocimiento/
+AGENTS.md
+
+.cuentas-ensayo.json

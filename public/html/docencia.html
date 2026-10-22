@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Aula Circular · Validación docente</title>
+  <link rel="stylesheet" href="../css/estilo.css">
+</head>
+<body>
+    <header>
+      <div class="max-w">
+        <a class="brand" href="index.html">Aula Circular</a>
+        <button type="button" id="menu-boton" class="menu-boton" aria-expanded="false" aria-controls="menu-principal">Abrir menú</button>
+        <nav id="menu-principal" class="nav" aria-label="Navegación principal">
+          <a href="index.html" class="nav-link">Inicio</a>
+          <a href="biblioteca.html" class="nav-link" data-area="biblioteca" hidden>Biblioteca</a>
+          <a href="libros.html" class="nav-link" data-area="libros" hidden>Libros</a>
+          <a href="documentacion.html" class="nav-link" data-area="documentacion" hidden>Documentación</a>
+          <a href="mi-espacio.html" class="nav-link" data-area="mi-espacio" hidden>Mi espacio</a>
+        </nav>
+      </div>
+    </header>
+
+    <p><a href="cesiones.html">Cesiones, solicitudes e historial</a></p>
+<main id="contenido">
+      <p id="aviso-sesion" class="resumen-errores" role="alert" hidden></p>
+      <p id="aviso-estado" class="aviso-cuenta" role="status" aria-live="polite" hidden></p>
+
+      <section class="seccion area" aria-labelledby="titulo-docencia">
+        <h1 id="titulo-docencia">Validación de cuentas</h1>
+        <p>Revisa la pertenencia al centro y confirma el curso antes de activar una cuenta.</p>
+        <p id="mensaje" class="area-estado" role="status" aria-live="polite" tabindex="-1"></p>
+        <ul id="cuentas" class="tarjeta-grid area-lista" aria-labelledby="titulo-docencia"></ul>
+        <div class="paginacion">
+          <button type="button" id="anterior" class="boton-sec" disabled>Anterior</button>
+          <span id="pagina" aria-live="polite"></span>
+          <button type="button" id="siguiente" class="boton-sec" disabled>Siguiente</button>
+        </div>
+      </section>
+    </main>
+
+    <footer class="pie">
+      <p>Aula Circular · Centro ficticio · Datos de ensayo</p>
+    </footer>
+
+    <script type="module" src="../mjs/shell.mjs"></script>
+    <script type="module" src="../mjs/docencia.mjs"></script>
+  </body>
+</html>

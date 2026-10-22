@@ -9,6 +9,15 @@ try {
   await cliente.query(`CREATE TABLE IF NOT EXISTS migracion (
     nombre text PRIMARY KEY, hash text NOT NULL, aplicada_en timestamptz NOT NULL DEFAULT now())`);
   const carpeta = new URL('../sql/migraciones/', import.meta.url);
+  // La primera entrega local usaba 005_cesiones, antes de integrar 005_documentos.
+  const cesionesAnterior = await cliente.query("SELECT hash FROM migracion WHERE nombre='005_cesiones.sql'");
+  if (cesionesAnterior.rowCount) {
+    const contenido = await readFile(new URL('006_cesiones.sql', carpeta),'utf8');
+    if (cesionesAnterior.rows[0].hash !== createHash('sha256').update(contenido).digest('hex')) {
+      throw new Error('La migración antigua de cesiones no coincide con 006_cesiones.sql');
+    }
+    await cliente.query("UPDATE migracion SET nombre='006_cesiones.sql' WHERE nombre='005_cesiones.sql'");
+  }
   for (const nombre of (await readdir(carpeta)).filter(n => n.endsWith('.sql')).sort()) {
     const sql = await readFile(new URL(nombre, carpeta),'utf8');
     const hash = createHash('sha256').update(sql).digest('hex');

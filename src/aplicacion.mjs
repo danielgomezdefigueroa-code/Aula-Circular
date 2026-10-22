@@ -8,6 +8,7 @@ import { crearHash, comprobarClave, claveValida, Ocupado } from './claves.mjs';
 import { rutasDocentes } from './docencia.mjs';
 import { rutasCesiones } from './cesiones.mjs';
 import { rutasAnuncios } from './anuncios.mjs';
+import { rutasCatalogo } from './catalogo.mjs';
 
 const token = () => randomBytes(32).toString('hex');
 const guardar = sesion => new Promise((ok,fallo) => sesion.save(e => e ? fallo(e) : ok()));
@@ -117,6 +118,7 @@ export async function crearAplicacion(pool, { origen, secreto, esquema='public',
   app.get('/api/yo',sesionNecesaria,(req,res) => res.json({datos:req.usuario}));
   app.use('/api',rutasAnuncios(pool,sesionNecesaria,activaNecesaria));
   app.use('/api',rutasCesiones(pool,sesionNecesaria,activaNecesaria));
+  app.use('/api',rutasCatalogo(pool,sesionNecesaria,activaNecesaria));
   app.use('/api/gestion',rutasDocentes(pool,sesionNecesaria,activaNecesaria));
   app.post('/api/salida',sesionNecesaria,async(req,res) => {
     await destruir(req);res.clearCookie('aula.sid',cookie);res.sendStatus(204);
@@ -126,11 +128,6 @@ export async function crearAplicacion(pool, { origen, secreto, esquema='public',
     const texto=String(req.query.q ?? '').trim().slice(0,80);
     const r=await pool.query('SELECT id,titulo,tipo FROM recurso_demo WHERE titulo ILIKE $1 ORDER BY id',['%'+texto+'%']);
     res.json({datos:r.rows});
-  });
-  app.get('/api/biblioteca',sesionNecesaria,activaNecesaria,(req,res) => {
-    if(!req.usuario.roles.some(r=>['alumno','docente'].includes(r))) return res.status(403).json({error:'PERMISO_INSUFICIENTE'});
-    // La biblioteca real aún no se ha implementado: nunca confundir demo con catálogo final.
-    res.status(501).json({error:'BIBLIOTECA_PENDIENTE_DE_IMPLEMENTAR'});
   });
   app.use(express.static(fileURLToPath(new URL('../public/',import.meta.url))));
   app.use((_req,res) => res.status(404).json({error:'NO_ENCONTRADO'}));

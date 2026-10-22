@@ -37,6 +37,37 @@ test('Anuncios propios, estados y concurrencia con PostgreSQL y HTTP reales',asy
     const {a,b,d,p}=sesiones;
     const datos={titulo:'Libro de programación',descripcion:'Ejemplo ficticio',cursoId:2,asignatura:'Programación',edicion:'2024',isbn:'9780306406157',conservacion:'Buen estado, sin páginas sueltas.',modalidad:'prestamo'};
     let id,ejemplar,version;
+
+    // Fixture mínimo de las dos áreas nuevas del catálogo.
+    await pool.query(`INSERT INTO recurso(origen,tipo,titulo,descripcion,curso_id,asignatura,edicion)
+      VALUES('centro','fisico','Recurso de biblioteca de prueba','Recurso ficticio',1,'General','2026')`);
+    await pool.query(`INSERT INTO ejemplar(recurso_id,codigo,conservacion)
+      SELECT id,'EJ-CAT-TEST','bueno' FROM recurso WHERE titulo='Recurso de biblioteca de prueba'`);
+    const doc=await pool.query(`INSERT INTO documento(codigo,titulo,curso_id)
+      VALUES('DOC-TEST','Documento de prueba',1) RETURNING id`);
+    const arch=await pool.query(`INSERT INTO archivo(nombre,tipo_mime,ruta)
+      VALUES('doc-test.pdf','application/pdf','documentos/doc-test.pdf') RETURNING id`);
+    await pool.query(`INSERT INTO documento_version(documento_id,numero_version,fecha,archivo_id,actual)
+      VALUES($1,1,'2026-10-22',$2,true)`,[doc.rows[0].id,arch.rows[0].id]);
+
+    await t.test('Catálogo de Biblioteca y Documentación sobre el esquema actual',async()=>{
+      assert.equal((await pedir({},'/api/biblioteca')).status,401);
+      assert.equal((await pedir(p,'/api/biblioteca')).status,403);
+      const biblioteca=await pedir(a,'/api/biblioteca');
+      assert.equal(biblioteca.status,200);
+      assert.equal(biblioteca.datos.length,1);
+      assert.equal(biblioteca.datos[0].seccion,'biblioteca');
+      assert.equal(biblioteca.datos[0].estado,'disponible');
+      assert.equal((await pedir(a,'/api/biblioteca?q=zzzz')).datos.length,0);
+
+      const documentacion=await pedir(d,'/api/documentacion');
+      assert.equal(documentacion.status,200);
+      assert.equal(documentacion.datos.length,1);
+      assert.equal(documentacion.datos[0].seccion,'documentacion');
+      assert.equal(documentacion.datos[0].version,1);
+      assert.equal((await pedir(a,'/api/documentacion?q=DOC-TEST')).datos.length,1);
+    });
+
     await t.test('Validación de campos, CSRF, cuenta activa y propiedad desde sesión',async()=>{
       assert.equal((await pedir({},'/api/mi-espacio')).status,401);
       assert.equal((await pedir(p,'/api/anuncios','POST',datos)).status,403);
