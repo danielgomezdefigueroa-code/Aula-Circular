@@ -10,6 +10,7 @@ import {
 import { crearRutasCuentas } from './cuentas/rutas.mjs';
 import { crearRutasGestion } from './cuentas/gestion.mjs';
 import { crearRutasBiblioteca } from './biblioteca/rutas.mjs';
+import { crearRutasDocumentos } from './documentos/rutas.mjs';
 
 const puerto = Number(process.env.PORT ?? 3000);
 
@@ -42,6 +43,8 @@ configurarSesiones(app, pool);
 // Espera la preparación del hash ficticio antes de aceptar peticiones.
 app.use('/api', await crearRutasCuentas(pool));
 app.use('/api/gestion', crearRutasGestion(pool));
+// T6: carga y publicación protegida de documentación.
+app.use('/api/documentos', crearRutasDocumentos(pool));
 
 app.get('/api/salud', async (_req, res, next) => {
   try {
