@@ -1,21 +1,27 @@
+
 /**
- * AULA CIRCULAR - T6
- * Alta, publicación y descarga autorizada de documentos protegidos.
+ * AULA CIRCULAR - BIBLIOTECA Y DOCUMENTOS
+ * Integración T6 con el modelo PostgreSQL del equipo.
+ *
+ * Tablas:
+ * - documento
+ * - documento_version
+ * - archivo
+ *
+ * Rutas:
+ * POST  /api/documentos
+ * PATCH /api/documentos/:id/publicar
+ * GET   /api/documentos/:id/descargar
+ *
+ * La sesión y el CSRF se configuran en src/app.mjs.
  */
 
 import { Router } from 'express';
-import { randomUUID } from 'node:crypto';
+import { randomBytes, createHash } from 'node:crypto';
 import { open } from 'node:fs/promises';
 import { constants } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
-
-import {
-  requiereSesion,
-  requiereCuentaActiva,
-  requiereRol,
-  requiereCsrf
-} from '../cuentas/sesiones.mjs';
 
 import {
   recibirArchivo,
@@ -28,59 +34,212 @@ const CARPETA_PRIVADA = fileURLToPath(
   new URL('../../almacen_privado/documentos/', import.meta.url)
 );
 
-function enteroPositivo(valor) {
-  if (typeof valor !== 'string' || !/^[1-9]\d*$/.test(valor)) {
+const NOMBRE_PRIVADO =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.(pdf|png|jpg)$/;
+
+const TIPOS = {
+  PDF: 'application/pdf',
+  PNG: 'image/png',
+  JPG: 'image/jpeg'
+};
+
+/**
+ * Calcula la huella SHA-256 de un archivo.
+ * Devuelve 64 caracteres hexadecimales.
+ */
+function calcularSha256(contenido) {
+  return createHash('sha256')
+    .update(contenido)
+    .digest('hex');
+}
+
+/**
+ * Validar identificadores enteros positivos.
+ */
+function idPositivo(valor) {
+  if (
+    typeof valor !== 'string' ||
+    !/^[1-9]\d*$/.test(valor)
+  ) {
     return null;
   }
 
   const numero = Number(valor);
 
-  return Number.isSafeInteger(numero) && numero <= 2147483647
+  return Number.isSafeInteger(numero) &&
+    numero <= 2147483647
     ? numero
     : null;
 }
 
-function textoValido(valor, maximo) {
+/**
+ * Convertir versiones T6:
+ * v1 -> 1
+ * v2 -> 2
+ */
+function versionNumerica(valor) {
+  if (typeof valor !== 'string') {
+    return null;
+  }
+
+  const coincide = /^v([1-9]\d*)$/.exec(valor.trim());
+
+  return coincide
+    ? idPositivo(coincide[1])
+    : null;
+}
+
+function validarTexto(valor, limite) {
   return typeof valor === 'string' &&
     valor.trim().length >= 1 &&
-    valor.trim().length <= maximo;
+    valor.trim().length <= limite;
 }
 
-function errorHttp(res, codigo, estado = 400) {
-  return res.status(estado).json({ error: codigo });
+function errorHttp(res, error, estado = 400) {
+  return res.status(estado).json({ error });
 }
 
-export function crearRutasDocumentos(pool) {
+/**
+ * Autorización mediante el usuario autenticado
+ * por el servidor principal.
+ */
+function requiereRol(...roles) {
+  return (req, res, next) => {
+    if (!req.usuario) {
+      return errorHttp(res, 'SESION_REQUERIDA', 401);
+    }
+
+    if (
+      !Array.isArray(req.usuario.roles) ||
+      !roles.some(rol => req.usuario.roles.includes(rol))
+    ) {
+      return errorHttp(res, 'PERMISO_INSUFICIENTE', 403);
+    }
+
+    next();
+  };
+}
+
+/**
+ * Comprobar que un archivo privado existe
+ * y mantiene el tamaño registrado en PostgreSQL.
+ *
+ * Utilizamos un descriptor de archivo para
+ * comprobar y leer el mismo fichero.
+ */
+async function leerArchivoIntegro(registro) {
+  const nombre = registro.ruta;
+
+  if (
+    registro.almacenamiento_privado !== true ||
+    typeof nombre !== 'string' ||
+    !NOMBRE_PRIVADO.test(nombre) ||
+    !TIPOS[registro.formato]
+  ) {
+    return null;
+  }
+
+  const tamano = Number(registro.tamano_bytes);
+
+  if (
+    !Number.isSafeInteger(tamano) ||
+    tamano < 1 ||
+    tamano > 10485760
+  ) {
+    return null;
+  }
+
+  const ruta = path.join(CARPETA_PRIVADA, nombre);
+
+  let descriptor;
+
+  try {
+    descriptor = await open(
+      ruta,
+      constants.O_RDONLY |
+      (constants.O_NOFOLLOW ?? 0)
+    );
+
+    const info = await descriptor.stat();
+
+    if (
+      !info.isFile() ||
+      info.size !== tamano
+    ) {
+      return null;
+    }
+
+    const contenido = await descriptor.readFile();
+
+    if (contenido.length !== tamano) {
+      return null;
+    }
+
+    if (
+      typeof registro.sha256 !== 'string' ||
+      !/^[0-9a-f]{64}$/.test(registro.sha256) ||
+      calcularSha256(contenido) !== registro.sha256
+    ) {
+      return null;
+    }
+
+    return contenido;
+  } catch (error) {
+    if (
+      ['ENOENT', 'EACCES', 'EPERM', 'ELOOP']
+        .includes(error.code)
+    ) {
+      return null;
+    }
+
+    throw error;
+
+  } finally {
+    await descriptor?.close();
+  }
+}
+
+/**
+ * ==========================================================
+ * RUTAS DOCUMENTALES
+ * ==========================================================
+ *
+ * La aplicación principal proporciona:
+ * - sesionNecesaria
+ * - activaNecesaria
+ *
+ * La comprobación CSRF se realiza globalmente
+ * antes de registrar estas rutas.
+ */
+export function crearRutasDocumentos(
+  pool,
+  sesionNecesaria,
+  activaNecesaria
+) {
   const router = Router();
 
-  // Autenticación común a las tres rutas.
-  // El rol se valida individualmente en cada operación.
   router.use(
-    requiereSesion(pool),
-    requiereCuentaActiva
+    sesionNecesaria,
+    activaNecesaria
   );
 
   /**
-   * ==========================================================
+   * ========================================================
    * POST /api/documentos
-   * Alta docente en estado borrador.
    *
-   * Campos multipart/form-data:
-   * titulo, categoriaId, cursoId, version, archivo.
-   *
-   * cursoId vacío = documento general.
-   * ==========================================================
+   * Crear un documento en borrador.
+   * Solo permitido a docentes.
+   * ========================================================
    */
-
   router.post(
     '/',
     requiereRol('docente'),
-    requiereCsrf,
 
-    // Convertimos los errores de Multer en respuestas HTTP.
     (req, res, next) => {
       recibirArchivo(req, res, error => {
-        if (!error) return next();
+        if (!error) {
+          return next();
+        }
 
         if (error.code === 'LIMIT_FILE_SIZE') {
           return errorHttp(
@@ -107,21 +266,20 @@ export function crearRutasDocumentos(pool) {
       try {
         const {
           titulo,
-          categoriaId,
           cursoId,
           version
         } = req.body ?? {};
 
-        const categoria = enteroPositivo(categoriaId);
+        const curso =
+          cursoId === '' || cursoId === undefined
+            ? null
+            : idPositivo(cursoId);
 
-        const curso = cursoId === '' || cursoId === undefined
-          ? null
-          : enteroPositivo(cursoId);
+        const numero = versionNumerica(version);
 
         if (
-          !textoValido(titulo, 120) ||
-          !textoValido(version, 30) ||
-          categoria === null ||
+          !validarTexto(titulo, 120) ||
+          numero === null ||
           (
             cursoId !== '' &&
             cursoId !== undefined &&
@@ -135,136 +293,109 @@ export function crearRutasDocumentos(pool) {
           return errorHttp(res, 'ARCHIVO_REQUERIDO');
         }
 
-        // Comprobar la categoría en PostgreSQL.
-        const categorias = await pool.query(`
-          SELECT id, ambito
-          FROM categoria
-          WHERE id = $1
-            AND activo = true
-            AND ambito IN (
-              'biblioteca',
-              'documentacion'
-            )
-        `, [categoria]);
-
-        const categoriaActual = categorias.rows[0];
-
-        // Categorías del entorno de ensayo:
-        // 1: Material de estudio.
-        // 2: Documentos del centro.
-        if (
-          !categoriaActual ||
-          (
-            categoriaActual.ambito === 'biblioteca' &&
-            categoria !== 1
-          ) ||
-          (
-            categoriaActual.ambito === 'documentacion' &&
-            categoria !== 2
-          )
-        ) {
-          return errorHttp(res, 'CATEGORIA_NO_PERMITIDA');
-        }
-
-        // Comprobar que el curso existe y está activo.
+        // Validación del curso.
         if (curso !== null) {
-          const cursos = await pool.query(`
-            SELECT id
-            FROM curso
-            WHERE id = $1
-              AND activo = true
-          `, [curso]);
+          const existe = await pool.query(
+            `SELECT id
+             FROM curso
+             WHERE id = $1
+               AND activo = true`,
+            [curso]
+          );
 
-          if (cursos.rowCount === 0) {
+          if (!existe.rowCount) {
             return errorHttp(res, 'CURSO_NO_VALIDO');
           }
         }
 
-        // Validar y guardar en almacenamiento privado.
-        const archivo = await guardarArchivoPrivado(req.file);
+        // Validación y almacenamiento privado T6.
+        const archivo = await guardarArchivoPrivado(
+          req.file
+        );
+
         nombreInterno = archivo.nombreInterno;
 
-        // Iniciar transacción para los metadatos.
+        // El archivo ya ha sido validado por T6.
+        const sha256 = calcularSha256(req.file.buffer);
+
+        // Inicio de transacción PostgreSQL.
         cliente = await pool.connect();
+
         await cliente.query('BEGIN');
         transaccionIniciada = true;
 
-        const recurso = await cliente.query(`
-          INSERT INTO recurso (
+        // Código único para el documento.
+        const codigo =
+          'DOC-' +
+          randomBytes(8).toString('hex').toUpperCase();
+
+        // 1. Registrar documento.
+        const documento = await cliente.query(`
+          INSERT INTO documento (
+            codigo,
             titulo,
-            descripcion,
-            tipo,
-            origen,
-            categoria_id,
-            estado_editorial,
-            url
+            curso_id,
+            estado_editorial
           )
-          VALUES (
-            $1,
-            NULL,
-            'digital',
-            'centro',
-            $2,
-            'borrador',
-            NULL
-          )
-          RETURNING id, titulo, estado_editorial
-        `, [titulo.trim(), categoria]);
-
-        const recursoId = recurso.rows[0].id;
-
-        if (curso !== null) {
-          await cliente.query(`
-            INSERT INTO recurso_curso (
-              recurso_id,
-              curso_id
-            )
-            VALUES ($1, $2)
-          `, [recursoId, curso]);
-        }
-
-        await cliente.query(`
-          INSERT INTO metadato_digital (
-            recurso_id,
-            formato,
-            version_documento,
-            descarga_disponible
-          )
-          VALUES ($1, $2, $3, false)
+          VALUES ($1, $2, $3, 'borrador')
+          RETURNING id
         `, [
-          recursoId,
-          archivo.formato,
-          version.trim()
+          codigo,
+          titulo.trim(),
+          curso
         ]);
 
-        const archivoId = randomUUID();
+        const documentoId = documento.rows[0].id;
 
+        // 2. Registrar archivo protegido.
+        const resultadoArchivo = await cliente.query(`
+  INSERT INTO archivo (
+    nombre,
+    tipo_mime,
+    ruta,
+    almacenamiento_privado,
+    tamano_bytes,
+    formato,
+    paginas,
+    ancho,
+    alto,
+    sha256
+  )
+  VALUES (
+    $1, $2, $3, true,
+    $4, $5, $6, $7, $8, $9
+  )
+  RETURNING id
+`, [
+  nombreInterno,
+  TIPOS[archivo.formato],
+  nombreInterno,
+  archivo.tamano,
+  archivo.formato,
+  archivo.paginas,
+  archivo.ancho,
+  archivo.alto,
+  sha256
+]);
+
+        const archivoId = resultadoArchivo.rows[0].id;
+
+        // 3. Registrar versión documental.
         await cliente.query(`
-          INSERT INTO archivo_digital (
-            id,
-            recurso_id,
-            nombre_interno,
-            version_documento,
-            formato,
-            tamano_bytes,
-            paginas,
-            ancho,
-            alto
+          INSERT INTO documento_version (
+            documento_id,
+            numero_version,
+            fecha,
+            archivo_id,
+            actual
           )
           VALUES (
-            $1, $2, $3, $4, $5,
-            $6, $7, $8, $9
+            $1, $2, CURRENT_DATE, $3, true
           )
         `, [
-          archivoId,
-          recursoId,
-          nombreInterno,
-          version.trim(),
-          archivo.formato,
-          archivo.tamano,
-          archivo.paginas,
-          archivo.ancho,
-          archivo.alto
+          documentoId,
+          numero,
+          archivoId
         ]);
 
         await cliente.query('COMMIT');
@@ -274,10 +405,11 @@ export function crearRutasDocumentos(pool) {
 
         return res.status(201).json({
           datos: {
-            recursoId,
+            documentoId,
+            recursoId: documentoId,
             archivoId,
             titulo: titulo.trim(),
-            version: version.trim(),
+            version: 'v' + numero,
             formato: archivo.formato,
             estado: 'borrador'
           }
@@ -289,12 +421,12 @@ export function crearRutasDocumentos(pool) {
             await cliente.query('ROLLBACK');
           } catch {
             console.error(
-              'Fallo al revertir transacción documental'
+              'No se pudo revertir el alta documental'
             );
           }
         }
 
-        // Compensación si no se confirmó PostgreSQL.
+        // Evitar archivos huérfanos.
         if (!confirmado && nombreInterno) {
           try {
             await eliminarArchivoPrivado(nombreInterno);
@@ -313,6 +445,14 @@ export function crearRutasDocumentos(pool) {
           );
         }
 
+        if (error.code === '23505') {
+          return errorHttp(
+            res,
+            'DOCUMENTO_DUPLICADO',
+            409
+          );
+        }
+
         next(error);
 
       } finally {
@@ -322,23 +462,21 @@ export function crearRutasDocumentos(pool) {
   );
 
   /**
-   * ==========================================================
+   * ========================================================
    * PATCH /api/documentos/:id/publicar
    *
-   * Solo docente.
-   * Comprueba que el archivo existe antes de publicar.
-   * ==========================================================
+   * Publicar un documento que esté en borrador.
+   * Solo permitido a docentes.
+   * ========================================================
    */
-
   router.patch(
     '/:id/publicar',
     requiereRol('docente'),
-    requiereCsrf,
 
     async (req, res, next) => {
-      const recursoId = enteroPositivo(req.params.id);
+      const documentoId = idPositivo(req.params.id);
 
-      if (recursoId === null) {
+      if (!documentoId) {
         return errorHttp(res, 'ID_INVALIDO');
       }
 
@@ -347,32 +485,34 @@ export function crearRutasDocumentos(pool) {
 
       try {
         cliente = await pool.connect();
+
         await cliente.query('BEGIN');
         transaccionIniciada = true;
 
         const resultado = await cliente.query(`
           SELECT
-            r.id,
-            r.estado_editorial,
+            d.id,
+            d.estado_editorial,
             a.id AS archivo_id,
-            a.nombre_interno
-          FROM recurso r
-          JOIN archivo_digital a
-            ON a.recurso_id = r.id
-          JOIN metadato_digital md
-            ON md.recurso_id = r.id
-          WHERE r.id = $1
-            AND r.tipo = 'digital'
-            AND r.estado_editorial = 'borrador'
-          FOR UPDATE OF r
-        `, [recursoId]);
+            a.ruta,
+            a.almacenamiento_privado,
+            a.formato,
+            a.tamano_bytes,
+            a.sha256
+          FROM documento d
+          JOIN documento_version v
+            ON v.documento_id = d.id
+           AND v.actual = true
+          JOIN archivo a
+            ON a.id = v.archivo_id
+          WHERE d.id = $1
+          FOR UPDATE OF d
+        `, [documentoId]);
 
-        // Esta implementación publica un documento
-        // que tenga exactamente un archivo asociado.
-        if (resultado.rowCount !== 1) {
-          await cliente.query('ROLLBACK');
-          transaccionIniciada = false;
-
+        if (
+          resultado.rowCount !== 1 ||
+          resultado.rows[0].estado_editorial !== 'borrador'
+        ) {
           return errorHttp(
             res,
             'DOCUMENTO_NO_PUBLICABLE',
@@ -380,19 +520,14 @@ export function crearRutasDocumentos(pool) {
           );
         }
 
-        const documento = resultado.rows[0];
+        const registro = resultado.rows[0];
 
-        const ruta = path.join(
-          CARPETA_PRIVADA,
-          documento.nombre_interno
+        // Comprobar integridad del archivo.
+        const contenido = await leerArchivoIntegro(
+          registro
         );
 
-        try {
-          await access(ruta, constants.R_OK);
-        } catch {
-          await cliente.query('ROLLBACK');
-          transaccionIniciada = false;
-
+        if (!contenido) {
           return errorHttp(
             res,
             'ARCHIVO_NO_DISPONIBLE',
@@ -400,136 +535,98 @@ export function crearRutasDocumentos(pool) {
           );
         }
 
+        // Publicar documento.
         await cliente.query(`
-          UPDATE recurso
+          UPDATE documento
           SET estado_editorial = 'publicado'
           WHERE id = $1
-        `, [recursoId]);
-
-        await cliente.query(`
-          UPDATE metadato_digital
-          SET descarga_disponible = true
-          WHERE recurso_id = $1
-        `, [recursoId]);
+        `, [documentoId]);
 
         await cliente.query('COMMIT');
+
         transaccionIniciada = false;
 
         return res.json({
           datos: {
-            recursoId,
-            archivoId: documento.archivo_id,
+            documentoId,
+            recursoId: documentoId,
+            archivoId: registro.archivo_id,
             estado: 'publicado'
           }
         });
 
       } catch (error) {
+        next(error);
+
+      } finally {
         if (transaccionIniciada) {
           try {
             await cliente.query('ROLLBACK');
           } catch {
             console.error(
-              'Fallo al revertir publicación'
+              'No se pudo revertir la publicación'
             );
           }
         }
 
-        next(error);
-
-      } finally {
         cliente?.release();
       }
     }
   );
 
   /**
-   * ==========================================================
+   * ========================================================
    * GET /api/documentos/:id/descargar
    *
-   * :id es el UUID de archivo_digital.
-   * Nunca una ruta física proporcionada por el cliente.
+   * :id corresponde ahora al identificador entero
+   * de archivo.id.
    *
-   * REQUISITOS:
-   * - Sesión válida.
+   * Comprueba:
+   * - Sesión.
    * - Cuenta activa.
-   * - Rol alumno o docente.
-   * - Recurso publicado.
-   * - Descarga habilitada.
-   * - Curso autorizado cuando corresponde.
-   * - Archivo físico disponible.
-   * ==========================================================
+   * - Rol alumno/docente.
+   * - Documento publicado.
+   * - Autorización por curso.
+   * - Archivo privado e integridad.
+   * ========================================================
    */
-
   router.get(
     '/:id/descargar',
     requiereRol('alumno', 'docente'),
 
     async (req, res, next) => {
+      const archivoId = idPositivo(req.params.id);
+
+      if (!archivoId) {
+        return errorHttp(
+          res,
+          'ID_ARCHIVO_INVALIDO'
+        );
+      }
+
       try {
-        const archivoId = req.params.id;
-
-        // 1. Validar el UUID.
-        if (
-          typeof archivoId !== 'string' ||
-          !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(archivoId)
-        ) {
-          return errorHttp(
-            res,
-            'ID_ARCHIVO_INVALIDO'
-          );
-        }
-
-        // 2. Buscar el documento en PostgreSQL.
         const resultado = await pool.query(`
           SELECT
             a.id,
-            a.nombre_interno,
+            a.ruta,
             a.formato,
             a.tamano_bytes,
-            r.estado_editorial,
-            c.ambito,
-            md.descarga_disponible,
-
-            EXISTS (
-              SELECT 1
-              FROM recurso_curso rc
-              WHERE rc.recurso_id = r.id
-            ) AS tiene_cursos,
-
-            EXISTS (
-              SELECT 1
-              FROM recurso_curso rc
-              WHERE rc.recurso_id = r.id
-                AND rc.curso_id = $2
-            ) AS pertenece_al_curso
-
-          FROM archivo_digital a
-
-          JOIN recurso r
-            ON r.id = a.recurso_id
-
-          JOIN categoria c
-            ON c.id = r.categoria_id
-
-          JOIN metadato_digital md
-            ON md.recurso_id = r.id
-
+            a.sha256,
+            a.almacenamiento_privado,
+            d.estado_editorial,
+            d.curso_id
+          FROM archivo a
+          JOIN documento_version v
+            ON v.archivo_id = a.id
+           AND v.actual = true
+          JOIN documento d
+            ON d.id = v.documento_id
           WHERE a.id = $1
-            AND r.tipo = 'digital'
-            AND c.activo = true
-        `, [
-          archivoId,
-          req.usuario.curso_confirmado_id
-        ]);
+        `, [archivoId]);
 
-        const documento = resultado.rows[0];
-
-        // 3. No permitir descargas de documentos
-        // inexistentes, borradores o retirados.
         if (
-          !documento ||
-          documento.estado_editorial !== 'publicado' ||
-          !documento.descarga_disponible
+          resultado.rowCount !== 1 ||
+          resultado.rows[0].estado_editorial !== 'publicado'
         ) {
           return errorHttp(
             res,
@@ -538,14 +635,14 @@ export function crearRutasDocumentos(pool) {
           );
         }
 
-        // 4. Comprobar autorización por curso.
+        const registro = resultado.rows[0];
+
         const esDocente =
           req.usuario.roles.includes('docente');
 
+        // Permisos del alumnado.
         if (!esDocente) {
-          // Documentación requiere curso confirmado.
           if (
-            documento.ambito === 'documentacion' &&
             req.usuario.curso_confirmado_id == null
           ) {
             return errorHttp(
@@ -555,11 +652,10 @@ export function crearRutasDocumentos(pool) {
             );
           }
 
-          // Si el documento está asociado a cursos,
-          // comprobar la pertenencia del alumno.
           if (
-            documento.tiene_cursos &&
-            !documento.pertenece_al_curso
+            registro.curso_id !== null &&
+            Number(registro.curso_id) !==
+              Number(req.usuario.curso_confirmado_id)
           ) {
             return errorHttp(
               res,
@@ -569,96 +665,12 @@ export function crearRutasDocumentos(pool) {
           }
         }
 
-        // 5. Verificar el nombre interno.
-        const nombre = documento.nombre_interno;
-
-        if (
-          typeof nombre !== 'string' ||
-          !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.(pdf|jpg|png)$/.test(nombre)
-        ) {
-          return errorHttp(
-            res,
-            'ARCHIVO_NO_DISPONIBLE',
-            404
-          );
-        }
-
-        // Comprobar el formato registrado.
-        const tipos = {
-          PDF: 'application/pdf',
-          JPG: 'image/jpeg',
-          PNG: 'image/png'
-        };
-
-        const tipo = tipos[documento.formato];
-
-        if (!tipo) {
-          return errorHttp(
-            res,
-            'FORMATO_NO_DISPONIBLE',
-            404
-          );
-        }
-
-        // 6. Abrir el archivo mediante un descriptor.
-        const ruta = path.join(
-          CARPETA_PRIVADA,
-          nombre
+        // Lectura segura del archivo.
+        const contenido = await leerArchivoIntegro(
+          registro
         );
 
-        let manejador;
-        let contenido;
-
-        try {
-          manejador = await open(
-            ruta,
-            constants.O_RDONLY |
-            (constants.O_NOFOLLOW ?? 0)
-          );
-
-          const info = await manejador.stat();
-
-          if (
-            !info.isFile() ||
-            info.size !== Number(documento.tamano_bytes)
-          ) {
-            return errorHttp(
-              res,
-              'ARCHIVO_NO_DISPONIBLE',
-              404
-            );
-          }
-
-          // Leer el contenido desde el descriptor abierto.
-          contenido = await manejador.readFile();
-
-        } catch (error) {
-          if (
-            [
-              'ENOENT',
-              'EACCES',
-              'EPERM',
-              'ELOOP'
-            ].includes(error.code)
-          ) {
-            return errorHttp(
-              res,
-              'ARCHIVO_NO_DISPONIBLE',
-              404
-            );
-          }
-
-          throw error;
-
-        } finally {
-          await manejador?.close();
-        }
-
-        // 7. Segunda comprobación del tamaño.
-        if (
-          contenido.length !==
-          Number(documento.tamano_bytes)
-        ) {
+        if (!contenido) {
           return errorHttp(
             res,
             'ARCHIVO_NO_DISPONIBLE',
@@ -666,16 +678,16 @@ export function crearRutasDocumentos(pool) {
           );
         }
 
-        // 8. Enviar el archivo autorizado.
-        res.set({
-          'Content-Type': tipo,
+        const extension =
+          registro.formato.toLowerCase();
+
+        return res.status(200).set({
+          'Content-Type': TIPOS[registro.formato],
           'Content-Disposition':
-            `attachment; filename="${nombre}"`,
+            `attachment; filename="documento-${archivoId}.${extension}"`,
           'X-Content-Type-Options': 'nosniff',
           'Cache-Control': 'private, no-store'
-        });
-
-        return res.status(200).send(contenido);
+        }).send(contenido);
 
       } catch (error) {
         next(error);

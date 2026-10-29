@@ -1,128 +1,235 @@
-import express from 'express';
 import pg from 'pg';
+import { resolve } from 'node:path';
+import express from 'express';
+import session from 'express-session';
+import conectarPg from 'connect-pg-simple';
+import { rateLimit, ipKeyGenerator } from 'express-rate-limit';
+import { randomBytes, randomUUID, createHash, timingSafeEqual } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
-import {
-  configurarSesiones,
-  requiereSesion,
-  requiereCuentaActiva,
-  requiereRol
-} from './cuentas/sesiones.mjs';
-import { crearRutasCuentas } from './cuentas/rutas.mjs';
-import { crearRutasGestion } from './cuentas/gestion.mjs';
-import { crearRutasBiblioteca } from './biblioteca/rutas.mjs';
+import { crearHash, comprobarClave, claveValida, Ocupado } from './claves.mjs';
+import { rutasDocentes } from './docencia.mjs';
+import { rutasCesiones } from './cesiones.mjs';
+import { rutasIntercambios } from './intercambios/rutas.mjs';
+import { rutasAnuncios } from './anuncios.mjs';
+import { rutasCatalogo } from './catalogo.mjs';
 import { crearRutasDocumentos } from './documentos/rutas.mjs';
 
-const puerto = Number(process.env.PORT ?? 3000);
+const token = () => randomBytes(32).toString('hex');
+const guardar = sesion => new Promise((ok,fallo) => sesion.save(e => e ? fallo(e) : ok()));
+const regenerar = req => new Promise((ok,fallo) => req.session.regenerate(e => e ? fallo(e) : ok()));
+const destruir = req => new Promise((ok,fallo) => req.session.destroy(e => e ? fallo(e) : ok()));
+const correoNormalizado = valor => typeof valor === 'string' ? valor.trim().toLowerCase() : '';
+const cuerpoValido = (cuerpo, campos) => cuerpo && typeof cuerpo === 'object' && !Array.isArray(cuerpo) &&
+  Object.keys(cuerpo).every(campo => campos.includes(campo));
+const cookie = { httpOnly:true, sameSite:'lax', secure:process.env.NODE_ENV==='production', path:'/' };
 
-if (!Number.isInteger(puerto) || puerto < 1 || puerto > 65535) {
-  throw new Error('PORT debe ser un puerto válido');
+export async function crearAplicacion(pool, { origen, secreto, esquema='public', limitar=true } = {}) {
+  if (!secreto || secreto.length < 32) throw new Error('Prepara SESSION_SECRET antes de arrancar.');
+  if (!origen || new URL(origen).origin !== origen) throw new Error('APP_ORIGIN debe contener el origen exacto.');
+  const app = express();
+  app.disable('x-powered-by');
+  const Almacen = conectarPg(session);
+  const almacen = new Almacen({ pool, schemaName:esquema, tableName:'sesion', createTableIfMissing:false });
+  app.use('/api', (_req,res,next) => {res.set('Cache-Control','private, no-store');next();});
+  app.get('/api/salud', async (_req,res) => {
+    try {await pool.query('SELECT 1');res.json({estado:'listo',baseDatos:true});}
+    catch {res.status(503).json({error:'SERVICIO_NO_DISPONIBLE'});}
+  });
+  app.use('/api', session({name:'aula.sid',secret:secreto,store:almacen,
+    resave:false,saveUninitialized:false,rolling:true,cookie:{...cookie,maxAge:30*60*1000}}));
+  app.use('/api', express.json({limit:'32kb'}));
+  app.use('/api', async (req,res,next) => {
+    if (req.session.usuarioId) {
+      const r = await pool.query(`SELECT u.id,u.alias,u.correo,u.estado,u.auth_version,
+        u.curso_solicitado_id,u.curso_confirmado_id,
+        cs.nombre AS curso_solicitado,cc.nombre AS curso_confirmado,
+        ARRAY(SELECT rol FROM usuario_rol WHERE usuario_id=u.id ORDER BY rol) AS roles
+        FROM usuario u LEFT JOIN curso cs ON cs.id=u.curso_solicitado_id
+        LEFT JOIN curso cc ON cc.id=u.curso_confirmado_id WHERE u.id=$1`,[req.session.usuarioId]);
+      const u = r.rows[0];
+      if (!u || u.auth_version !== req.session.authVersion ||
+          !Number.isFinite(req.session.creadaEn) || Date.now()-req.session.creadaEn >= 8*60*60*1000) {
+        await destruir(req);res.clearCookie('aula.sid',cookie);
+        return res.status(401).json({error:'SESION_CADUCADA'});
+      }
+      delete u.auth_version;
+      req.usuario = u;
+    }
+    next();
+  });
+  app.use('/api', (req,res,next) => {
+    if (!['POST','PATCH','DELETE','PUT'].includes(req.method)) return next();
+    const recibido=req.get('X-CSRF-Token');const esperado=req.session?.csrf;
+    if (req.get('Origin') !== origen || !recibido || !esperado ||
+        !/^[a-f0-9]{64}$/.test(recibido) ||
+        !timingSafeEqual(Buffer.from(recibido),Buffer.from(esperado))) {
+      return res.status(403).json({error:'CSRF_INVALIDO'});
+    }
+    next();
+  });
+  const sesionNecesaria = (req,res,next) => req.usuario ? next() : res.status(401).json({error:'SIN_SESION'});
+  const activaNecesaria = (req,res,next) => req.usuario.estado==='activo' ? next() :
+    res.status(403).json({error:req.usuario.estado==='pendiente' ? 'CUENTA_PENDIENTE':'CUENTA_SUSPENDIDA'});
+  app.get('/api/csrf', async (req,res) => {
+    req.session.csrf ??= token();await guardar(req.session);res.json({token:req.session.csrf});
+  });
+  app.get('/api/cursos', async (_req,res) => {
+    const r=await pool.query('SELECT id,codigo,nombre FROM curso WHERE activo ORDER BY codigo LIMIT 100');
+    res.json({datos:r.rows});
+  });
+  const hashFicticio=await crearHash(randomBytes(32).toString('hex'));
+  const limites = limitar ? [rateLimit({windowMs:15*60*1000,limit:30,standardHeaders:'draft-8',legacyHeaders:false,
+    message:{error:'DEMASIADOS_INTENTOS'}})] : [];
+  const porCuenta = limitar ? [rateLimit({windowMs:15*60*1000,limit:5,skipSuccessfulRequests:true,
+    standardHeaders:'draft-8',legacyHeaders:false,
+    keyGenerator:req => ipKeyGenerator(req.ip)+':'+createHash('sha256').update(correoNormalizado(req.body?.correo)).digest('hex'),
+    message:{error:'DEMASIADOS_INTENTOS'}})] : [];
+  app.post('/api/registro', ...limites, async (req,res) => {
+    const b=req.body;const correo=correoNormalizado(b?.correo);
+    if (!cuerpoValido(b,['alias','correo','clave','cursoId']) ||
+        typeof b.alias!=='string' || b.alias.trim().length<2 || b.alias.trim().length>60 ||
+        correo.length>254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo) ||
+        !claveValida(b.clave) || !Number.isSafeInteger(b.cursoId) || b.cursoId<1) {
+      return res.status(422).json({error:'DATOS_INVALIDOS',mensaje:'Revisa los campos. La contraseña debe tener de 15 a 128 caracteres.'});
+    }
+    const curso=await pool.query('SELECT id FROM curso WHERE id=$1 AND activo',[b.cursoId]);
+    if (!curso.rowCount) return res.status(422).json({error:'CURSO_INVALIDO'});
+    const hash=await crearHash(b.clave);
+    const cliente=await pool.connect();
+    try {
+      await cliente.query('BEGIN');
+      const r=await cliente.query(`INSERT INTO usuario(alias,correo,hash,curso_solicitado_id)
+        VALUES($1,$2,$3,$4) ON CONFLICT(correo) DO NOTHING RETURNING id`,[b.alias.trim(),correo,hash,b.cursoId]);
+      if(r.rowCount) await cliente.query("INSERT INTO usuario_rol(usuario_id,rol) VALUES($1,'alumno')",[r.rows[0].id]);
+      await cliente.query('COMMIT');
+    } catch(e) {await cliente.query('ROLLBACK');throw e;} finally {cliente.release();}
+    res.status(202).json({mensaje:'Si los datos permiten el registro, la cuenta quedará pendiente de validación docente.'});
+  });
+  app.post('/api/acceso', ...limites,...porCuenta, async (req,res) => {
+    const b=req.body;
+    if(!cuerpoValido(b,['correo','clave']) || correoNormalizado(b.correo).length>254 || !claveValida(b.clave)) {
+      return res.status(401).json({error:'ACCESO_INVALIDO',mensaje:'Correo o contraseña incorrectos.'});
+    }
+    const r=await pool.query('SELECT id,hash,auth_version FROM usuario WHERE correo=$1',[correoNormalizado(b.correo)]);
+    const u=r.rows[0];const correcta=await comprobarClave(b.clave,u?.hash ?? hashFicticio);
+    if(!u || !correcta) return res.status(401).json({error:'ACCESO_INVALIDO',mensaje:'Correo o contraseña incorrectos.'});
+    await regenerar(req);
+    req.session.usuarioId=u.id;req.session.authVersion=u.auth_version;
+    req.session.creadaEn=Date.now();req.session.csrf=token();
+    await guardar(req.session);
+    res.json({mensaje:'Sesión iniciada',token:req.session.csrf});
+  });
+  app.get('/api/yo',sesionNecesaria,(req,res) => res.json({datos:req.usuario}));
+  app.use('/api',rutasAnuncios(pool,sesionNecesaria,activaNecesaria));
+  app.use('/api',rutasCesiones(pool,sesionNecesaria,activaNecesaria));
+  app.use('/api',rutasIntercambios(pool,sesionNecesaria,activaNecesaria));
+  app.use('/api',rutasCatalogo(pool,sesionNecesaria,activaNecesaria));
+  app.use(
+    '/api/documentos',
+    crearRutasDocumentos(
+      pool,
+      sesionNecesaria,
+      activaNecesaria
+    )
+  );
+  app.use('/api/gestion',rutasDocentes(pool,sesionNecesaria,activaNecesaria));
+  app.post('/api/salida',sesionNecesaria,async(req,res) => {
+    await destruir(req);res.clearCookie('aula.sid',cookie);res.sendStatus(204);
+  });
+  // Conserva temporalmente el catálogo didáctico público; no son datos privados de producto.
+  app.get('/api/recursos-demo',async(req,res) => {
+    const texto=String(req.query.q ?? '').trim().slice(0,80);
+    const r=await pool.query('SELECT id,titulo,tipo FROM recurso_demo WHERE titulo ILIKE $1 ORDER BY id',['%'+texto+'%']);
+    res.json({datos:r.rows});
+  });
+  app.use(express.static(fileURLToPath(new URL('../public/',import.meta.url))));
+  app.use((_req,res) => res.status(404).json({error:'NO_ENCONTRADO'}));
+  app.use((error,_req,res,_next) => {
+    if(error instanceof Ocupado) return res.status(503).set('Retry-After','3').json({error:'SERVIDOR_OCUPADO'});
+    if(error.type==='entity.parse.failed') return res.status(400).json({error:'JSON_INVALIDO'});
+    if(error.type==='entity.too.large') return res.status(413).json({error:'CUERPO_DEMASIADO_GRANDE'});
+    const id=randomUUID();console.error('Error de petición',id,error.code ?? error.name);
+    res.status(500).json({error:'ERROR_INTERNO',incidencia:id});
+  });
+  return {app,almacen};
 }
-
-if (process.env.APP_ORIGIN !== `http://127.0.0.1:${puerto}` ||
-    process.env.NODE_ENV !== 'development') {
-  throw new Error('Configura el origen y el modo development para este ensayo local');
-}
-
-const pool = new pg.Pool({
-  max: 5,
-  connectionTimeoutMillis: 3000
-});
-
-const app = express();
-app.disable('x-powered-by');
-app.use(express.json({ limit: '32kb' }));
-
-// Incluye también errores de lectura de JSON y respuestas de salud.
-app.use((_req, res, next) => {
-  res.set('Cache-Control', 'private, no-store');
-  next();
-});
-
-configurarSesiones(app, pool);
-
-// Espera la preparación del hash ficticio antes de aceptar peticiones.
-app.use('/api', await crearRutasCuentas(pool));
-app.use('/api/gestion', crearRutasGestion(pool));
-// T6: carga y publicación protegida de documentación.
-app.use('/api/documentos', crearRutasDocumentos(pool));
-
-app.get('/api/salud', async (_req, res, next) => {
-  try {
-    await pool.query('SELECT 1');
-    res.json({ estado: 'listo', baseDatos: true });
-  } catch {
-    res.status(503).json({ error: 'SERVICIO_NO_DISPONIBLE' });
-  }
-});
 
 
 /**
- * ============================================================
- * AULA CIRCULAR - BIBLIOTECA Y DOCUMENTOS
- * Incorporar las rutas del catálogo definitivo al servidor.
+ * Arranque del servidor.
  *
- * SEGURIDAD:
- * Reutilizamos los controles existentes del proyecto:
- * 1. Sesión válida.
- * 2. Cuenta activa.
- * 3. Rol de alumno o docente.
- *
- * El curso se utilizará únicamente como filtro
- * de búsqueda, no como restricción de acceso.
- *
- * Las consultas SQL se encuentran en:
- * src/biblioteca/rutas.mjs
- * ============================================================
+ * Solo se ejecuta cuando app.mjs es el archivo principal.
+ * Las pruebas pueden importar crearAplicacion()
+ * sin iniciar automáticamente el servidor.
  */
+if (
+  process.argv[1] &&
+  resolve(process.argv[1]) === fileURLToPath(import.meta.url)
+) {
+  const puerto = Number(process.env.PORT ?? 3000);
 
-app.use(
-  '/api',
-
-  // Verifica que el usuario haya iniciado sesión.
-  requiereSesion(pool),
-
-  // Comprueba que su cuenta está activa.
-  requiereCuentaActiva,
-
-  // Autoriza el acceso a alumnado y profesorado.
-  requiereRol('alumno', 'docente'),
-
-  // Incorpora las rutas del catálogo de Biblioteca.
-  crearRutasBiblioteca(pool)
-);
-
-app.use(express.static(
-  fileURLToPath(new URL('../public/', import.meta.url))
-));
-
-app.use((_req, res) => {
-  res.status(404).json({ error: 'NO_ENCONTRADO' });
-});
-
-app.use((error, _req, res, _next) => {
-  // Nunca registra cuerpos, claves, cookies ni consultas SQL.
-  console.error('Error del servidor:', error.code ?? 'SIN_CODIGO');
-
-  if (error.type === 'entity.parse.failed') {
-    return res.status(400).json({ error: 'JSON_INVALIDO' });
-  }
-  if (error.type === 'entity.too.large') {
-    return res.status(413).json({ error: 'CUERPO_DEMASIADO_GRANDE' });
-  }
-  if (error.status === 503) {
-    return res.status(503).json({ error: 'SERVICIO_OCUPADO' });
+  if (!Number.isInteger(puerto) ||
+      puerto < 1 ||
+      puerto > 65535) {
+    throw new Error('PORT debe ser un puerto válido');
   }
 
-  res.status(500).json({ error: 'ERROR_INTERNO' });
-});
+  const origenEsperado = `http://127.0.0.1:${puerto}`;
 
-const servidor = app.listen(puerto, '127.0.0.1', () => {
-  console.log(`Sprint2 listo en http://127.0.0.1:${puerto}`);
-});
+  if (process.env.APP_ORIGIN !== origenEsperado) {
+    throw new Error('APP_ORIGIN no coincide con el servidor');
+  }
 
-process.on('SIGINT', () => {
-  servidor.close(async () => {
-    await pool.end();
-    process.exit(0);
+  const pool = new pg.Pool({
+    max: 5,
+    connectionTimeoutMillis: 3000
   });
-});
+
+  let almacen;
+  let servidor;
+
+  try {
+    const resultado = await crearAplicacion(pool, {
+      origen: process.env.APP_ORIGIN,
+      secreto: process.env.SESSION_SECRET
+    });
+
+    almacen = resultado.almacen;
+
+    servidor = resultado.app.listen(
+      puerto,
+      '127.0.0.1',
+      () => {
+        console.log(`Aula Circular en ${origenEsperado}`);
+      }
+    );
+
+  } catch (error) {
+    await almacen?.close();
+    await pool.end();
+    throw error;
+  }
+
+  let cerrando = false;
+
+  async function cerrar() {
+    if (cerrando) return;
+    cerrando = true;
+
+    servidor.close(async () => {
+      try {
+        await almacen.close();
+        await pool.end();
+      } catch (error) {
+        console.error(
+          'Error al cerrar el servidor:',
+          error.code ?? error.name
+        );
+        process.exitCode = 1;
+      }
+    });
+  }
+
+  process.on('SIGINT', cerrar);
+  process.on('SIGTERM', cerrar);
+}

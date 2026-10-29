@@ -1,5 +1,7 @@
 \# Sprint2: integración de cuentas y sesiones
 
+> **Documento histórico (Sprint 2).** Las rutas, el SQL y la base `aula_circular_sprint2_ensayo` que aparecen aquí quedaron como referencia de una etapa anterior. No es la guía de montaje actual. Consulta [GUIA-LABORATORIO.md](GUIA-LABORATORIO.md) y [REVISION-2026-10-22.md](REVISION-2026-10-22.md).
+
 
 
 \## Alcance
@@ -42,11 +44,11 @@ Crear una base vacía aula\_circular\_sprint2\_ensayo, propiedad de aula\_app.
 
 Aplicar como aula\_app, una sola vez y en este orden:
 
-1\. sql/002\_cuentas.sql
+1\. sql/historico/002\_cuentas.sql
 
-2\. sql/003\_sesiones.sql
+2\. sql/historico/003\_sesiones.sql
 
-3\. sql/004\_recursos\_ensayo.sql
+3\. sql/historico/004\_recursos\_ensayo.sql
 
 
 

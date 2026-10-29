@@ -1,10 +1,22 @@
-﻿node_modules/
+﻿
+# Dependencias y configuracion local
+node_modules/
 .env
+
+# Almacenamiento y copias privadas
 almacen_privado/
 copias_locales/
 *.log
 
+# Archivos locales de desarrollo
+conocimiento/
+AGENTS.md
+
+# Credenciales y cuentas de ensayo
 .cuentas-ensayo.json
+.docente-local.json
+
+# Archivos temporales de las pruebas T6
 cookies_docente.txt
 .alumno-t6-ensayo.json
 pruebas_t6/

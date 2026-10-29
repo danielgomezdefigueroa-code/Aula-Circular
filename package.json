@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node --env-file=.env --test tests/cuentas.test.mjs tests/anuncios.test.mjs tests/cesiones.test.mjs tests/documentos.test.mjs",
+    "preparar": "node scripts/preparar.mjs",
+    "migrar": "node --env-file=.env scripts/migrar.mjs",
+    "docente:local": "node --env-file=.env scripts/docente-local.mjs",
     "dev": "node --env-file=.env --watch src/app.mjs",
     "start": "node --env-file=.env src/app.mjs"
   },
