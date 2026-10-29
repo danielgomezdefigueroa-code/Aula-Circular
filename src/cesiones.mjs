@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { gestionarIntercambio } from './intercambios/gestion.mjs';
 const idValido=x=>Number.isSafeInteger(x)&&x>0;
 const fallo=(codigo,error)=>Object.assign(new Error(error),{codigo});
 export function rutasCesiones(pool,sesion,activa){
@@ -46,6 +47,32 @@ export function rutasCesiones(pool,sesion,activa){
  }));
  r.get('/operaciones',ruta(async(req,res)=>{const p=pagina(req);res.json({datos:(await pool.query(`SELECT o.*,i.ejemplar_id,i.origen_usuario_id,i.destino_usuario_id,r.titulo FROM operacion o JOIN operacion_item i ON i.operacion_id=o.id JOIN ejemplar e ON e.id=i.ejemplar_id JOIN recurso r ON r.id=e.recurso_id WHERE o.tipo='cesion' AND ($1 OR i.origen_usuario_id=$2 OR i.destino_usuario_id=$2) ORDER BY o.id DESC LIMIT $3 OFFSET $4`,[req.usuario.roles.includes('docente'),req.usuario.id,...p])).rows});}));
  for(const accion of ['entregar','cancelar'])r.post(`/gestion/operaciones/:id/${accion}`,docente,ruta(async(req,res)=>{cuerpo(req,accion==='cancelar'?['motivo']:[]);const id=Number(req.params.id);if(!idValido(id)||(accion==='cancelar'&&(typeof req.body.motivo!=='string'||!req.body.motivo.trim()||req.body.motivo.length>1000)))throw fallo(422,'DATOS_INVALIDOS');
+  // Las rutas son comunes: cada tipo utiliza su propio servicio.
+  const referencia = (
+    await pool.query(
+      'SELECT tipo FROM operacion WHERE id=$1',
+      [id]
+    )
+  ).rows[0];
+
+  if (!referencia) {
+    throw fallo(404, 'OPERACION_NO_DISPONIBLE');
+  }
+
+  if (referencia.tipo === 'intercambio') {
+    const datos = await gestionarIntercambio(
+      pool,
+      {
+        id: req.usuario.id,
+        authVersion: req.session.authVersion
+      },
+      id,
+      accion,
+      req.body.motivo
+    );
+
+    return res.json({ datos });
+  }
   const datos=await tx(req,'docente',async c=>{const items=(await c.query('SELECT * FROM operacion_item WHERE operacion_id=$1 ORDER BY ejemplar_id',[id])).rows;if(items.length!==1)throw fallo(404,'CESION_NO_DISPONIBLE');const i=items[0];const {e,a}=await ejemplar(c,i.ejemplar_id);const op=(await c.query('SELECT * FROM operacion WHERE id=$1 FOR UPDATE',[id])).rows[0];if(op.tipo!=='cesion')throw fallo(409,'MODALIDAD_NO_ADMITIDA');if(accion==='entregar'&&op.estado==='completada')return op;if(op.estado!=='reservada')throw fallo(409,'OPERACION_NO_RESERVADA');if(!(await c.query('SELECT 1 FROM reserva_activa WHERE ejemplar_id=$1 AND operacion_id=$2',[e.id,id])).rowCount)throw fallo(409,'RESERVA_INCOHERENTE');
    if(accion==='entregar'){await cuentas(c,[i.origen_usuario_id,i.destino_usuario_id]);await c.query("UPDATE ejemplar SET estado_servicio='retirado' WHERE id=$1",[e.id]);await c.query("UPDATE anuncio SET estado_revision='retirado',version=version+1,actualizada_en=now() WHERE id=$1",[a.id]);await c.query("INSERT INTO evento_anuncio(anuncio_id,actor_id,accion,estado_anterior,estado_nuevo) VALUES($1,$2,'cesion_completada',$3,'retirado')",[a.id,req.usuario.id,a.estado_revision]);}
    const estado=accion==='entregar'?'completada':'cancelada';const actual=(await c.query(`UPDATE operacion SET estado=$1,cerrada_en=now(),entregada_en=CASE WHEN $1='completada' THEN now() ELSE entregada_en END WHERE id=$2 RETURNING *`,[estado,id])).rows[0];await c.query('DELETE FROM reserva_activa WHERE operacion_id=$1',[id]);await c.query('INSERT INTO evento_operacion(operacion_id,actor_id,accion,motivo) VALUES($1,$2,$3,$4)',[id,req.usuario.id,accion,req.body.motivo?.trim()??'']);for(const u of [i.origen_usuario_id,i.destino_usuario_id])await aviso(c,u,'Cesión '+estado,id);return actual;});res.json({datos});

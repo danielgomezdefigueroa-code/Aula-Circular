@@ -169,7 +169,7 @@ try {
   assert.equal((await estadoSql(nueva.id)).reservas, 0);
   console.log(`RESULTADO: ${total} casos HTTP superados y estados SQL comprobados.`);
   console.log('No se modificaron propietarios ni se crearon reservas.');
-  console.log('Pendiente de Fede: reserva, entrega y cancelacion conjuntas.');
+  console.log('Este ensayo comprueba propuestas y aceptaciones; reservas y cierre se prueban en scripts separados.');
   console.log('Se conservan 5 cuentas y 4 anuncios ficticios por ejecucion.');
 } catch (error) {
   console.error('PRUEBA FALLIDA. Codigo:', error.code ?? 'sin codigo');

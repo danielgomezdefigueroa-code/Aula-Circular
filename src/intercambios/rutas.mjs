@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { proponerIntercambio, aceptarIntercambio, consultarIntercambio } from './acuerdos.mjs';
+import { reservarIntercambio } from './reservas.mjs';
 
 const idValido = id => Number.isSafeInteger(id) && id > 0 && id <= 2147483647;
 function camposExactos(cuerpo, campos) {
@@ -45,5 +46,43 @@ export function rutasIntercambios(pool, sesionNecesaria, activaNecesaria) {
         b.confirmoAceptacion !== true) return res.status(422).json({ error: 'DATOS_INVALIDOS' });
     res.json({ datos: await aceptarIntercambio(pool, identidad(req), id, b) });
   }));
+
+  // CSRF se valida globalmente antes de llegar a este router.
+  rutas.post(
+    '/gestion/intercambios/:id/reservar',
+    sesionNecesaria,
+    activaNecesaria,
+    (req, res, next) => {
+      if (!req.usuario.roles.includes('docente')) {
+        return res.status(403).json({
+          error: 'PERMISO_INSUFICIENTE'
+        });
+      }
+
+      next();
+    },
+    manejar(async (req, res) => {
+      const id = Number(req.params.id);
+
+      if (!/^[1-9]\d*$/.test(req.params.id) || !idValido(id)) {
+        return res.status(422).json({ error: 'ID_INVALIDO' });
+      }
+
+      // La pareja y los participantes se recuperan de PostgreSQL.
+      // El cliente solamente identifica la operación en la ruta.
+      if (!camposExactos(req.body, [])) {
+        return res.status(422).json({ error: 'DATOS_INVALIDOS' });
+      }
+
+      const datos = await reservarIntercambio(
+        pool,
+        identidad(req),
+        id
+      );
+
+      res.status(200).json({ datos });
+    })
+  );
+
   return rutas;
 }
