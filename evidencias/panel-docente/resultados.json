@@ -1,0 +1,54 @@
+{
+  "fecha": "2026-10-29T09:17:12.059Z",
+  "version": "panel-docente-admin-v1",
+  "matriz": [
+    {
+      "rol": "alumno",
+      "cola": 403,
+      "administracion": 403,
+      "biblioteca": 200,
+      "documentacion": 200,
+      "revision": 403
+    },
+    {
+      "rol": "docente",
+      "cola": 200,
+      "administracion": 403,
+      "biblioteca": 200,
+      "documentacion": 200,
+      "revision": 200
+    },
+    {
+      "rol": "admin",
+      "cola": 403,
+      "administracion": 200,
+      "biblioteca": 403,
+      "documentacion": 403,
+      "revision": 403
+    },
+    {
+      "rol": "ambos",
+      "cola": 200,
+      "administracion": 200,
+      "biblioteca": 200,
+      "documentacion": 200,
+      "revision": 200
+    }
+  ],
+  "casos": [
+    "Matriz de cuatro roles",
+    "Validación docente y auditoría",
+    "Gestión de cursos y categorías",
+    "Retirada de permiso con sesión abierta",
+    "Suspensión y conservación de historial",
+    "Concurrencia y último administrador"
+  ],
+  "concurrencia": {
+    "respuestas": [
+      200,
+      409
+    ],
+    "administradoresActivos": 1
+  },
+  "resultado": "PASS"
+}

@@ -4,12 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "node --env-file=.env --test pruebas/cuentas.test.mjs pruebas/anuncios.test.mjs pruebas/cesiones.test.mjs",
+    "test": "node --env-file=.env --test pruebas/cuentas.test.mjs pruebas/anuncios.test.mjs pruebas/cesiones.test.mjs pruebas/administracion.test.mjs",
     "preparar": "node scripts/preparar.mjs",
     "migrar": "node --env-file=.env scripts/migrar.mjs",
     "docente:local": "node --env-file=.env scripts/docente-local.mjs",
     "dev": "node --env-file=.env --watch src/app.mjs",
-    "start": "node --env-file=.env src/app.mjs"
+    "start": "node --env-file=.env src/app.mjs",
+    "admin:local": "node --env-file=.env scripts/admin-local.mjs"
   },
   "keywords": [],
   "author": "",

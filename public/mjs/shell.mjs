@@ -118,6 +118,7 @@ function pintarMenu(identidad) {
   const activa = identidad ? puedeVerAreas(identidad) : false;
   const roles = Array.isArray(identidad?.roles) ? identidad.roles : [];
   document.querySelectorAll('[data-area]').forEach((enlace) => {
+    if(enlace.dataset.area==='admin'){enlace.hidden=!(identidad?.estado==='activo'&&roles.includes('admin'));return;}
     const soloActiva = enlace.dataset.area !== 'mi-espacio';
     const soloDocente = enlace.dataset.rol === 'docente';
     enlace.hidden = !identidad || (soloActiva && !activa) ||
@@ -165,7 +166,7 @@ function insertarEnlaceDocencia() {
   enlace.className = 'nav-link';
   enlace.dataset.area = 'docencia';
   enlace.dataset.rol = 'docente';
-  enlace.textContent = 'Validación';
+  enlace.textContent = 'Panel docente';
   menu.append(enlace);
 }
 
@@ -254,6 +255,8 @@ window.addEventListener('popstate', () => recomprobar());
 /* --- Arranque --- */
 document.documentElement.classList.add('js');
 insertarEnlaceDocencia();
+const menuAdmin=$('menu-principal');
+if(menuAdmin&&!menuAdmin.querySelector('[data-area="admin"]')){const a=document.createElement('a');a.href='administracion.html';a.className='nav-link';a.dataset.area='admin';a.textContent='Administración';menuAdmin.append(a);}
 marcarActual();
 montarMenu();
 export const listo = comprobarSesion();

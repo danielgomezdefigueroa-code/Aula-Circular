@@ -1,0 +1,44 @@
+
+> aula-circular-lab@1.0.0 test
+> node --env-file=.env --test pruebas/cuentas.test.mjs pruebas/anuncios.test.mjs pruebas/cesiones.test.mjs pruebas/administracion.test.mjs
+
+▶ Panel docente y administración: PostgreSQL y HTTP reales
+  ✔ Matriz de cuatro roles: interfaz respaldada por permisos HTTP (160.7248ms)
+  ✔ Validación docente y separación administrativa; auditoría de pertenencia (31.2597ms)
+  ✔ Cursos y categorías: alta, edición, desactivación y referencias conservadas (95.3273ms)
+  ✔ Rol docente explícito: retirada pierde permiso en la siguiente petición de la misma sesión (36.2791ms)
+  ✔ Suspensión con sesión abierta: rechazo inmediato e historial conservado (44.1586ms)
+  ✔ Ampliación 500: dos retiradas simultáneas sobre los últimos administradores (94.2549ms)
+✔ Panel docente y administración: PostgreSQL y HTTP reales (3913.9428ms)
+▶ Anuncios propios, estados y concurrencia con PostgreSQL y HTTP reales
+  ✔ Catálogo de Biblioteca y Documentación sobre el esquema actual (32.4313ms)
+  ✔ Validación de campos, CSRF, cuenta activa y propiedad desde sesión (67.5782ms)
+  ✔ Otra cuenta no puede leer, editar, enviar ni cambiar el propietario (27.8202ms)
+  ✔ Dos ediciones de la misma versión: una guarda y otra recibe 409 (87.2189ms)
+  ✔ Enviar a revisión no publica y conserva historial (34.9827ms)
+  ✔ Corregir un rechazo conserva motivo e historial y permite reenviar (31.9841ms)
+  ✔ Editar publicado vuelve a revisión y cancela propuestas sin reserva (46.3097ms)
+  ✔ Una operación activa bloquea cambios sin alterar el ejemplar ni el anuncio (27.9302ms)
+  ✔ Sin ISBN se admite; la paginación y los datos privados se controlan (22.2813ms)
+✔ Anuncios propios, estados y concurrencia con PostgreSQL y HTTP reales (3225.9886ms)
+▶ Cesiones, moderación y reasignación con PostgreSQL y HTTP reales
+  ✔ Moderación: permisos, rechazo motivado, corrección y aprobación (122.9515ms)
+  ✔ Cesión completa: solicitud propia, reserva única, entrega repetida e historial (232.7421ms)
+  ✔ Cancelación previa y ampliación 500: nuevas solicitudes sin reactivar antiguas (534.3455ms)
+✔ Cesiones, moderación y reasignación con PostgreSQL y HTTP reales (4013.4635ms)
+▶ Registro, sesión, permisos y revocación en PostgreSQL y HTTP reales
+  ✔ Sin sesión: 401 y CSRF ausente: 403 (153.6013ms)
+  ✔ Registro rechaza roles del cliente y guarda pendiente con hash (673.2092ms)
+  ✔ Acceso regenera sesión y permite perfil propio pendiente, sin hash (746.9074ms)
+  ✔ Estado y roles se releen de BD; auth_version revoca la sesión (16.5102ms)
+  ✔ Logout invalida también la cookie anterior (314.5509ms)
+  ✔ Solo docente activo valida; un admin sin rol docente no puede (2152.5103ms)
+✔ Registro, sesión, permisos y revocación en PostgreSQL y HTTP reales (4764.4604ms)
+ℹ tests 28
+ℹ suites 0
+ℹ pass 28
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5391.7795

@@ -1,0 +1,6 @@
+
+# Conservar los bytes de los entregables y sus hashes.
+*.pdf binary
+*.zip binary
+*.jpg binary
+evidencias/** -text whitespace=cr-at-eol

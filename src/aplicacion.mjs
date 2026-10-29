@@ -5,6 +5,7 @@ import { rateLimit, ipKeyGenerator } from 'express-rate-limit';
 import { randomBytes, randomUUID, createHash, timingSafeEqual } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { crearHash, comprobarClave, claveValida, Ocupado } from './claves.mjs';
+import { rutasAdministracion } from './administracion.mjs';
 import { rutasDocentes } from './docencia.mjs';
 import { rutasCesiones } from './cesiones.mjs';
 import { rutasAnuncios } from './anuncios.mjs';
@@ -119,6 +120,7 @@ export async function crearAplicacion(pool, { origen, secreto, esquema='public',
   app.use('/api',rutasAnuncios(pool,sesionNecesaria,activaNecesaria));
   app.use('/api',rutasCesiones(pool,sesionNecesaria,activaNecesaria));
   app.use('/api',rutasCatalogo(pool,sesionNecesaria,activaNecesaria));
+  app.use('/api/admin',rutasAdministracion(pool,sesionNecesaria,activaNecesaria));
   app.use('/api/gestion',rutasDocentes(pool,sesionNecesaria,activaNecesaria));
   app.post('/api/salida',sesionNecesaria,async(req,res) => {
     await destruir(req);res.clearCookie('aula.sid',cookie);res.sendStatus(204);

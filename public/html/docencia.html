@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Aula Circular · Validación docente</title>
   <link rel="stylesheet" href="../css/estilo.css">
-</head>
+<style>#cola-anuncios .tarjeta label{display:block;margin:12px 0}#cola-anuncios input{display:block;width:100%;max-width:100%;box-sizing:border-box}#cola-anuncios button{margin:6px 8px 6px 0}nav[aria-label="Recursos y operaciones"]{display:flex;gap:12px;flex-wrap:wrap}.seccion button:disabled{opacity:.55;cursor:default}</style></head>
 <body>
     <header>
       <div class="max-w">
@@ -27,9 +27,11 @@
       <p id="aviso-estado" class="aviso-cuenta" role="status" aria-live="polite" hidden></p>
 
       <section class="seccion area" aria-labelledby="titulo-docencia">
-        <h1 id="titulo-docencia">Validación de cuentas</h1>
+        <h1 id="titulo-docencia">Panel docente</h1>
         <p>Revisa la pertenencia al centro y confirma el curso antes de activar una cuenta.</p>
         <p id="mensaje" class="area-estado" role="status" aria-live="polite" tabindex="-1"></p>
+        <nav aria-label="Recursos y operaciones"><a href="biblioteca.html">Biblioteca</a> · <a href="documentacion.html">Documentación</a> · <a href="cesiones.html">Solicitudes y operaciones</a></nav>
+        <h2>Cuentas pendientes</h2>
         <ul id="cuentas" class="tarjeta-grid area-lista" aria-labelledby="titulo-docencia"></ul>
         <div class="paginacion">
           <button type="button" id="anterior" class="boton-sec" disabled>Anterior</button>
@@ -37,6 +39,7 @@
           <button type="button" id="siguiente" class="boton-sec" disabled>Siguiente</button>
         </div>
       </section>
+      <section class="seccion area"><h2>Anuncios enviados a revisión</h2><p id="estado-revision" role="status"></p><ul id="cola-anuncios" class="tarjeta-grid"></ul><button id="revision-anterior" disabled>Anterior</button><span id="revision-pagina">Página 1</span><button id="revision-siguiente">Siguiente</button></section>
     </main>
 
     <footer class="pie">
@@ -45,5 +48,5 @@
 
     <script type="module" src="../mjs/shell.mjs"></script>
     <script type="module" src="../mjs/docencia.mjs"></script>
-  </body>
+  <script type="module" src="../mjs/cola-docente.mjs"></script></body>
 </html>

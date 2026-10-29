@@ -11,3 +11,6 @@ AGENTS.md
 
 # Credenciales del docente de ensayo local
 .docente-local.json
+
+# Credenciales de administración de ensayo local
+.admin-local.json
