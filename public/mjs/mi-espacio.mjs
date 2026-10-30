@@ -11,7 +11,6 @@ const perfilRoles = document.querySelector('#perfil-roles');
 const perfilCursoSolicitado = document.querySelector('#perfil-curso-solicitado');
 const perfilCursoConfirmado = document.querySelector('#perfil-curso-confirmado');
 const avisoAlumno = document.querySelector('#aviso-alumno');
-const enlaceDocencia = document.querySelector('#enlace-docencia');
 const seccionAnuncios = document.querySelector('#seccion-anuncios');
 const form = document.querySelector('#anuncio');
 const campos = document.querySelector('#campos');
@@ -111,7 +110,6 @@ function mostrarPerfil(datos) {
   seccionAnuncios.hidden = !alumno;
   campos.disabled = !alumno;
   avisoAlumno.hidden = alumno;
-  enlaceDocencia.hidden = !(datos.estado === 'activo' && datos.roles.includes('docente'));
 
   if (!alumno) {
     avisoAlumno.textContent = datos.estado === 'suspendido'
@@ -129,7 +127,6 @@ function limpiarTodo() {
   perfilDatos.hidden = true;
   seccionAnuncios.hidden = true;
   avisoAlumno.hidden = true;
-  enlaceDocencia.hidden = true;
   limpiarLista();
   nuevo();
   mostrar('');

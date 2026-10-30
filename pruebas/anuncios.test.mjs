@@ -207,10 +207,12 @@ test('Anuncios propios, estados y concurrencia con PostgreSQL y HTTP reales',asy
       assert.equal((await buscarLibro('curso=1')).datos.length,0);
       assert.equal((await buscarLibro('modalidad=prestamo')).datos.length,1);
       assert.equal((await buscarLibro('modalidad=intercambio')).datos.length,0);
+      assert.equal((await buscarLibro('disponible=1')).datos.length,1);
+      assert.equal((await buscarLibro('disponible=0')).datos.length,1);
       const segundaPagina=await buscarLibro('pagina=2&limite=1');
       assert.equal(segundaPagina.total,1);
       assert.equal(segundaPagina.datos.length,0);
-      for(const consulta of ['modalidad=otro','curso=abc','pagina=0','limite=21','desconocido=1','q='+encodeURIComponent('x'.repeat(81))]){
+      for(const consulta of ['modalidad=otro','curso=abc','disponible=2','pagina=0','limite=21','desconocido=1','q='+encodeURIComponent('x'.repeat(81))]){
         assert.equal((await buscarLibro(consulta)).status,422,consulta);
       }
 
@@ -235,6 +237,14 @@ test('Anuncios propios, estados y concurrencia con PostgreSQL y HTTP reales',asy
       const despues=(await pedir(a,'/api/anuncios/'+id)).datos;
       assert.equal(despues.titulo,antes.titulo);assert.equal(despues.version,antes.version);
       assert.equal((await pool.query('SELECT * FROM reserva_activa')).rowCount,1);
+    });
+    await t.test('El filtro de disponibles excluye ejemplares con reserva activa',async()=>{
+      await pool.query("UPDATE anuncio SET estado_revision='publicado',version=version+1 WHERE id=$1",[id]);
+      const todos=await pedir(a,'/api/libros');
+      assert.equal(todos.total,1);
+      assert.equal(todos.datos[0].disponible,false);
+      assert.equal((await pedir(a,'/api/libros?disponible=1')).total,0);
+      assert.equal((await pedir(a,'/api/libros?disponible=0')).total,1);
     });
     await t.test('Sin ISBN se admite; la paginación y los datos privados se controlan',async()=>{
       assert.equal((await pedir(a,'/api/anuncios','POST',{...datos,isbn:''})).status,201);

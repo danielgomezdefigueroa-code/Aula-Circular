@@ -19,10 +19,13 @@ function leerFiltrosLibros(req){
     (typeof curso!=='string'||!/^\d+$/.test(curso)||!esId(Number(curso))||Number(curso)>2147483647)) return null;
   const modalidad=req.query.modalidad;
   if(modalidad!==undefined&&modalidad!==''&&!['cesion','prestamo','intercambio'].includes(modalidad)) return null;
+  const disponible=req.query.disponible;
+  if(disponible!==undefined&&disponible!==''&&disponible!=='0'&&disponible!=='1') return null;
   return {
     texto:normalizarBusqueda(String(q??'').trim()),
     cursoId:curso?Number(curso):null,
-    modalidad:modalidad??''
+    modalidad:modalidad??'',
+    soloDisponibles:disponible==='1'
   };
 }
 function validar(cuerpo,esEdicion=false){
@@ -88,7 +91,7 @@ export function rutasAnuncios(pool,sesionNecesaria,activaNecesaria){
   });
   rutas.get('/libros',sesionNecesaria,activaNecesaria,async(req,res)=>{
     if(!req.usuario.roles.some(r=>['alumno','docente'].includes(r))) return res.status(403).json({error:'PERMISO_INSUFICIENTE'});
-    const p=paginacion(req,res,['q','curso','modalidad']);if(!p) return;
+    const p=paginacion(req,res,['q','curso','modalidad','disponible']);if(!p) return;
     const filtros=leerFiltrosLibros(req);
     if(!filtros) return res.status(422).json({error:'PARAMETROS_INVALIDOS'});
     const titulo=sinAcentos('r.titulo');
@@ -98,10 +101,17 @@ export function rutasAnuncios(pool,sesionNecesaria,activaNecesaria){
     const isbn=sinAcentos("COALESCE(r.isbn, '')");
     const curso=sinAcentos('c.nombre');
     const codigo=sinAcentos('e.codigo');
+    // Un ejemplar está libre si no tiene reserva ni una operación de préstamo en curso.
+    const libre=`NOT EXISTS (SELECT 1 FROM reserva_activa ra WHERE ra.ejemplar_id=e.id)
+      AND NOT EXISTS (
+        SELECT 1 FROM operacion_item oi JOIN operacion o ON o.id=oi.operacion_id
+        WHERE oi.ejemplar_id=e.id AND o.estado IN ('reservada','prestada')
+      )`;
     const r=await pool.query(`WITH coincidencias AS (
       SELECT a.id,'libros' AS seccion,r.titulo,r.descripcion,r.asignatura,r.edicion,r.isbn,
         c.nombre AS curso,e.conservacion,e.codigo,a.modalidad,
-        'fisico' AS tipo,'Estudiantil' AS procedencia,'publicado' AS estado
+        'fisico' AS tipo,'Estudiantil' AS procedencia,'publicado' AS estado,
+        ${libre} AS disponible
       FROM anuncio a JOIN ejemplar e ON e.id=a.ejemplar_id
       JOIN recurso r ON r.id=e.recurso_id JOIN curso c ON c.id=r.curso_id
       WHERE a.estado_revision='publicado' AND e.estado_servicio='habilitado'
@@ -117,16 +127,17 @@ export function rutasAnuncios(pool,sesionNecesaria,activaNecesaria){
         )
         AND ($2::integer IS NULL OR r.curso_id=$2)
         AND ($3='' OR a.modalidad=$3)
+        AND (NOT $4::boolean OR ${libre})
     ),recuento AS (
       SELECT count(*)::integer AS total FROM coincidencias
     )
     SELECT recuento.total,pagina.*
     FROM recuento
     LEFT JOIN LATERAL (
-      SELECT * FROM coincidencias ORDER BY id DESC LIMIT $4 OFFSET $5
+      SELECT * FROM coincidencias ORDER BY id DESC LIMIT $5 OFFSET $6
     ) pagina ON true
     ORDER BY pagina.id DESC NULLS LAST`,
-      [filtros.texto,filtros.cursoId,filtros.modalidad,p.limite,(p.pagina-1)*p.limite]);
+      [filtros.texto,filtros.cursoId,filtros.modalidad,filtros.soloDisponibles,p.limite,(p.pagina-1)*p.limite]);
     const total=r.rows[0]?.total??0;
     const datos=r.rows.filter(f=>f.id!==null).map(({total:_total,...f})=>f);
     res.json({datos,total,...p});

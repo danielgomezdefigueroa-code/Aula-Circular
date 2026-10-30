@@ -8,6 +8,7 @@ const formulario = document.querySelector('#filtros-libros');
 const busqueda = document.querySelector('#lib-q');
 const curso = document.querySelector('#lib-curso');
 const modalidad = document.querySelector('#lib-modalidad');
+const disponibles = document.querySelector('#lib-disponible');
 const mensaje = document.querySelector('#mensaje');
 const lista = document.querySelector('#libros');
 const paginacion = document.querySelector('#libros-paginacion');
@@ -28,7 +29,7 @@ function mostrar(texto, enfocar = false) {
 }
 
 function hayFiltros() {
-  return Boolean(busqueda.value.trim() || curso.value || modalidad.value);
+  return Boolean(busqueda.value.trim() || curso.value || modalidad.value || disponibles.checked);
 }
 
 function parametros() {
@@ -37,6 +38,7 @@ function parametros() {
   if (texto) parametros.set('q', texto);
   if (curso.value) parametros.set('curso', curso.value);
   if (modalidad.value) parametros.set('modalidad', modalidad.value);
+  if (disponibles.checked) parametros.set('disponible', '1');
   parametros.set('pagina', String(pagina));
   parametros.set('limite', String(limite));
   return parametros;

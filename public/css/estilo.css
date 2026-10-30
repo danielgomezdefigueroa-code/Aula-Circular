@@ -326,6 +326,7 @@ h2 { margin: 24px 0 12px; }
 /* Filtros de las páginas de área: una fila de campos y otra de acciones. */
 .filtros-catalogo {
   grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
+  margin: 1rem 0;
 }
 .filtros-catalogo .acciones-filtros {
   grid-column: 1 / -1;

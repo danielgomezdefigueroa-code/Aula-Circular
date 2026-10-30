@@ -148,7 +148,7 @@ El servidor escucha solo en 127.0.0.1: no publica la aplicación para otros orde
 | GET /api/recursos-demo | 200; datos con todos los recursos |
 | GET /api/recursos-demo?q=calculadora | Recursos cuyo título coincide |
 | GET /api/biblioteca?q=guia&tipo=fisico&curso=1&disponible=1&pagina=1&limite=20 | 200; datos filtrados, pagina, limite y total |
-| GET /api/libros?q=programacion&curso=2&modalidad=prestamo&pagina=1&limite=20 | 200; datos publicados filtrados, total, pagina y limite |
+| GET /api/libros?q=programacion&curso=2&modalidad=prestamo&disponible=1&pagina=1&limite=20 | 200; datos publicados filtrados, total, pagina y limite |
 | GET /ruta-inexistente | 404; error NO_ENCONTRADO |
 
 ```powershell
@@ -183,7 +183,7 @@ Las páginas `/html/biblioteca.html` y `/html/libros.html` tienen formulario de 
 - `q`: hasta 80 caracteres. Busca en título, descripción, curso, asignatura, edición, ISBN y código de ejemplar. No distingue mayúsculas ni acentos.
 - `tipo` (Biblioteca): `fisico`, `digital` o `enlace`.
 - `curso`: identificador del curso; en Biblioteca también se admite `general` para recursos sin curso.
-- `disponible=1` (Biblioteca): excluye los recursos físicos sin ningún ejemplar habilitado. Los digitales y enlaces se consideran consultables.
+- `disponible=1` (Biblioteca y Libros): en Biblioteca excluye los recursos físicos sin ningún ejemplar habilitado; los digitales y enlaces se consideran consultables. En Libros excluye los ejemplares con reserva activa o con un préstamo en curso.
 - `modalidad` (Libros): `cesion`, `prestamo` o `intercambio`.
 - `pagina` y `limite`: 1-20 registros por página. La respuesta incluye `total` para calcular las páginas.
 
@@ -193,7 +193,7 @@ Prueba manual recomendada:
 
 1. Entra con una cuenta activa de alumnado o docencia.
 2. En Biblioteca, busca `guia` y comprueba que aparece «Guía práctica de desarrollo web». Prueba tipo, curso, «General (sin curso)» y «Solo disponibles».
-3. En Libros, busca `javascript`, filtra por curso y por modalidad. Comprueba que el contador y la paginación cambian.
+3. En Libros, busca `javascript`, filtra por curso y por modalidad y prueba «Solo disponibles». Comprueba que el contador y la paginación cambian.
 4. Revisa una ficha con dos ejemplares y otra sin ejemplar para confirmar estado y códigos.
 5. Con la ventana estrecha (320 px), comprueba que los filtros y las tarjetas no provocan desplazamiento horizontal.
 
