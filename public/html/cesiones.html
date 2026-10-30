@@ -1,8 +1,43 @@
 <!doctype html>
-<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Cesiones - Aula Circular</title>
-<style>body{font:16px system-ui;max-width:960px;margin:auto;padding:24px;color:#183448}nav{display:flex;gap:20px;flex-wrap:wrap}li{padding:20px;border:1px solid #c9dedd;border-radius:12px;margin:12px 0;list-style:none}ul{padding:0}button,input{font:inherit;padding:10px;margin:6px;max-width:100%;box-sizing:border-box}button{cursor:pointer;background:#e3f7f3;border:1px solid #68a69b;border-radius:6px}label{display:block}#mensaje{padding:16px;background:#eef7fa}</style></head>
-<body><nav><a href="/html/login.html">Mi cuenta</a><a href="/html/libros.html">Libros</a><a href="/html/mi-espacio.html">Mis anuncios</a><a href="/html/docencia.html">Validación de cuentas</a></nav>
-<h1>Cesiones y moderación</h1><p>La entrega es definitiva. El docente revisa los anuncios y confirma las reservas y entregas.</p><p id="mensaje" role="status" aria-live="polite">Cargando…</p>
-<section id="revision" hidden><h2>Anuncios pendientes</h2><ul id="anuncios"></ul></section>
-<h2>Solicitudes</h2><ul id="solicitudes"></ul><h2>Operaciones e historial</h2><ul id="operaciones"></ul><h2>Avisos propios</h2><ul id="avisos"></ul>
-<button id="anterior">Anterior</button><span id="pagina"></span><button id="siguiente">Siguiente</button><script type="module" src="/mjs/cesiones.mjs"></script></body></html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Cesiones - Aula Circular</title>
+  <link rel="stylesheet" href="../css/estilo.css">
+</head>
+<body>
+  <header>
+    <div class="max-w">
+      <a class="brand" href="index.html">Aula Circular</a>
+      <button type="button" id="menu-boton" class="menu-boton" aria-expanded="false" aria-controls="menu-principal">Abrir menú</button>
+      <nav id="menu-principal" class="nav" aria-label="Navegación principal">
+        <a href="index.html" class="nav-link">Inicio</a>
+        <a href="biblioteca.html" class="nav-link" data-area="biblioteca" hidden>Biblioteca</a>
+        <a href="libros.html" class="nav-link" data-area="libros" hidden>Libros</a>
+        <a href="documentacion.html" class="nav-link" data-area="documentacion" hidden>Documentación</a>
+        <a href="mi-espacio.html" class="nav-link" data-area="mi-espacio" hidden>Mi espacio</a>
+      </nav>
+    </div>
+  </header>
+  <main id="contenido">
+    <p id="aviso-sesion" class="resumen-errores" role="alert" hidden></p>
+    <p id="aviso-estado" class="aviso-cuenta" role="status" aria-live="polite" hidden></p>
+    <section id="revision" hidden>
+      <h2>Anuncios pendientes</h2>
+      <ul id="anuncios"></ul>
+    </section>
+    <h2>Solicitudes</h2>
+    <ul id="solicitudes"></ul>
+    <h2>Operaciones e historial</h2>
+    <ul id="operaciones"></ul>
+    <h2>Avisos propios</h2>
+    <ul id="avisos"></ul>
+    <button id="anterior">Anterior</button>
+    <span id="pagina"></span>
+    <button id="siguiente">Siguiente</button>
+    <script type="module" src="../mjs/cesiones.mjs"></script>
+  </main>
+  <footer class="pie">Aula Circular · Centro ficticio · Datos de ensayo</footer>
+</body>
+</html>
