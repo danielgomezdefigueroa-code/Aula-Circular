@@ -37,8 +37,15 @@ export function rutasCatalogo(pool, sesionNecesaria, activaNecesaria) {
                 CASE
                   WHEN r.tipo IN ('digital', 'enlace') THEN 'disponible'
                   WHEN EXISTS (
-                    SELECT 1 FROM ejemplar e
-                    WHERE e.recurso_id = r.id AND e.estado_servicio = 'habilitado'
+                    SELECT 1
+                    FROM ejemplar e
+                    WHERE e.recurso_id = r.id
+                      AND e.estado_servicio = 'habilitado'
+                      AND NOT EXISTS (
+                        SELECT 1
+                        FROM reserva_activa ra
+                        WHERE ra.ejemplar_id = e.id
+                      )
                   ) THEN 'disponible'
                   ELSE 'no disponible'
                 END AS estado,

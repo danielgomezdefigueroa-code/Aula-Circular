@@ -13,6 +13,7 @@ import { rutasIntercambios } from './intercambios/rutas.mjs';
 import { rutasAnuncios } from './anuncios.mjs';
 import { rutasCatalogo } from './catalogo.mjs';
 import { crearRutasDocumentos } from './documentos/rutas.mjs';
+import { rutasPrestamos } from './prestamos/rutas.mjs';
 
 const token = () => randomBytes(32).toString('hex');
 const guardar = sesion => new Promise((ok,fallo) => sesion.save(e => e ? fallo(e) : ok()));
@@ -123,6 +124,7 @@ export async function crearAplicacion(pool, { origen, secreto, esquema='public',
   app.use('/api',rutasAnuncios(pool,sesionNecesaria,activaNecesaria));
   app.use('/api',rutasCesiones(pool,sesionNecesaria,activaNecesaria));
   app.use('/api',rutasIntercambios(pool,sesionNecesaria,activaNecesaria));
+  app.use('/api', rutasPrestamos(pool, sesionNecesaria, activaNecesaria));
   app.use('/api',rutasCatalogo(pool,sesionNecesaria,activaNecesaria));
   app.use(
     '/api/documentos',
