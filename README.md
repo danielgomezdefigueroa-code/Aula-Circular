@@ -53,3 +53,5 @@ El proyecto utiliza **HTML, CSS y JavaScript sin frameworks de cliente**, junto 
 ## Estado actual
 
 La rama integra cuentas y sesiones, validación docente, anuncios propios y el catálogo de Biblioteca, Libros y Documentación contra la API. Los préstamos, reservas, la descarga de documentos y la administración de roles del proyecto completo aún no están implementados. Consulta [la guía de instalación y código](docs/GUIA-LABORATORIO.md).
+
+Cesiones y moderación: [guía](docs/CESIONES.md). Pantalla: `/html/cesiones.html`.

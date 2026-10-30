@@ -4,7 +4,7 @@
   "description": "",
   "main": "src/app.mjs",
   "scripts": {
-    "test": "node --env-file=.env --test pruebas/cuentas.test.mjs pruebas/anuncios.test.mjs",
+    "test": "node --env-file=.env --test pruebas/cuentas.test.mjs pruebas/anuncios.test.mjs pruebas/cesiones.test.mjs",
     "preparar": "node scripts/preparar.mjs",
     "migrar": "node --env-file=.env scripts/migrar.mjs",
     "docente:local": "node --env-file=.env scripts/docente-local.mjs",

@@ -109,7 +109,7 @@ export function rutasAnuncios(pool,sesionNecesaria,activaNecesaria){
       )`;
     const r=await pool.query(`WITH coincidencias AS (
       SELECT a.id,'libros' AS seccion,r.titulo,r.descripcion,r.asignatura,r.edicion,r.isbn,
-        c.nombre AS curso,e.conservacion,e.codigo,a.modalidad,
+        c.nombre AS curso,e.conservacion,e.codigo,e.id AS ejemplar_id,a.modalidad,
         'fisico' AS tipo,'Estudiantil' AS procedencia,'publicado' AS estado,
         ${libre} AS disponible
       FROM anuncio a JOIN ejemplar e ON e.id=a.ejemplar_id

@@ -1,6 +1,6 @@
 /* Libros: anuncios publicados con búsqueda, filtros y paginación.
    La API decide el acceso y aplica los filtros. */
-import { listo, pedir, leerJson, irALogin } from './shell.mjs';
+import { listo, pedir, leerJson, irALogin, enviar } from './shell.mjs';
 import { crearTarjeta, normalizarLibro, puedeConsultar, textoError } from './catalogo-comun.mjs';
 import { cargarCursos } from './filtros-catalogo.mjs';
 
@@ -62,6 +62,62 @@ async function prepararCursos() {
   }
 }
 
+function puedeSolicitar(anuncio) {
+  return anuncio.modalidad === 'cesion'
+    && anuncio.disponible === true
+    && Array.isArray(identidad?.roles)
+    && identidad.roles.includes('alumno');
+}
+
+async function solicitarCesion(anuncio, boton) {
+  boton.disabled = true;
+  boton.textContent = 'Enviando…';
+  try {
+    const respuesta = await enviar('/solicitudes', { ejemplarId: anuncio.ejemplar_id });
+    const cuerpo = await leerJson(respuesta);
+    if (respuesta.status === 401) {
+      irALogin();
+      return;
+    }
+    if (!respuesta.ok) {
+      boton.disabled = false;
+      boton.textContent = 'Solicitar cesión';
+      mostrar(textoError(respuesta, cuerpo, 'la solicitud'), true);
+      return;
+    }
+    boton.textContent = 'Solicitud enviada';
+    mostrar('Solicitud de cesión enviada. Un docente la revisará.', true);
+  } catch {
+    boton.disabled = false;
+    boton.textContent = 'Solicitar cesión';
+    mostrar('No se pudo contactar con el servidor. Inténtalo de nuevo.', true);
+  }
+}
+
+function crearAnuncio(anuncio) {
+  const tarjeta = crearTarjeta(normalizarLibro(anuncio));
+
+  const disponibilidad = document.createElement('p');
+  disponibilidad.className = 'disponibilidad';
+  disponibilidad.textContent = anuncio.disponible === true
+    ? 'Disponible'
+    : 'No disponible en este momento';
+  tarjeta.append(disponibilidad);
+
+  if (puedeSolicitar(anuncio)) {
+    const acciones = document.createElement('div');
+    acciones.className = 'acciones-tarjeta';
+    const boton = document.createElement('button');
+    boton.type = 'button';
+    boton.textContent = 'Solicitar cesión';
+    boton.addEventListener('click', () => solicitarCesion(anuncio, boton));
+    acciones.append(boton);
+    tarjeta.append(acciones);
+  }
+
+  return tarjeta;
+}
+
 async function cargar() {
   if (!puedeConsultar(identidad)) {
     lista.replaceChildren();
@@ -97,7 +153,7 @@ async function cargar() {
 
     const datos = Array.isArray(cuerpo?.datos) ? cuerpo.datos : [];
     total = Number.isSafeInteger(cuerpo?.total) ? cuerpo.total : datos.length;
-    lista.replaceChildren(...datos.map(normalizarLibro).map(crearTarjeta));
+    lista.replaceChildren(...datos.map(crearAnuncio));
 
     if (total === 0) {
       mostrar(hayFiltros()

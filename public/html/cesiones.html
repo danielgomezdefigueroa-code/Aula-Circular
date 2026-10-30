@@ -1,0 +1,8 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Cesiones - Aula Circular</title>
+<style>body{font:16px system-ui;max-width:960px;margin:auto;padding:24px;color:#183448}nav{display:flex;gap:20px;flex-wrap:wrap}li{padding:20px;border:1px solid #c9dedd;border-radius:12px;margin:12px 0;list-style:none}ul{padding:0}button,input{font:inherit;padding:10px;margin:6px;max-width:100%;box-sizing:border-box}button{cursor:pointer;background:#e3f7f3;border:1px solid #68a69b;border-radius:6px}label{display:block}#mensaje{padding:16px;background:#eef7fa}</style></head>
+<body><nav><a href="/html/login.html">Mi cuenta</a><a href="/html/libros.html">Libros</a><a href="/html/mi-espacio.html">Mis anuncios</a><a href="/html/docencia.html">Validación de cuentas</a></nav>
+<h1>Cesiones y moderación</h1><p>La entrega es definitiva. El docente revisa los anuncios y confirma las reservas y entregas.</p><p id="mensaje" role="status" aria-live="polite">Cargando…</p>
+<section id="revision" hidden><h2>Anuncios pendientes</h2><ul id="anuncios"></ul></section>
+<h2>Solicitudes</h2><ul id="solicitudes"></ul><h2>Operaciones e historial</h2><ul id="operaciones"></ul><h2>Avisos propios</h2><ul id="avisos"></ul>
+<button id="anterior">Anterior</button><span id="pagina"></span><button id="siguiente">Siguiente</button><script type="module" src="/mjs/cesiones.mjs"></script></body></html>
