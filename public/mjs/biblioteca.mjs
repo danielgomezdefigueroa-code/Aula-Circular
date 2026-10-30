@@ -1,7 +1,164 @@
-import { iniciarArea } from './area-catalogo.mjs';
+/* Biblioteca: búsqueda, filtros y fichas.
+   La API aplica los filtros y devuelve el total para paginar. */
+import { listo, pedir, leerJson, irALogin } from './shell.mjs';
+import { crearTarjeta, puedeConsultar, textoError } from './catalogo-comun.mjs';
+import { cargarCursos } from './filtros-catalogo.mjs';
 
-await iniciarArea({
-  ruta: '/biblioteca',
-  vacio: 'No hay recursos de biblioteca disponibles.',
-  contexto: 'Biblioteca'
+const formulario = document.querySelector('#filtros-biblioteca');
+const busqueda = document.querySelector('#bib-q');
+const tipo = document.querySelector('#bib-tipo');
+const curso = document.querySelector('#bib-curso');
+const disponibles = document.querySelector('#bib-disponible');
+const lista = document.querySelector('#bib-lista');
+const cuenta = document.querySelector('#bib-cuenta');
+const paginacion = document.querySelector('#bib-paginacion');
+const anterior = document.querySelector('#bib-anterior');
+const siguiente = document.querySelector('#bib-siguiente');
+const paginaTexto = document.querySelector('#bib-pagina');
+
+const limite = 20;
+let identidad = null;
+let pagina = 1;
+let total = 0;
+let ultimaSolicitud = 0;
+let cursosCargados = false;
+
+function mostrar(texto) {
+  cuenta.textContent = texto ?? '';
+}
+
+function hayFiltros() {
+  return Boolean(
+    busqueda.value.trim() || tipo.value || curso.value || disponibles.checked
+  );
+}
+
+function parametros() {
+  const parametros = new URLSearchParams();
+  const texto = busqueda.value.trim();
+  if (texto) parametros.set('q', texto);
+  if (tipo.value) parametros.set('tipo', tipo.value);
+  if (curso.value) parametros.set('curso', curso.value);
+  if (disponibles.checked) parametros.set('disponible', '1');
+  parametros.set('pagina', String(pagina));
+  parametros.set('limite', String(limite));
+  return parametros;
+}
+
+function actualizarPaginacion() {
+  const paginas = Math.max(1, Math.ceil(total / limite));
+  paginaTexto.textContent = 'Página ' + pagina + ' de ' + paginas;
+  anterior.disabled = pagina <= 1 || total === 0;
+  siguiente.disabled = pagina >= paginas || total === 0;
+  paginacion.hidden = total === 0;
+}
+
+async function prepararCursos() {
+  if (cursosCargados) return;
+  try {
+    await cargarCursos(curso, { general: true });
+    cursosCargados = true;
+  } catch {
+    // El filtro de curso se queda con la opción general; la búsqueda sigue disponible.
+  }
+}
+
+async function cargar() {
+  if (!puedeConsultar(identidad)) {
+    lista.replaceChildren();
+    paginacion.hidden = true;
+    mostrar(identidad
+      ? 'Necesitas una cuenta activa de alumnado o docencia para consultar Biblioteca.'
+      : '');
+    return;
+  }
+
+  const solicitud = ++ultimaSolicitud;
+  lista.replaceChildren();
+  lista.setAttribute('aria-busy', 'true');
+  anterior.disabled = true;
+  siguiente.disabled = true;
+  mostrar('Cargando…');
+
+  try {
+    const respuesta = await pedir('/biblioteca?' + parametros().toString());
+    const cuerpo = await leerJson(respuesta);
+    if (solicitud !== ultimaSolicitud) return;
+
+    if (respuesta.status === 401) {
+      irALogin();
+      return;
+    }
+    if (!respuesta.ok) {
+      total = 0;
+      paginacion.hidden = true;
+      mostrar(textoError(respuesta, cuerpo, 'Biblioteca'));
+      return;
+    }
+
+    const datos = Array.isArray(cuerpo?.datos) ? cuerpo.datos : [];
+    total = Number.isSafeInteger(cuerpo?.total) ? cuerpo.total : datos.length;
+    lista.replaceChildren(...datos.map(crearTarjeta));
+
+    if (total === 0) {
+      mostrar(hayFiltros()
+        ? 'No hay recursos que coincidan con los filtros.'
+        : 'No hay recursos de biblioteca disponibles.');
+    } else {
+      mostrar(total === 1 ? '1 recurso encontrado.' : total + ' recursos encontrados.');
+    }
+    actualizarPaginacion();
+  } catch {
+    if (solicitud !== ultimaSolicitud) return;
+    total = 0;
+    paginacion.hidden = true;
+    mostrar('No se pudo contactar con el servidor. Inténtalo de nuevo.');
+  } finally {
+    if (solicitud === ultimaSolicitud) lista.setAttribute('aria-busy', 'false');
+  }
+}
+
+formulario.addEventListener('submit', (evento) => {
+  evento.preventDefault();
+  pagina = 1;
+  cargar();
 });
+
+formulario.addEventListener('reset', () => {
+  setTimeout(() => {
+    pagina = 1;
+    cargar();
+  }, 0);
+});
+
+anterior.addEventListener('click', () => {
+  if (pagina > 1) {
+    pagina -= 1;
+    cargar();
+  }
+});
+
+siguiente.addEventListener('click', () => {
+  const paginas = Math.max(1, Math.ceil(total / limite));
+  if (pagina < paginas) {
+    pagina += 1;
+    cargar();
+  }
+});
+
+async function iniciar() {
+  identidad = await listo;
+  if (!identidad) return;
+  await prepararCursos();
+  await cargar();
+}
+
+document.addEventListener('aula:sesion', async (evento) => {
+  identidad = evento.detail;
+  if (!identidad) return;
+  pagina = 1;
+  await prepararCursos();
+  await cargar();
+});
+
+iniciar();

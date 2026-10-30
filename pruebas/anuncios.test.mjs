@@ -43,6 +43,16 @@ test('Anuncios propios, estados y concurrencia con PostgreSQL y HTTP reales',asy
       VALUES('centro','fisico','Recurso de biblioteca de prueba','Recurso ficticio',1,'General','2026')`);
     await pool.query(`INSERT INTO ejemplar(recurso_id,codigo,conservacion)
       SELECT id,'EJ-CAT-TEST','bueno' FROM recurso WHERE titulo='Recurso de biblioteca de prueba'`);
+    await pool.query(`INSERT INTO recurso(origen,tipo,titulo,descripcion,curso_id,asignatura,edicion)
+      VALUES
+        ('centro','fisico','Recurso de biblioteca sin copia','Recurso ficticio sin ejemplar',2,'General','2026'),
+        ('centro','digital','Guía digital de prueba','Documento digital ficticio',1,'General','2026'),
+        ('centro','enlace','Enlace de prueba','Enlace ficticio del centro',NULL,'General','2026'),
+        ('centro','fisico','Recurso con dos ejemplares','Recurso ficticio con dos copias',2,'General','2026')`);
+    await pool.query(`INSERT INTO ejemplar(recurso_id,codigo,conservacion)
+      SELECT id,'EJ-CAT-02','bueno' FROM recurso WHERE titulo='Recurso con dos ejemplares'`);
+    await pool.query(`INSERT INTO ejemplar(recurso_id,codigo,conservacion)
+      SELECT id,'EJ-CAT-03','regular' FROM recurso WHERE titulo='Recurso con dos ejemplares'`);
     const doc=await pool.query(`INSERT INTO documento(codigo,titulo,curso_id)
       VALUES('DOC-TEST','Documento de prueba',1) RETURNING id`);
     const arch=await pool.query(`INSERT INTO archivo(nombre,tipo_mime,ruta)
@@ -50,22 +60,81 @@ test('Anuncios propios, estados y concurrencia con PostgreSQL y HTTP reales',asy
     await pool.query(`INSERT INTO documento_version(documento_id,numero_version,fecha,archivo_id,actual)
       VALUES($1,1,'2026-10-22',$2,true)`,[doc.rows[0].id,arch.rows[0].id]);
 
-    await t.test('Catálogo de Biblioteca y Documentación sobre el esquema actual',async()=>{
+    await t.test('Búsqueda, filtros y fichas del catálogo sobre el esquema actual',async()=>{
       assert.equal((await pedir({},'/api/biblioteca')).status,401);
       assert.equal((await pedir(p,'/api/biblioteca')).status,403);
+
       const biblioteca=await pedir(a,'/api/biblioteca');
       assert.equal(biblioteca.status,200);
-      assert.equal(biblioteca.datos.length,1);
-      assert.equal(biblioteca.datos[0].seccion,'biblioteca');
-      assert.equal(biblioteca.datos[0].estado,'disponible');
-      assert.equal((await pedir(a,'/api/biblioteca?q=zzzz')).datos.length,0);
+      assert.equal(biblioteca.total,5);
+      assert.equal(biblioteca.datos.length,5);
+      const porTitulo=new Map(biblioteca.datos.map((recurso)=>[recurso.titulo,recurso]));
+      const original=porTitulo.get('Recurso de biblioteca de prueba');
+      assert.equal(original.seccion,'biblioteca');
+      assert.equal(original.procedencia,'Centro educativo');
+      assert.equal(original.modalidad,'prestamo');
+      assert.equal(original.estado,'disponible');
+      assert.equal(original.codigo,'EJ-CAT-TEST');
+      assert.deepEqual(original.codigos,['EJ-CAT-TEST']);
+      assert.equal(original.ejemplares,1);
+
+      const digital=porTitulo.get('Guía digital de prueba');
+      assert.equal(digital.modalidad,'digital');
+      assert.equal(digital.estado,'disponible');
+      assert.equal(digital.codigo,null);
+      assert.deepEqual(digital.codigos,[]);
+      assert.equal(digital.ejemplares,0);
+
+      const enlace=porTitulo.get('Enlace de prueba');
+      assert.equal(enlace.modalidad,'enlace');
+      assert.equal(enlace.estado,'disponible');
+
+      const sinCopia=porTitulo.get('Recurso de biblioteca sin copia');
+      assert.equal(sinCopia.estado,'no disponible');
+      assert.deepEqual(sinCopia.codigos,[]);
+
+      const dosCopias=porTitulo.get('Recurso con dos ejemplares');
+      assert.equal(dosCopias.codigo,'EJ-CAT-02');
+      assert.deepEqual(dosCopias.codigos,['EJ-CAT-02','EJ-CAT-03']);
+      assert.equal(dosCopias.ejemplares,2);
+
+      const buscar=async(consulta)=>pedir(a,'/api/biblioteca?'+consulta);
+      assert.equal((await buscar('q=biblioteca')).datos.length,2);
+      assert.equal((await buscar('q=guia')).datos.length,1);
+      assert.equal((await buscar('q=guia')).datos[0].titulo,'Guía digital de prueba');
+      assert.equal((await buscar('q=EJ-CAT-02')).datos.length,1);
+      assert.equal((await buscar('q=EJ-CAT-02')).datos[0].titulo,'Recurso con dos ejemplares');
+      assert.equal((await buscar('q=biblioteca&tipo=fisico&disponible=1')).datos.length,1);
+      assert.equal((await buscar('tipo=digital')).datos.length,1);
+      assert.equal((await buscar('tipo=enlace')).datos.length,1);
+      assert.equal((await buscar('curso=1')).datos.length,2);
+      assert.equal((await buscar('curso=2')).datos.length,2);
+      assert.equal((await buscar('curso=general')).datos.length,1);
+      assert.equal((await buscar('disponible=1')).datos.length,4);
+
+      const primera=await buscar('pagina=1&limite=2');
+      assert.equal(primera.total,5);
+      assert.equal(primera.datos.length,2);
+      const tercera=await buscar('pagina=3&limite=2');
+      assert.equal(tercera.total,5);
+      assert.equal(tercera.datos.length,1);
+      const cuarta=await buscar('pagina=4&limite=2');
+      assert.equal(cuarta.total,5);
+      assert.equal(cuarta.datos.length,0);
+
+      for(const consulta of ['tipo=otro','curso=abc','disponible=2','pagina=0','limite=21','desconocido=1','q='+encodeURIComponent('x'.repeat(81))]){
+        assert.equal((await buscar(consulta)).status,422,consulta);
+      }
 
       const documentacion=await pedir(d,'/api/documentacion');
       assert.equal(documentacion.status,200);
       assert.equal(documentacion.datos.length,1);
       assert.equal(documentacion.datos[0].seccion,'documentacion');
+      assert.equal(documentacion.datos[0].procedencia,'Centro educativo');
       assert.equal(documentacion.datos[0].version,1);
       assert.equal((await pedir(a,'/api/documentacion?q=DOC-TEST')).datos.length,1);
+      assert.equal((await pedir(a,'/api/documentacion?q=documento')).datos.length,1);
+      assert.equal((await pedir(a,'/api/documentacion?q=zzzz')).datos.length,0);
     });
 
     await t.test('Validación de campos, CSRF, cuenta activa y propiedad desde sesión',async()=>{
@@ -119,7 +188,32 @@ test('Anuncios propios, estados y concurrencia con PostgreSQL y HTTP reales',asy
     });
     await t.test('Editar publicado vuelve a revisión y cancela propuestas sin reserva',async()=>{
       await pool.query("UPDATE anuncio SET estado_revision='publicado',version=version+1 WHERE id=$1",[id]);
-      assert.equal((await pedir(a,'/api/libros')).datos.length,1);
+      const publicados=await pedir(a,'/api/libros');
+      assert.equal(publicados.total,1);
+      assert.equal(publicados.datos.length,1);
+      const libro=publicados.datos[0];
+      assert.equal(libro.seccion,'libros');
+      assert.equal(libro.procedencia,'Estudiantil');
+      assert.equal(libro.estado,'publicado');
+      assert.match(libro.codigo,/^LIB-/);
+
+      const buscarLibro=async(consulta)=>pedir(a,'/api/libros?'+consulta);
+      assert.equal((await buscarLibro('q=programacion')).datos.length,1);
+      assert.equal((await buscarLibro('q=ejemplo')).datos.length,1);
+      assert.equal((await buscarLibro('q=9780306406157')).datos.length,1);
+      assert.equal((await buscarLibro('q='+encodeURIComponent(libro.codigo))).datos.length,1);
+      assert.equal((await buscarLibro('q=programacion&curso=2&modalidad=prestamo')).datos.length,1);
+      assert.equal((await buscarLibro('curso=2')).datos.length,1);
+      assert.equal((await buscarLibro('curso=1')).datos.length,0);
+      assert.equal((await buscarLibro('modalidad=prestamo')).datos.length,1);
+      assert.equal((await buscarLibro('modalidad=intercambio')).datos.length,0);
+      const segundaPagina=await buscarLibro('pagina=2&limite=1');
+      assert.equal(segundaPagina.total,1);
+      assert.equal(segundaPagina.datos.length,0);
+      for(const consulta of ['modalidad=otro','curso=abc','pagina=0','limite=21','desconocido=1','q='+encodeURIComponent('x'.repeat(81))]){
+        assert.equal((await buscarLibro(consulta)).status,422,consulta);
+      }
+
       const publicado=(await pedir(a,'/api/anuncios/'+id)).datos;version=publicado.version;
       const igual=await pedir(a,'/api/anuncios/'+id,'PATCH',{...datos,conservacion:publicado.conservacion,version});
       assert.equal(igual.status,200);assert.equal(igual.datos.estado_revision,'publicado');assert.equal(igual.datos.version,version);

@@ -28,13 +28,38 @@
       <section class="seccion area" aria-labelledby="titulo-libros">
         <h1 id="titulo-libros">Libros</h1>
         <p>Solo aparecen anuncios aprobados por un docente.</p>
+        <form id="filtros-libros" class="filtros-lab filtros-catalogo" role="search" aria-label="Filtros de Libros">
+          <div>
+            <label for="lib-q">Buscar</label>
+            <input id="lib-q" name="q" type="search" maxlength="80" placeholder="Título, descripción, curso, ISBN o código">
+          </div>
+          <div>
+            <label for="lib-curso">Curso</label>
+            <select id="lib-curso" name="curso">
+              <option value="">Todos los cursos</option>
+            </select>
+          </div>
+          <div>
+            <label for="lib-modalidad">Modalidad</label>
+            <select id="lib-modalidad" name="modalidad">
+              <option value="">Todas las modalidades</option>
+              <option value="cesion">Cesión</option>
+              <option value="prestamo">Préstamo</option>
+              <option value="intercambio">Intercambio</option>
+            </select>
+          </div>
+          <div class="acciones-filtros">
+            <button type="submit">Buscar</button>
+            <button type="reset" class="boton-sec">Limpiar</button>
+          </div>
+        </form>
         <p id="mensaje" class="area-estado" role="status" aria-live="polite" tabindex="-1"></p>
         <ul id="libros" class="tarjeta-grid area-lista" aria-labelledby="titulo-libros"></ul>
-        <div class="paginacion">
+        <nav id="libros-paginacion" class="paginacion" aria-label="Paginación de Libros" hidden>
           <button type="button" id="anterior" class="boton-sec" disabled>Anterior</button>
           <span id="pagina" aria-live="polite"></span>
           <button type="button" id="siguiente" class="boton-sec" disabled>Siguiente</button>
-        </div>
+        </nav>
       </section>
     </main>
 

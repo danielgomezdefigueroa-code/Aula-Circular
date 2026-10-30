@@ -5,7 +5,9 @@ export const modalidades = {
   prestamo: 'Préstamo',
   cesion: 'Cesión',
   intercambio: 'Intercambio',
-  descarga: 'Documento descargable'
+  descarga: 'Documento del centro',
+  digital: 'Consulta digital',
+  enlace: 'Consulta en línea'
 };
 
 const secciones = {
@@ -30,10 +32,25 @@ export function normalizar(texto) {
 
 export function filtrar(recursos, opciones = {}) {
   const seccion = opciones.seccion ?? 'todas';
-  const texto = normalizar(opciones.texto);
+  const tokens = normalizar(opciones.texto).split(/\s+/).filter(Boolean);
   return recursos.filter((recurso) => {
     const enSeccion = seccion === 'todas' || recurso.seccion === seccion;
-    const coincide = normalizar(recurso.titulo + ' ' + (recurso.curso ?? '')).includes(texto);
+    const campos = [
+      recurso.titulo,
+      recurso.curso,
+      recurso.detalle,
+      recurso.descripcion,
+      recurso.asignatura,
+      recurso.edicion,
+      recurso.isbn,
+      recurso.codigo,
+      recurso.procedencia,
+      modalidades[recurso.modalidad],
+      recurso.tipo,
+      ...(Array.isArray(recurso.codigos) ? recurso.codigos : [])
+    ].filter(Boolean);
+    const textoRecurso = normalizar(campos.join(' '));
+    const coincide = tokens.every((token) => textoRecurso.includes(token));
     const disponible = !opciones.soloDisponibles ||
       ['disponible', 'publicado'].includes(recurso.estado);
     return enSeccion && coincide && disponible;
@@ -52,74 +69,90 @@ export function textoError(respuesta, cuerpo, contexto = 'el catálogo') {
 }
 
 function tipoTexto(recurso) {
+  if (recurso.tipo === 'enlace') {
+    return ['Enlace', 't-digital'];
+  }
   if (recurso.seccion === 'biblioteca' && recurso.tipo === 'fisico') {
     return ['Préstamo físico', 't-prestamo'];
   }
   if (recurso.seccion === 'biblioteca') {
-    return ['Descarga digital', 't-digital'];
+    return ['Recurso digital', 't-digital'];
   }
   if (recurso.seccion === 'libros') {
     return ['Anuncio estudiantil', 't-anuncio'];
   }
   if (recurso.seccion === 'documentacion') {
-    return ['Descarga digital', 't-digital'];
-  }
-  if (recurso.tipo === 'enlace') {
-    return ['Enlace', 't-digital'];
+    return ['Documentación', 't-digital'];
   }
   return ['Recurso digital', 't-digital'];
 }
 
 export function normalizarLibro(anuncio) {
-  const detalle = [
-    anuncio.asignatura,
-    anuncio.edicion,
-    'Conservación: ' + (anuncio.conservacion ?? 'sin indicar'),
-    anuncio.isbn ? 'ISBN: ' + anuncio.isbn : '',
-    anuncio.detalle ?? anuncio.descripcion ?? ''
-  ].filter(Boolean).join(' · ');
-
   return {
     ...anuncio,
     seccion: 'libros',
     tipo: 'fisico',
     estado: 'publicado',
-    detalle
+    procedencia: anuncio.procedencia ?? 'Estudiantil',
+    detalle: anuncio.descripcion ?? anuncio.detalle ?? ''
   };
+}
+
+function parrafo(clase, texto) {
+  const elemento = document.createElement('p');
+  elemento.className = clase;
+  elemento.textContent = texto;
+  return elemento;
 }
 
 export function crearTarjeta(recurso) {
   const tarjeta = document.createElement('li');
   tarjeta.className = 'tarjeta';
 
-  const etiqueta = document.createElement('p');
-  etiqueta.className = 'etiqueta';
-  etiqueta.textContent = [
+  const curso = recurso.curso ?? (recurso.seccion === 'biblioteca' ? 'General' : null);
+  const etiqueta = parrafo('etiqueta', [
     secciones[recurso.seccion] ?? recurso.seccion,
-    recurso.curso
-  ].filter(Boolean).join(' · ');
+    recurso.procedencia,
+    curso
+  ].filter(Boolean).join(' · '));
 
   const [tipo, clase] = tipoTexto(recurso);
-  const insignia = document.createElement('p');
-  insignia.className = 'insignia ' + clase;
-  insignia.textContent = tipo;
-
+  const insignia = parrafo('insignia ' + clase, tipo);
   const titulo = document.createElement('h3');
   titulo.textContent = recurso.titulo;
 
-  const modalidad = document.createElement('p');
-  modalidad.textContent = modalidades[recurso.modalidad] ?? recurso.modalidad ?? '';
+  const modalidadTexto = modalidades[recurso.modalidad] ?? recurso.modalidad ?? '';
+  const modalidad = modalidadTexto
+    ? parrafo('modalidad', (recurso.seccion === 'documentacion' ? 'Formato: ' : 'Modalidad: ') + modalidadTexto)
+    : null;
 
-  const estado = document.createElement('p');
-  estado.className = 'estado';
-  estado.textContent = [
+  const estadoTexto = [
     estados[recurso.estado] ?? recurso.estado,
     Number.isSafeInteger(recurso.version) ? 'Versión ' + recurso.version : null
   ].filter(Boolean).join(' · ');
+  const estado = estadoTexto ? parrafo('estado', 'Estado: ' + estadoTexto) : null;
 
-  const detalle = document.createElement('p');
-  detalle.textContent = recurso.detalle ?? '';
+  const codigos = Array.isArray(recurso.codigos)
+    ? recurso.codigos.filter((codigo) => typeof codigo === 'string' && codigo)
+    : (typeof recurso.codigo === 'string' && recurso.codigo ? [recurso.codigo] : []);
+  const codigo = codigos.length
+    ? parrafo('codigo', codigos.length === 1
+      ? 'Código: ' + codigos[0]
+      : 'Ejemplares (' + codigos.length + '): ' + codigos.join(', '))
+    : null;
 
-  tarjeta.append(etiqueta, insignia, titulo, modalidad, estado, detalle);
+  const metadatosTexto = [
+    recurso.asignatura ? 'Asignatura: ' + recurso.asignatura : null,
+    recurso.edicion ? 'Edición: ' + recurso.edicion : null,
+    recurso.isbn ? 'ISBN: ' + recurso.isbn : null,
+    recurso.conservacion ? 'Conservación: ' + recurso.conservacion : null
+  ].filter(Boolean).join(' · ');
+  const metadatos = metadatosTexto ? parrafo('metadatos', metadatosTexto) : null;
+
+  const detalleTexto = recurso.detalle ?? recurso.descripcion ?? '';
+  const detalle = detalleTexto ? parrafo('detalle', detalleTexto) : null;
+
+  tarjeta.append(...[etiqueta, insignia, titulo, modalidad, estado, codigo, metadatos, detalle]
+    .filter(Boolean));
   return tarjeta;
 }

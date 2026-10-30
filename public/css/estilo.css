@@ -26,6 +26,7 @@ body {
 main {
   max-width: 850px;
   margin: 30px auto;
+  padding: 0 16px;
 }
 
 /* --- Formularios y controles ---
@@ -291,7 +292,7 @@ h2 { margin: 24px 0 12px; }
 
 .filtros-lab {
   display: grid;
-  grid-template-columns: 1fr 1.6fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr) minmax(0, 1fr);
   gap: 12px;
   align-items: end;
 }
@@ -307,19 +308,57 @@ h2 { margin: 24px 0 12px; }
   min-height: 44px;
   margin-bottom: 0;
   cursor: pointer;
-  white-space: nowrap;
+  white-space: normal;
 }
 .filtros-lab input[type=checkbox] {
   width: 18px;
   height: 18px;
-  flex-shrink: 0;
+  min-width: 0;
+  flex: 0 0 auto;
   margin: 0;
   cursor: pointer;
 }
 
+@media(max-width:700px) {
+  .filtros-lab { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Filtros de las páginas de área: una fila de campos y otra de acciones. */
+.filtros-catalogo {
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
+}
+.filtros-catalogo .acciones-filtros {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.filtros-catalogo .acciones-filtros button {
+  min-width: 7rem;
+}
+
+@media(max-width:900px) {
+  .filtros-catalogo { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media(max-width:700px) {
+  .filtros-catalogo { grid-template-columns: minmax(0, 1fr); }
+  .filtros-catalogo .acciones-filtros button { flex: 1 1 auto; }
+}
+
 .tarjeta { overflow-wrap: anywhere; }
 .tarjeta .estado { font-size: .85rem; font-weight: 700; }
-#lab-cuenta { margin-top: 1rem; }
+.tarjeta h3 { margin: .25rem 0 .5rem; }
+.tarjeta .modalidad,
+.tarjeta .codigo,
+.tarjeta .metadatos,
+.tarjeta .detalle { margin-top: .35rem; }
+.tarjeta .codigo,
+.tarjeta .metadatos { font-size: .85rem; color: #3d5246; }
+.tarjeta .detalle { line-height: 1.45; }
+#lab-cuenta,
+#bib-cuenta { margin-top: 1rem; }
 
 /* --- Cuenta: registro, acceso y estados (tarea 2.2.3) ---
     Formularios con etiqueta visible, ayuda y error junto a cada campo.

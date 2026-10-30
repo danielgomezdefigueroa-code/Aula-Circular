@@ -1,7 +1,6 @@
-# Aula-Circular
+# 📚 Aula Circular
 
 Instrucciones del desarrollo local: [cuentas y sesiones](docs/CUENTAS.md) y [anuncios propios](docs/ANUNCIOS.md).
-# 📚 Aula Circular
 
 > 🌱 Plataforma web para la **gestión y reutilización de recursos educativos**.
 

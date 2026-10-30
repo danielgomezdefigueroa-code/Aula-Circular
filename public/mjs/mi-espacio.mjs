@@ -266,6 +266,7 @@ async function cargar() {
 async function abrir(id, enEdicion) {
   // Ver el detalle de otro anuncio no debe reutilizar el formulario de edición anterior.
   if (!enEdicion) nuevo();
+  else edicion = null;
   const cuerpo = await leerRespuesta(await pedir('/anuncios/' + id));
   const anuncio = cuerpo.datos;
   const eventos = Array.isArray(cuerpo.historial) ? cuerpo.historial : [];

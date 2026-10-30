@@ -17,12 +17,28 @@ const correoNormalizado = valor => typeof valor === 'string' ? valor.trim().toLo
 const cuerpoValido = (cuerpo, campos) => cuerpo && typeof cuerpo === 'object' && !Array.isArray(cuerpo) &&
   Object.keys(cuerpo).every(campo => campos.includes(campo));
 const cookie = { httpOnly:true, sameSite:'lax', secure:process.env.NODE_ENV==='production', path:'/' };
+// Valores que aparecen en la plantilla o en documentación antigua: nunca son secretos válidos.
+const SECRETOS_DE_EJEMPLO = new Set([
+  'GENERAR_UN_SECRETO_LOCAL_CON_EL_SCRIPT_PREPARAR',
+  'RELLENAR_SOLO_EN_ENV_LOCAL'
+]);
 
 export async function crearAplicacion(pool, { origen, secreto, esquema='public', limitar=true } = {}) {
-  if (!secreto || secreto.length < 32) throw new Error('Prepara SESSION_SECRET antes de arrancar.');
+  if (typeof secreto !== 'string' || secreto.length < 32 ||
+      SECRETOS_DE_EJEMPLO.has(secreto) || /^(GENERAR|RELLENAR|CAMBIA)(_|$)/i.test(secreto)) {
+    throw new Error('Prepara SESSION_SECRET antes de arrancar.');
+  }
   if (!origen || new URL(origen).origin !== origen) throw new Error('APP_ORIGIN debe contener el origen exacto.');
   const app = express();
   app.disable('x-powered-by');
+  if (process.env.TRUST_PROXY === '1') app.set('trust proxy', 1);
+  app.use((_req, res, next) => {
+    res.set('X-Content-Type-Options', 'nosniff');
+    res.set('X-Frame-Options', 'DENY');
+    res.set('Referrer-Policy', 'no-referrer');
+    res.set('Content-Security-Policy', "default-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self'");
+    next();
+  });
   const Almacen = conectarPg(session);
   const almacen = new Almacen({ pool, schemaName:esquema, tableName:'sesion', createTableIfMissing:false });
   app.use('/api', (_req,res,next) => {res.set('Cache-Control','private, no-store');next();});
@@ -65,7 +81,9 @@ export async function crearAplicacion(pool, { origen, secreto, esquema='public',
   const sesionNecesaria = (req,res,next) => req.usuario ? next() : res.status(401).json({error:'SIN_SESION'});
   const activaNecesaria = (req,res,next) => req.usuario.estado==='activo' ? next() :
     res.status(403).json({error:req.usuario.estado==='pendiente' ? 'CUENTA_PENDIENTE':'CUENTA_SUSPENDIDA'});
-  app.get('/api/csrf', async (req,res) => {
+  const limiteCsrf = limitar ? rateLimit({windowMs:15*60*1000,limit:300,standardHeaders:'draft-8',legacyHeaders:false,
+    message:{error:'DEMASIADOS_INTENTOS'}}) : (_req,_res,next) => next();
+  app.get('/api/csrf', limiteCsrf, async (req,res) => {
     req.session.csrf ??= token();await guardar(req.session);res.json({token:req.session.csrf});
   });
   app.get('/api/cursos', async (_req,res) => {
@@ -81,14 +99,24 @@ export async function crearAplicacion(pool, { origen, secreto, esquema='public',
     message:{error:'DEMASIADOS_INTENTOS'}})] : [];
   app.post('/api/registro', ...limites, async (req,res) => {
     const b=req.body;const correo=correoNormalizado(b?.correo);
-    if (!cuerpoValido(b,['alias','correo','clave','cursoId']) ||
-        typeof b.alias!=='string' || b.alias.trim().length<2 || b.alias.trim().length>60 ||
-        correo.length>254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo) ||
-        !claveValida(b.clave) || !Number.isSafeInteger(b.cursoId) || b.cursoId<1) {
-      return res.status(422).json({error:'DATOS_INVALIDOS',mensaje:'Revisa los campos. La contraseña debe tener de 15 a 128 caracteres.'});
+    const campos={};
+    if (!cuerpoValido(b,['alias','correo','clave','cursoId'])) {
+      campos.formulario='Hay campos no admitidos.';
+    } else {
+      if (typeof b.alias!=='string' || b.alias.trim().length<2 || b.alias.trim().length>60) {
+        campos.alias='Introduce un alias de 2 a 60 caracteres.';
+      }
+      if (correo.length>254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) {
+        campos.correo='Introduce un correo válido.';
+      }
+      if (!claveValida(b.clave)) campos.clave='La contraseña debe tener de 15 a 128 caracteres.';
+      if (!Number.isSafeInteger(b.cursoId) || b.cursoId<1) campos.cursoId='Selecciona un curso válido.';
+    }
+    if (Object.keys(campos).length) {
+      return res.status(422).json({error:'DATOS_INVALIDOS',mensaje:'Revisa los campos.',campos});
     }
     const curso=await pool.query('SELECT id FROM curso WHERE id=$1 AND activo',[b.cursoId]);
-    if (!curso.rowCount) return res.status(422).json({error:'CURSO_INVALIDO'});
+    if (!curso.rowCount) return res.status(422).json({error:'CURSO_INVALIDO',mensaje:'Selecciona un curso válido.',campos:{cursoId:'Selecciona un curso válido.'}});
     const hash=await crearHash(b.clave);
     const cliente=await pool.connect();
     try {

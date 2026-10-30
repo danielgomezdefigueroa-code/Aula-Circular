@@ -27,8 +27,45 @@
 
       <section class="seccion area" aria-labelledby="titulo-biblioteca">
         <h1 id="titulo-biblioteca">Biblioteca</h1>
-        <p class="area-estado" role="status" aria-live="polite"></p>
-        <ul class="tarjeta-grid area-lista" aria-labelledby="titulo-biblioteca"></ul>
+        <p>Recursos del centro: materiales físicos, documentos digitales y enlaces.</p>
+        <form id="filtros-biblioteca" class="filtros-lab filtros-catalogo" role="search" aria-label="Filtros de Biblioteca">
+          <div>
+            <label for="bib-q">Buscar</label>
+            <input id="bib-q" name="q" type="search" maxlength="80" placeholder="Título, descripción, curso, ISBN o código">
+          </div>
+          <div>
+            <label for="bib-tipo">Tipo</label>
+            <select id="bib-tipo" name="tipo">
+              <option value="">Todos los tipos</option>
+              <option value="fisico">Físico</option>
+              <option value="digital">Digital</option>
+              <option value="enlace">Enlace</option>
+            </select>
+          </div>
+          <div>
+            <label for="bib-curso">Curso</label>
+            <select id="bib-curso" name="curso">
+              <option value="">Todos los cursos</option>
+            </select>
+          </div>
+          <div>
+            <label class="casilla" for="bib-disponible">
+              <input type="checkbox" id="bib-disponible" name="disponible" value="1">
+              <span>Solo disponibles</span>
+            </label>
+          </div>
+          <div class="acciones-filtros">
+            <button type="submit">Buscar</button>
+            <button type="reset" class="boton-sec">Limpiar</button>
+          </div>
+        </form>
+        <p id="bib-cuenta" class="area-estado" role="status" aria-live="polite"></p>
+        <ul id="bib-lista" class="tarjeta-grid area-lista" aria-labelledby="titulo-biblioteca"></ul>
+        <nav id="bib-paginacion" class="paginacion" aria-label="Paginación de Biblioteca" hidden>
+          <button type="button" id="bib-anterior" class="boton-sec" disabled>Anterior</button>
+          <span id="bib-pagina" aria-live="polite"></span>
+          <button type="button" id="bib-siguiente" class="boton-sec" disabled>Siguiente</button>
+        </nav>
       </section>
     </main>
 

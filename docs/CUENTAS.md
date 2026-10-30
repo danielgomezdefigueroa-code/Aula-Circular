@@ -2,7 +2,7 @@
 
 Se añade la base de cuentas que usan la validación docente y los anuncios. El registro crea una cuenta pendiente con rol alumno. El navegador no elige roles ni confirma cursos. Una cuenta pendiente puede iniciar sesión y consultar su perfil, pero no entrar en Biblioteca.
 
-> **Revisión del 2026-10-22.** No uses el marcador de `SESSION_SECRET` sin ejecutar `npm.cmd run preparar` y no des por hecho que `.docente-local.json` está ignorado: actualmente no lo está. El estado y los cambios pendientes están en [REVISION-2026-10-22.md](REVISION-2026-10-22.md).
+> **Revisión del 2026-10-22.** No uses el marcador de `SESSION_SECRET`: ejecuta `npm.cmd run preparar`. `.docente-local.json` ya está incluido en `.gitignore`. El estado completo está en [REVISION-2026-10-22.md](REVISION-2026-10-22.md).
 
 ## Arranque en Windows
 
@@ -44,7 +44,7 @@ La revisión docente de anuncios y la administración de roles. No hay una ruta 
 
 La validación bloquea la cuenta dentro de una transacción para evitar una doble revisión. Incrementa auth_version: el alumno vuelve a iniciar sesión para usar su nuevo estado. El curso solicitado se conserva, mientras el confirmado puede ser otro curso activo que el docente haya comprobado.
 
-Preparación local separada del registro público: `npm.cmd run docente:local` crea exclusivamente la cuenta ficticia docente.ensayo@example.invalid con rol docente. No modifica ninguna cuenta existente. Solo se permite en desarrollo contra PostgreSQL local. Genera una contraseña aleatoria en `.docente-local.json`. Ese archivo **no está incluido actualmente en `.gitignore`**: comprueba `git status` antes de continuar y no lo añadas a Git. El mensaje del script afirma que está excluido, pero mientras no se corrija `.gitignore` no es cierto. No compartir ese archivo. Este procedimiento de preparación no representa una validación de pertenencia realizada por otro docente.
+Preparación local separada del registro público: `npm.cmd run docente:local` crea exclusivamente la cuenta ficticia docente.ensayo@example.invalid con rol docente. No modifica ninguna cuenta existente. Solo se permite en desarrollo contra PostgreSQL local. Genera una contraseña aleatoria en `.docente-local.json`. Ese archivo está incluido en `.gitignore`: comprueba `git status` antes de continuar y no lo añadas a Git. No compartir ese archivo. Este procedimiento de preparación no representa una validación de pertenencia realizada por otro docente.
 
 Inicia sesión en `/html/login.html` con esa cuenta y abre `/html/docencia.html`. Revisa la cuenta pendiente y confirma su curso. Para comparar simultáneamente alumno y docente, usa perfiles o navegadores separados; dos pestañas normales comparten sesión.
 

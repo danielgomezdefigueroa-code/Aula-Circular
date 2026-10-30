@@ -3,6 +3,28 @@ import { randomUUID } from 'node:crypto';
 
 const campos=['titulo','descripcion','cursoId','asignatura','edicion','isbn','conservacion','modalidad'];
 const esId = id => Number.isSafeInteger(id) && id>0;
+function normalizarBusqueda(texto){
+  return texto.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+}
+// Expresión SQL para buscar sin distinguir mayúsculas ni acentos.
+// Las columnas que se pasan son siempre nombres fijos de este archivo.
+function sinAcentos(columna){
+  return `translate(lower(${columna}), 'áéíóúüñ', 'aeiouun')`;
+}
+function leerFiltrosLibros(req){
+  const q=req.query.q;
+  if(q!==undefined&&(typeof q!=='string'||q.trim().length>80)) return null;
+  const curso=req.query.curso;
+  if(curso!==undefined&&curso!==''&&
+    (typeof curso!=='string'||!/^\d+$/.test(curso)||!esId(Number(curso))||Number(curso)>2147483647)) return null;
+  const modalidad=req.query.modalidad;
+  if(modalidad!==undefined&&modalidad!==''&&!['cesion','prestamo','intercambio'].includes(modalidad)) return null;
+  return {
+    texto:normalizarBusqueda(String(q??'').trim()),
+    cursoId:curso?Number(curso):null,
+    modalidad:modalidad??''
+  };
+}
 function validar(cuerpo,esEdicion=false){
   const errores={};
   if(!cuerpo || typeof cuerpo!=='object' || Array.isArray(cuerpo)) return {errores:{formulario:'Datos no válidos.'}};
@@ -37,9 +59,10 @@ const seleccion=`SELECT a.id,a.ejemplar_id,a.modalidad,a.estado_revision,a.motiv
   e.codigo,e.conservacion,e.propietario_usuario_id
   FROM anuncio a JOIN ejemplar e ON e.id=a.ejemplar_id JOIN recurso r ON r.id=e.recurso_id
   JOIN curso c ON c.id=r.curso_id`;
-function paginacion(req,res){
+function paginacion(req,res,extras=[]){
+  const permitidos=['pagina','limite',...extras];
   const pagina=Number(req.query.pagina??1),limite=Number(req.query.limite??20);
-  if(Object.keys(req.query).some(c=>!['pagina','limite'].includes(c))||!esId(pagina)||pagina>100000||!esId(limite)||limite>20){
+  if(Object.keys(req.query).some(c=>!permitidos.includes(c))||!esId(pagina)||pagina>100000||!esId(limite)||limite>20){
     res.status(422).json({error:'PAGINACION_INVALIDA'});return null;
   }
   return {pagina,limite};
@@ -65,13 +88,48 @@ export function rutasAnuncios(pool,sesionNecesaria,activaNecesaria){
   });
   rutas.get('/libros',sesionNecesaria,activaNecesaria,async(req,res)=>{
     if(!req.usuario.roles.some(r=>['alumno','docente'].includes(r))) return res.status(403).json({error:'PERMISO_INSUFICIENTE'});
-    const p=paginacion(req,res);if(!p) return;
-    const r=await pool.query(`SELECT a.id,r.titulo,r.descripcion,r.asignatura,r.edicion,r.isbn,c.nombre AS curso,
-      e.conservacion,e.codigo,a.modalidad FROM anuncio a JOIN ejemplar e ON e.id=a.ejemplar_id
+    const p=paginacion(req,res,['q','curso','modalidad']);if(!p) return;
+    const filtros=leerFiltrosLibros(req);
+    if(!filtros) return res.status(422).json({error:'PARAMETROS_INVALIDOS'});
+    const titulo=sinAcentos('r.titulo');
+    const descripcion=sinAcentos('r.descripcion');
+    const asignatura=sinAcentos('r.asignatura');
+    const edicion=sinAcentos('r.edicion');
+    const isbn=sinAcentos("COALESCE(r.isbn, '')");
+    const curso=sinAcentos('c.nombre');
+    const codigo=sinAcentos('e.codigo');
+    const r=await pool.query(`WITH coincidencias AS (
+      SELECT a.id,'libros' AS seccion,r.titulo,r.descripcion,r.asignatura,r.edicion,r.isbn,
+        c.nombre AS curso,e.conservacion,e.codigo,a.modalidad,
+        'fisico' AS tipo,'Estudiantil' AS procedencia,'publicado' AS estado
+      FROM anuncio a JOIN ejemplar e ON e.id=a.ejemplar_id
       JOIN recurso r ON r.id=e.recurso_id JOIN curso c ON c.id=r.curso_id
       WHERE a.estado_revision='publicado' AND e.estado_servicio='habilitado'
-      ORDER BY a.id DESC LIMIT $1 OFFSET $2`,[p.limite,(p.pagina-1)*p.limite]);
-    res.json({datos:r.rows,...p});
+        AND (
+          $1='' OR
+          ${titulo} LIKE '%'||$1||'%' OR
+          ${descripcion} LIKE '%'||$1||'%' OR
+          ${asignatura} LIKE '%'||$1||'%' OR
+          ${edicion} LIKE '%'||$1||'%' OR
+          ${isbn} LIKE '%'||$1||'%' OR
+          ${curso} LIKE '%'||$1||'%' OR
+          ${codigo} LIKE '%'||$1||'%'
+        )
+        AND ($2::integer IS NULL OR r.curso_id=$2)
+        AND ($3='' OR a.modalidad=$3)
+    ),recuento AS (
+      SELECT count(*)::integer AS total FROM coincidencias
+    )
+    SELECT recuento.total,pagina.*
+    FROM recuento
+    LEFT JOIN LATERAL (
+      SELECT * FROM coincidencias ORDER BY id DESC LIMIT $4 OFFSET $5
+    ) pagina ON true
+    ORDER BY pagina.id DESC NULLS LAST`,
+      [filtros.texto,filtros.cursoId,filtros.modalidad,p.limite,(p.pagina-1)*p.limite]);
+    const total=r.rows[0]?.total??0;
+    const datos=r.rows.filter(f=>f.id!==null).map(({total:_total,...f})=>f);
+    res.json({datos,total,...p});
   });
   async function transaccion(req,res,accion){
     const cliente=await pool.connect();
