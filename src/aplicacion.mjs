@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { crearHash, comprobarClave, claveValida, Ocupado } from './claves.mjs';
 import { rutasDocentes } from './docencia.mjs';
 import { rutasCesiones } from './cesiones.mjs';
+import { rutasDevoluciones } from './prestamos/devoluciones.mjs';
 import { rutasIntercambios } from './intercambios/rutas.mjs';
 import { rutasAnuncios } from './anuncios.mjs';
 import { rutasCatalogo } from './catalogo.mjs';
@@ -120,6 +121,7 @@ export async function crearAplicacion(pool, { origen, secreto, esquema='public',
   app.use('/api',rutasAnuncios(pool,sesionNecesaria,activaNecesaria));
   app.use('/api',rutasCesiones(pool,sesionNecesaria,activaNecesaria));
   app.use('/api',rutasIntercambios(pool,sesionNecesaria,activaNecesaria));
+  app.use('/api',rutasDevoluciones(pool,sesionNecesaria,activaNecesaria));
   app.use('/api',rutasCatalogo(pool,sesionNecesaria,activaNecesaria));
   app.use('/api/gestion',rutasDocentes(pool,sesionNecesaria,activaNecesaria));
   app.post('/api/salida',sesionNecesaria,async(req,res) => {
