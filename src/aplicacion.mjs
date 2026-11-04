@@ -11,6 +11,7 @@ import { rutasDevoluciones } from './prestamos/devoluciones.mjs';
 import { rutasIntercambios } from './intercambios/rutas.mjs';
 import { rutasAnuncios } from './anuncios.mjs';
 import { rutasCatalogo } from './catalogo.mjs';
+import { rutasIncidencias } from './prestamos/incidencias.mjs';
 
 const token = () => randomBytes(32).toString('hex');
 const guardar = sesion => new Promise((ok,fallo) => sesion.save(e => e ? fallo(e) : ok()));
@@ -121,6 +122,7 @@ export async function crearAplicacion(pool, { origen, secreto, esquema='public',
   app.use('/api',rutasAnuncios(pool,sesionNecesaria,activaNecesaria));
   app.use('/api',rutasCesiones(pool,sesionNecesaria,activaNecesaria));
   app.use('/api',rutasIntercambios(pool,sesionNecesaria,activaNecesaria));
+  app.use('/api',rutasIncidencias(pool,sesionNecesaria,activaNecesaria));
   app.use('/api',rutasDevoluciones(pool,sesionNecesaria,activaNecesaria));
   app.use('/api',rutasCatalogo(pool,sesionNecesaria,activaNecesaria));
   app.use('/api/gestion',rutasDocentes(pool,sesionNecesaria,activaNecesaria));
