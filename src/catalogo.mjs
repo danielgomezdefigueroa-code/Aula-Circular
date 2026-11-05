@@ -88,13 +88,15 @@ const resultado = await pool.query(
             ELSE 'consulta'
           END AS modalidad,
           d.estado_editorial AS estado,
-          v.numero_version AS version
+          v.numero_version AS version,
+          v.id AS version_id
    FROM documento d
    LEFT JOIN curso c
      ON c.id = d.curso_id
-   LEFT JOIN documento_version v
-     ON v.documento_id = d.id
+   JOIN documento_version v
+      ON v.documento_id = d.id
     AND v.actual = true
+    AND v.estado_version = 'vigente'
    LEFT JOIN archivo a
      ON a.id = v.archivo_id
    WHERE d.estado_editorial = 'publicado'
