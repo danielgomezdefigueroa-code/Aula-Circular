@@ -111,9 +111,11 @@ export function rutasAnuncios(pool,sesionNecesaria,activaNecesaria){
       SELECT a.id,'libros' AS seccion,r.titulo,r.descripcion,r.asignatura,r.edicion,r.isbn,
         c.nombre AS curso,e.conservacion,e.codigo,e.id AS ejemplar_id,a.modalidad,
         'fisico' AS tipo,'Estudiantil' AS procedencia,'publicado' AS estado,
+        u.alias AS propietario_alias, (e.propietario_usuario_id=$7) AS es_propio,
         ${libre} AS disponible
       FROM anuncio a JOIN ejemplar e ON e.id=a.ejemplar_id
       JOIN recurso r ON r.id=e.recurso_id JOIN curso c ON c.id=r.curso_id
+      JOIN usuario u ON u.id=e.propietario_usuario_id
       WHERE a.estado_revision='publicado' AND e.estado_servicio='habilitado'
         AND (
           $1='' OR
@@ -137,7 +139,7 @@ export function rutasAnuncios(pool,sesionNecesaria,activaNecesaria){
       SELECT * FROM coincidencias ORDER BY id DESC LIMIT $5 OFFSET $6
     ) pagina ON true
     ORDER BY pagina.id DESC NULLS LAST`,
-      [filtros.texto,filtros.cursoId,filtros.modalidad,filtros.soloDisponibles,p.limite,(p.pagina-1)*p.limite]);
+      [filtros.texto,filtros.cursoId,filtros.modalidad,filtros.soloDisponibles,p.limite,(p.pagina-1)*p.limite,req.usuario.id]);
     const total=r.rows[0]?.total??0;
     const datos=r.rows.filter(f=>f.id!==null).map(({total:_total,...f})=>f);
     res.json({datos,total,...p});

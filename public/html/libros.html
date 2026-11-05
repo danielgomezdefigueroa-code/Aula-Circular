@@ -61,6 +61,7 @@
           </div>
         </form>
         <p id="mensaje" class="area-estado" role="status" aria-live="polite" tabindex="-1"></p>
+        <p id="resultado-intercambio" class="aviso-cuenta" role="status" aria-live="polite" tabindex="-1" hidden></p>
         <ul id="libros" class="tarjeta-grid area-lista" aria-labelledby="titulo-libros"></ul>
         <nav id="libros-paginacion" class="paginacion" aria-label="Paginación de Libros" hidden>
           <button type="button" id="anterior" class="boton-sec" disabled>Anterior</button>
@@ -69,6 +70,43 @@
         </nav>
       </section>
     </main>
+
+    <dialog id="dialogo-intercambio" class="dialogo-intercambio" aria-labelledby="titulo-dialogo-intercambio" aria-describedby="dialogo-ayuda">
+      <form id="form-intercambio" novalidate>
+        <div class="dialogo-cabecera">
+          <h2 id="titulo-dialogo-intercambio">Proponer intercambio</h2>
+          <button type="button" id="cerrar-dialogo" class="boton-sec">Cerrar</button>
+        </div>
+        <p id="dialogo-mensaje" class="area-estado" role="status" aria-live="polite" tabindex="-1"></p>
+        <p id="dialogo-ayuda" class="ayuda">Elige uno de tus ejemplares y confirma el par. La coordinación se realiza en el punto de entrega del centro; no se comparten teléfono, correo ni chat.</p>
+
+        <div class="intercambio-pareja">
+          <section class="intercambio-tarjeta" aria-labelledby="titulo-ofrecido">
+            <h3 id="titulo-ofrecido">Tu ejemplar</h3>
+            <label for="ofrecido-select">Publicación propia de intercambio</label>
+            <select id="ofrecido-select" required>
+              <option value="">Cargando…</option>
+            </select>
+            <dl id="ofrecido-datos" class="datos-intercambio"></dl>
+          </section>
+
+          <section class="intercambio-tarjeta" aria-labelledby="titulo-solicitado">
+            <h3 id="titulo-solicitado">Ejemplar que quieres recibir</h3>
+            <dl id="solicitado-datos" class="datos-intercambio"></dl>
+          </section>
+        </div>
+
+        <label class="casilla" for="confirmar-pareja">
+          <input type="checkbox" id="confirmar-pareja">
+          <span id="texto-confirmacion">Confirmo el par elegido.</span>
+        </label>
+
+        <div class="acciones-form">
+          <button type="submit" id="enviar-propuesta" disabled>Enviar propuesta</button>
+          <button type="button" id="cancelar-dialogo" class="boton-sec">Cancelar</button>
+        </div>
+      </form>
+    </dialog>
 
     <footer class="pie">
       <p>Aula Circular · Centro ficticio · Datos de ensayo</p>

@@ -9,6 +9,7 @@ import { rutasDocentes } from './docencia.mjs';
 import { rutasCesiones } from './cesiones.mjs';
 import { rutasIntercambios } from './intercambios/rutas.mjs';
 import { rutasAnuncios } from './anuncios.mjs';
+import { rutasMiEspacio } from './miespacio.mjs';
 import { rutasCatalogo } from './catalogo.mjs';
 
 const token = () => randomBytes(32).toString('hex');
@@ -146,6 +147,7 @@ export async function crearAplicacion(pool, { origen, secreto, esquema='public',
   });
   app.get('/api/yo',sesionNecesaria,(req,res) => res.json({datos:req.usuario}));
   app.use('/api',rutasAnuncios(pool,sesionNecesaria,activaNecesaria));
+  app.use('/api',rutasMiEspacio(pool,sesionNecesaria,activaNecesaria));
   app.use('/api',rutasCesiones(pool,sesionNecesaria,activaNecesaria));
   app.use('/api',rutasIntercambios(pool,sesionNecesaria,activaNecesaria));
   app.use('/api',rutasCatalogo(pool,sesionNecesaria,activaNecesaria));

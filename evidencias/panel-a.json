@@ -1,0 +1,134 @@
+{
+  "status": 200,
+  "cuerpo": {
+    "datos": {
+      "publicaciones": [
+        {
+          "id": 9,
+          "ejemplar_id": 15,
+          "modalidad": "prestamo",
+          "estado_revision": "borrador",
+          "motivo": "",
+          "version": 1,
+          "creada_en": "2026-11-04T10:47:04.585Z",
+          "actualizada_en": "2026-11-04T10:47:04.585Z",
+          "titulo": "Borrador para panel 224446",
+          "curso": "2º DAW",
+          "codigo": "LIB-be782db3-45d5-445b-9796-1c2e904fee35",
+          "requiere_accion": true,
+          "pendiente": true
+        },
+        {
+          "id": 8,
+          "ejemplar_id": 14,
+          "modalidad": "cesion",
+          "estado_revision": "publicado",
+          "motivo": "",
+          "version": 3,
+          "creada_en": "2026-11-04T10:47:04.548Z",
+          "actualizada_en": "2026-11-04T10:47:04.569Z",
+          "titulo": "Solicitud pendiente para panel 224446",
+          "curso": "1º DAW",
+          "codigo": "LIB-650306fa-efd6-4bc6-9b71-75de96635dc5",
+          "requiere_accion": false,
+          "pendiente": false
+        },
+        {
+          "id": 7,
+          "ejemplar_id": 13,
+          "modalidad": "cesion",
+          "estado_revision": "publicado",
+          "motivo": "",
+          "version": 3,
+          "creada_en": "2026-11-04T10:47:04.456Z",
+          "actualizada_en": "2026-11-04T10:47:04.503Z",
+          "titulo": "Cesión para panel 224446",
+          "curso": "1º DAW",
+          "codigo": "LIB-4a44ebd6-9bb3-40ee-9e8f-01181ee0291c",
+          "requiere_accion": false,
+          "pendiente": false
+        }
+      ],
+      "solicitudes": [
+        {
+          "id": 3,
+          "ejemplar_id": 16,
+          "estado": "pendiente",
+          "creada_en": "2026-11-04T10:55:03.080Z",
+          "titulo": "Cesión de B para panel 703020",
+          "curso": "1º DAW",
+          "codigo": "LIB-0deb746d-60b2-463c-a481-69fc4e1cf8c0",
+          "modalidad": "cesion",
+          "requiere_accion": true,
+          "pendiente": true
+        }
+      ],
+      "prestamos": [
+        {
+          "id": 1,
+          "tipo": "cesion",
+          "estado": "reservada",
+          "creada_en": "2026-11-04T10:47:04.530Z",
+          "vencimiento": null,
+          "entregada_en": null,
+          "cerrada_en": null,
+          "requiere_accion": false,
+          "pendiente": true,
+          "rol": "origen",
+          "titulos": "Cesión para panel 224446",
+          "ejemplares": [
+            13
+          ]
+        }
+      ],
+      "avisos": [
+        {
+          "id": 4,
+          "mensaje": "Revisión: publicado. ",
+          "operacion_id": null,
+          "creado_en": "2026-11-04T10:47:04.569Z",
+          "pendiente": false,
+          "requiere_accion": false
+        },
+        {
+          "id": 3,
+          "mensaje": "Cesión reservada",
+          "operacion_id": 1,
+          "creado_en": "2026-11-04T10:47:04.530Z",
+          "pendiente": false,
+          "requiere_accion": false
+        },
+        {
+          "id": 1,
+          "mensaje": "Revisión: publicado. ",
+          "operacion_id": null,
+          "creado_en": "2026-11-04T10:47:04.503Z",
+          "pendiente": false,
+          "requiere_accion": false
+        }
+      ]
+    },
+    "totales": {
+      "publicaciones": {
+        "total": 3,
+        "pendientes": 1,
+        "requieren_accion": 1
+      },
+      "solicitudes": {
+        "total": 1,
+        "pendientes": 1,
+        "requieren_accion": 1
+      },
+      "prestamos": {
+        "total": 1,
+        "pendientes": 1,
+        "requieren_accion": 0
+      },
+      "avisos": {
+        "total": 3,
+        "pendientes": 0,
+        "requieren_accion": 0
+      }
+    }
+  }
+}

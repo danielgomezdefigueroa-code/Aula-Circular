@@ -1,0 +1,570 @@
+{
+  "documento": "Evidencia local de intercambios · Aula Circular",
+  "fecha": "2026-11-05T09:34:10.849Z",
+  "version": {
+    "rama": "interfaz-y-accesibilidad",
+    "head": "8884522",
+    "estado": "cambios locales sin commit",
+    "node": "v26.12.0",
+    "postgres": "PostgreSQL 18.6 on x86_64-windows, compiled by msvc-19.44.35229, 64-bit",
+    "base_datos": "aula_circular",
+    "usuario_bd": "postgres",
+    "chrome": "Chrome/152.0.7977.83"
+  },
+  "panel": {
+    "A": {
+      "status": 200,
+      "totales": {
+        "publicaciones": {
+          "total": 11,
+          "pendientes": 3,
+          "requieren_accion": 1
+        },
+        "solicitudes": {
+          "total": 1,
+          "pendientes": 1,
+          "requieren_accion": 1
+        },
+        "prestamos": {
+          "total": 10,
+          "pendientes": 5,
+          "requieren_accion": 1
+        },
+        "avisos": {
+          "total": 22,
+          "pendientes": 0,
+          "requieren_accion": 0
+        }
+      }
+    },
+    "B": {
+      "status": 200,
+      "totales": {
+        "publicaciones": {
+          "total": 9,
+          "pendientes": 0,
+          "requieren_accion": 0
+        },
+        "solicitudes": {
+          "total": 2,
+          "pendientes": 1,
+          "requieren_accion": 1
+        },
+        "prestamos": {
+          "total": 10,
+          "pendientes": 5,
+          "requieren_accion": 0
+        },
+        "avisos": {
+          "total": 22,
+          "pendientes": 0,
+          "requieren_accion": 0
+        }
+      }
+    }
+  },
+  "listas": {
+    "A": {
+      "status": 200,
+      "ids": [
+        9,
+        2,
+        4,
+        3,
+        10,
+        8,
+        7,
+        6,
+        5
+      ],
+      "estados": [
+        {
+          "id": 9,
+          "estado": "propuesta",
+          "requiereAccion": true
+        },
+        {
+          "id": 2,
+          "estado": "propuesta",
+          "requiereAccion": false
+        },
+        {
+          "id": 4,
+          "estado": "reservada",
+          "requiereAccion": false
+        },
+        {
+          "id": 3,
+          "estado": "reservada",
+          "requiereAccion": false
+        },
+        {
+          "id": 10,
+          "estado": "cancelada",
+          "requiereAccion": false
+        },
+        {
+          "id": 8,
+          "estado": "cancelada",
+          "requiereAccion": false
+        },
+        {
+          "id": 7,
+          "estado": "cancelada",
+          "requiereAccion": false
+        },
+        {
+          "id": 6,
+          "estado": "completada",
+          "requiereAccion": false
+        },
+        {
+          "id": 5,
+          "estado": "cancelada",
+          "requiereAccion": false
+        }
+      ]
+    },
+    "docente": {
+      "status": 200,
+      "ids": [
+        9,
+        2,
+        4,
+        3,
+        10,
+        8,
+        7,
+        6,
+        5
+      ],
+      "estados": [
+        {
+          "id": 9,
+          "estado": "propuesta"
+        },
+        {
+          "id": 2,
+          "estado": "propuesta"
+        },
+        {
+          "id": 4,
+          "estado": "reservada"
+        },
+        {
+          "id": 3,
+          "estado": "reservada"
+        },
+        {
+          "id": 10,
+          "estado": "cancelada"
+        },
+        {
+          "id": 8,
+          "estado": "cancelada"
+        },
+        {
+          "id": 7,
+          "estado": "cancelada"
+        },
+        {
+          "id": 6,
+          "estado": "completada"
+        },
+        {
+          "id": 5,
+          "estado": "cancelada"
+        }
+      ]
+    }
+  },
+  "detalles": {
+    "2": {
+      "status": 200,
+      "datos": {
+        "id": 2,
+        "tipo": "intercambio",
+        "estado": "propuesta",
+        "creada_en": "2026-11-05T09:06:38.039Z",
+        "cerrada_en": null,
+        "ejemplarOfrecidoId": 24,
+        "ejemplarSolicitadoId": 19,
+        "versionOfrecida": 3,
+        "versionSolicitada": 3,
+        "tituloOfrecido": "Evidencia intercambio B · Libro de pruebas de software",
+        "edicionOfrecida": "2025",
+        "asignaturaOfrecida": "Programación",
+        "codigoOfrecido": "LIB-8f0242a9-a609-4417-9dd9-0178a079ed4a",
+        "conservacionOfrecida": "Buen estado; incluye solapas.",
+        "propietarioOfrecido": "Estudiante B",
+        "tituloSolicitado": "Evidencia intercambio A · Atlas de datos para el aula",
+        "edicionSolicitada": "2026",
+        "asignaturaSolicitada": "Bases de datos",
+        "codigoSolicitado": "LIB-61eafa33-5699-4f13-821e-f857408139a6",
+        "conservacionSolicitada": "Buen estado; esquinas levemente usadas.",
+        "propietarioSolicitado": "Estudiante Evidencia",
+        "aceptaciones": 2,
+        "esProponente": false,
+        "esReceptor": true,
+        "puedeAceptar": false,
+        "puedeRechazar": false
+      }
+    },
+    "3": {
+      "status": 200,
+      "datos": {
+        "id": 3,
+        "tipo": "intercambio",
+        "estado": "reservada",
+        "creada_en": "2026-11-05T09:06:38.065Z",
+        "cerrada_en": null,
+        "ejemplarOfrecidoId": 20,
+        "ejemplarSolicitadoId": 25,
+        "versionOfrecida": 3,
+        "versionSolicitada": 3,
+        "tituloOfrecido": "Evidencia intercambio A · Cuaderno de redes y servicios",
+        "edicionOfrecida": "2025",
+        "asignaturaOfrecida": "Redes",
+        "codigoOfrecido": "LIB-34b0606e-32ba-4bcd-aa4a-3836c7c26cc3",
+        "conservacionOfrecida": "Completo; anotaciones a lápiz en dos páginas.",
+        "propietarioOfrecido": "Estudiante Evidencia",
+        "tituloSolicitado": "Evidencia intercambio B · Apuntes de sistemas operativos",
+        "edicionSolicitada": "2024",
+        "asignaturaSolicitada": "Sistemas",
+        "codigoSolicitado": "LIB-156ad8ab-c4d2-4957-853c-b2c7913bc051",
+        "conservacionSolicitada": "Portada gastada; contenido completo.",
+        "propietarioSolicitado": "Estudiante B",
+        "aceptaciones": 2,
+        "esProponente": true,
+        "esReceptor": false,
+        "puedeAceptar": false,
+        "puedeRechazar": false
+      }
+    },
+    "4": {
+      "status": 200,
+      "datos": {
+        "id": 4,
+        "tipo": "intercambio",
+        "estado": "reservada",
+        "creada_en": "2026-11-05T09:06:38.106Z",
+        "cerrada_en": null,
+        "ejemplarOfrecidoId": 21,
+        "ejemplarSolicitadoId": 26,
+        "versionOfrecida": 3,
+        "versionSolicitada": 3,
+        "tituloOfrecido": "Evidencia intercambio A · Manual de interfaces accesibles",
+        "edicionOfrecida": "2026",
+        "asignaturaOfrecida": "Diseño",
+        "codigoOfrecido": "LIB-7f564a95-0745-4928-bc14-7e8dcf887214",
+        "conservacionOfrecida": "Tapa con marcas; interior limpio.",
+        "propietarioOfrecido": "Estudiante Evidencia",
+        "tituloSolicitado": "Evidencia intercambio B · Taller de accesibilidad web",
+        "edicionSolicitada": "2026",
+        "asignaturaSolicitada": "Diseño",
+        "codigoSolicitado": "LIB-c117f876-42ec-4a89-8763-4614aa1bf2dc",
+        "conservacionSolicitada": "Impecable; solo abierto para revisión.",
+        "propietarioSolicitado": "Estudiante B",
+        "aceptaciones": 2,
+        "esProponente": true,
+        "esReceptor": false,
+        "puedeAceptar": false,
+        "puedeRechazar": false
+      }
+    },
+    "6": {
+      "status": 200,
+      "datos": {
+        "id": 6,
+        "tipo": "intercambio",
+        "estado": "completada",
+        "creada_en": "2026-11-05T09:06:38.195Z",
+        "cerrada_en": "2026-11-05T09:06:38.228Z",
+        "ejemplarOfrecidoId": 23,
+        "ejemplarSolicitadoId": 28,
+        "versionOfrecida": 3,
+        "versionSolicitada": 3,
+        "tituloOfrecido": "Evidencia intercambio A · Guía de seguridad web",
+        "edicionOfrecida": "2026",
+        "asignaturaOfrecida": "Seguridad",
+        "codigoOfrecido": "LIB-e620a56f-3245-438c-83d1-5145be5e98ab",
+        "conservacionOfrecida": "Como nuevo; sin subrayados.",
+        "propietarioOfrecido": "Estudiante Evidencia",
+        "tituloSolicitado": "Evidencia intercambio B · Cuaderno de despliegue",
+        "edicionSolicitada": "2026",
+        "asignaturaSolicitada": "Redes",
+        "codigoSolicitado": "LIB-d8905bf1-f149-4c18-9c92-9af352e7d5ae",
+        "conservacionSolicitada": "Buen estado general.",
+        "propietarioSolicitado": "Estudiante B",
+        "aceptaciones": 2,
+        "esProponente": true,
+        "esReceptor": false,
+        "puedeAceptar": false,
+        "puedeRechazar": false
+      }
+    },
+    "9": {
+      "status": 200,
+      "datos": {
+        "id": 9,
+        "tipo": "intercambio",
+        "estado": "propuesta",
+        "creada_en": "2026-11-05T09:27:12.521Z",
+        "cerrada_en": null,
+        "ejemplarOfrecidoId": 32,
+        "ejemplarSolicitadoId": 31,
+        "versionOfrecida": 3,
+        "versionSolicitada": 3,
+        "tituloOfrecido": "Evidencia red B · Cuaderno de datos",
+        "edicionOfrecida": "2025",
+        "asignaturaOfrecida": "Bases de datos",
+        "codigoOfrecido": "LIB-b6e3db8d-13bc-40de-ab77-351b96afd0a7",
+        "conservacionOfrecida": "Buen estado; prueba de red sin conexión.",
+        "propietarioOfrecido": "Estudiante B",
+        "tituloSolicitado": "Evidencia red A · Lecturas de interfaz",
+        "edicionSolicitada": "2026",
+        "asignaturaSolicitada": "Diseño",
+        "codigoSolicitado": "LIB-476d5b47-9f52-45fe-9e4b-a0cfd66cdfd9",
+        "conservacionSolicitada": "Buen estado; prueba de red sin conexión.",
+        "propietarioSolicitado": "Estudiante Evidencia",
+        "aceptaciones": 1,
+        "esProponente": false,
+        "esReceptor": true,
+        "puedeAceptar": true,
+        "puedeRechazar": true
+      }
+    },
+    "10": {
+      "status": 200,
+      "datos": {
+        "id": 10,
+        "tipo": "intercambio",
+        "estado": "cancelada",
+        "creada_en": "2026-11-05T09:31:53.697Z",
+        "cerrada_en": "2026-11-05T09:31:54.578Z",
+        "ejemplarOfrecidoId": 33,
+        "ejemplarSolicitadoId": 34,
+        "versionOfrecida": 3,
+        "versionSolicitada": 3,
+        "tituloOfrecido": "Evidencia obsoleta A2 · Ejemplar ofrecido · revisado",
+        "edicionOfrecida": "2026",
+        "asignaturaOfrecida": "Programación",
+        "codigoOfrecido": "LIB-9d32ef5f-aeac-4dac-b7e3-ba3511d2901c",
+        "conservacionOfrecida": "Cambio posterior a la propuesta.",
+        "propietarioOfrecido": "Estudiante Evidencia",
+        "tituloSolicitado": "Evidencia obsoleta B2 · Ejemplar solicitado",
+        "edicionSolicitada": "2025",
+        "asignaturaSolicitada": "Bases de datos",
+        "codigoSolicitado": "LIB-cef59b61-3eba-4a22-ba4f-af651cdbc53f",
+        "conservacionSolicitada": "Para prueba de obsolescencia.",
+        "propietarioSolicitado": "Estudiante B",
+        "aceptaciones": 1,
+        "esProponente": true,
+        "esReceptor": false,
+        "puedeAceptar": false,
+        "puedeRechazar": false
+      }
+    }
+  },
+  "operaciones_sql": [
+    {
+      "id": 2,
+      "estado": "propuesta",
+      "creada_en": "2026-11-05T09:06:38.039Z",
+      "cerrada_en": null,
+      "entregada_en": null,
+      "proponente_id": 3,
+      "receptor_id": 2,
+      "proponente": "Estudiante B",
+      "receptor": "Estudiante Evidencia",
+      "aceptaciones": 2,
+      "reservas": 0,
+      "eventos_aceptar": 1,
+      "eventos_rechazar": 0,
+      "eventos_cancelar": 0,
+      "eventos_reservar": 0,
+      "titulos": "Evidencia intercambio A · Atlas de datos para el aula / Evidencia intercambio B · Libro de pruebas de software"
+    },
+    {
+      "id": 3,
+      "estado": "reservada",
+      "creada_en": "2026-11-05T09:06:38.065Z",
+      "cerrada_en": null,
+      "entregada_en": null,
+      "proponente_id": 2,
+      "receptor_id": 3,
+      "proponente": "Estudiante Evidencia",
+      "receptor": "Estudiante B",
+      "aceptaciones": 2,
+      "reservas": 2,
+      "eventos_aceptar": 1,
+      "eventos_rechazar": 0,
+      "eventos_cancelar": 0,
+      "eventos_reservar": 1,
+      "titulos": "Evidencia intercambio A · Cuaderno de redes y servicios / Evidencia intercambio B · Apuntes de sistemas operativos"
+    },
+    {
+      "id": 4,
+      "estado": "reservada",
+      "creada_en": "2026-11-05T09:06:38.106Z",
+      "cerrada_en": null,
+      "entregada_en": null,
+      "proponente_id": 2,
+      "receptor_id": 3,
+      "proponente": "Estudiante Evidencia",
+      "receptor": "Estudiante B",
+      "aceptaciones": 2,
+      "reservas": 2,
+      "eventos_aceptar": 1,
+      "eventos_rechazar": 0,
+      "eventos_cancelar": 0,
+      "eventos_reservar": 1,
+      "titulos": "Evidencia intercambio A · Manual de interfaces accesibles / Evidencia intercambio B · Taller de accesibilidad web"
+    },
+    {
+      "id": 5,
+      "estado": "cancelada",
+      "creada_en": "2026-11-05T09:06:38.159Z",
+      "cerrada_en": "2026-11-05T09:06:38.172Z",
+      "entregada_en": null,
+      "proponente_id": 2,
+      "receptor_id": 3,
+      "proponente": "Estudiante Evidencia",
+      "receptor": "Estudiante B",
+      "aceptaciones": 1,
+      "reservas": 0,
+      "eventos_aceptar": 0,
+      "eventos_rechazar": 1,
+      "eventos_cancelar": 0,
+      "eventos_reservar": 0,
+      "titulos": "Evidencia intercambio A · Compendio de algoritmos / Evidencia intercambio B · Proyecto de datos abiertos"
+    },
+    {
+      "id": 6,
+      "estado": "completada",
+      "creada_en": "2026-11-05T09:06:38.195Z",
+      "cerrada_en": "2026-11-05T09:06:38.228Z",
+      "entregada_en": "2026-11-05T09:06:38.228Z",
+      "proponente_id": 2,
+      "receptor_id": 3,
+      "proponente": "Estudiante Evidencia",
+      "receptor": "Estudiante B",
+      "aceptaciones": 2,
+      "reservas": 0,
+      "eventos_aceptar": 1,
+      "eventos_rechazar": 0,
+      "eventos_cancelar": 0,
+      "eventos_reservar": 1,
+      "titulos": "Evidencia intercambio A · Guía de seguridad web / Evidencia intercambio B · Cuaderno de despliegue"
+    },
+    {
+      "id": 7,
+      "estado": "cancelada",
+      "creada_en": "2026-11-05T09:09:05.337Z",
+      "cerrada_en": "2026-11-05T09:26:31.623Z",
+      "entregada_en": null,
+      "proponente_id": 2,
+      "receptor_id": 3,
+      "proponente": "Estudiante Evidencia",
+      "receptor": "Estudiante B",
+      "aceptaciones": 1,
+      "reservas": 0,
+      "eventos_aceptar": 0,
+      "eventos_rechazar": 1,
+      "eventos_cancelar": 0,
+      "eventos_reservar": 0,
+      "titulos": "Evidencia intercambio A · Compendio de algoritmos / Evidencia intercambio B · Proyecto de datos abiertos"
+    },
+    {
+      "id": 8,
+      "estado": "cancelada",
+      "creada_en": "2026-11-05T09:26:53.637Z",
+      "cerrada_en": "2026-11-05T09:26:54.469Z",
+      "entregada_en": null,
+      "proponente_id": 2,
+      "receptor_id": 3,
+      "proponente": "Estudiante Evidencia",
+      "receptor": "Estudiante B",
+      "aceptaciones": 1,
+      "reservas": 0,
+      "eventos_aceptar": 0,
+      "eventos_rechazar": 0,
+      "eventos_cancelar": 1,
+      "eventos_reservar": 0,
+      "titulos": "Evidencia obsoleta A · Ejemplar ofrecido · revisado / Evidencia obsoleta B · Ejemplar solicitado"
+    },
+    {
+      "id": 9,
+      "estado": "propuesta",
+      "creada_en": "2026-11-05T09:27:12.521Z",
+      "cerrada_en": null,
+      "entregada_en": null,
+      "proponente_id": 3,
+      "receptor_id": 2,
+      "proponente": "Estudiante B",
+      "receptor": "Estudiante Evidencia",
+      "aceptaciones": 1,
+      "reservas": 0,
+      "eventos_aceptar": 0,
+      "eventos_rechazar": 0,
+      "eventos_cancelar": 0,
+      "eventos_reservar": 0,
+      "titulos": "Evidencia red A · Lecturas de interfaz / Evidencia red B · Cuaderno de datos"
+    },
+    {
+      "id": 10,
+      "estado": "cancelada",
+      "creada_en": "2026-11-05T09:31:53.697Z",
+      "cerrada_en": "2026-11-05T09:31:54.578Z",
+      "entregada_en": null,
+      "proponente_id": 2,
+      "receptor_id": 3,
+      "proponente": "Estudiante Evidencia",
+      "receptor": "Estudiante B",
+      "aceptaciones": 1,
+      "reservas": 0,
+      "eventos_aceptar": 0,
+      "eventos_rechazar": 0,
+      "eventos_cancelar": 1,
+      "eventos_reservar": 0,
+      "titulos": "Evidencia obsoleta A2 · Ejemplar ofrecido · revisado / Evidencia obsoleta B2 · Ejemplar solicitado"
+    }
+  ],
+  "pruebas": [
+    {
+      "id": "aceptacion-teclado",
+      "entrada": "Abrir #2, enfocar Aceptar y pulsar Enter con teclado",
+      "esperado": "El servidor registra la aceptación, la operación queda pendiente de docente y el foco vuelve a un control coherente",
+      "observado": "Aceptación registrada; #2 con 2 aceptaciones; mensaje «Aceptación registrada. Pendiente de confirmación docente.»; foco en «cerrar-detalle»",
+      "fuente": "Prueba manual CDP + SQL"
+    },
+    {
+      "id": "rechazo-teclado",
+      "entrada": "Abrir #7 como receptora, enfocar Rechazar y pulsar Enter; aceptar el confirm del navegador",
+      "esperado": "HTTP 200, operación cancelada, sin reserva, foco en cerrar detalle",
+      "observado": "HTTP 200; estado SQL cancelada; 0 reservas; 1 evento rechazar_intercambio; foco en «cerrar-detalle»",
+      "fuente": "Prueba manual CDP + SQL"
+    },
+    {
+      "id": "propuesta-obsoleta",
+      "entrada": "Abrir #10, editar el anuncio ofrecido y pulsar Aceptar con la versión anterior",
+      "esperado": "HTTP 409 ACUERDO_DESACTUALIZADO o PROPUESTA_NO_VIGENTE; no aceptar; explicar que hay que actualizar",
+      "observado": "HTTP 409; mensaje «La propuesta ya no está vigente. Actualiza el detalle.»; estado SQL cancelada; 1 aceptación inicial; 0 reservas; foco en el mensaje",
+      "fuente": "Prueba manual CDP + SQL; ids 10 y anuncio 27"
+    },
+    {
+      "id": "red-desconectada",
+      "entrada": "Abrir #9 como receptora, desconectar la red del navegador y pulsar Aceptar",
+      "esperado": "No cambiar el estado ni crear reserva; mostrar un error comprensible y devolver el foco al mensaje",
+      "observado": "Mensaje «No se pudo contactar con el servidor. Inténtalo de nuevo.»; operación sigue en propuesta con 1 aceptación; 0 eventos aceptar; 0 reservas; foco en el mensaje; botón rehabilitado",
+      "fuente": "Prueba manual CDP + SQL"
+    },
+    {
+      "id": "reserva-docente",
+      "entrada": "Abrir #3 como docencia, enfocar Reservar y pulsar Enter",
+      "esperado": "HTTP 200, estado reservada, reserva activa y acciones docentes; al cerrar, foco en el control de actualización",
+      "observado": "HTTP 200; estado SQL reservada; 2 reservas; 1 evento reservar_intercambio; mensaje «Intercambio reservado por el docente.»; al cerrar, foco en «actualizar»",
+      "fuente": "Prueba manual CDP + SQL"
+    }
+  ]
+}

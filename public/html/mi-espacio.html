@@ -22,7 +22,7 @@
     </header>
 
 <main id="contenido">
-      <p><a href="cesiones.html">Cesiones, solicitudes e historial</a></p>
+      <p><a href="cesiones.html">Cesiones, solicitudes e historial</a> · <a href="intercambios.html">Intercambios</a></p>
       <p id="aviso-sesion" class="resumen-errores" role="alert" hidden></p>
       <p id="aviso-estado" class="aviso-cuenta" role="status" aria-live="polite" hidden></p>
 
@@ -47,13 +47,54 @@
 
         <p id="mensaje" role="status" aria-live="polite" tabindex="-1"></p>
 
+        <section id="seccion-panel" class="seccion area" aria-labelledby="titulo-panel" hidden>
+          <div class="panel-cabecera">
+            <div>
+              <h2 id="titulo-panel">Resumen de Mi espacio</h2>
+              <p class="ayuda">Primero lo que requiere tu acción; después, por fecha.</p>
+            </div>
+            <button type="button" id="actualizar-panel" class="boton-sec">Actualizar resumen</button>
+          </div>
+          <p id="panel-mensaje" role="status" aria-live="polite" tabindex="-1"></p>
+
+          <div class="panel-grid">
+            <section class="panel-seccion" aria-labelledby="titulo-publicaciones-panel">
+              <h3 id="titulo-publicaciones-panel">Publicaciones</h3>
+              <p id="resumen-publicaciones" class="panel-resumen"></p>
+              <ul id="lista-publicaciones" class="lista-panel" aria-label="Mis publicaciones"></ul>
+              <p class="panel-enlace"><a href="#seccion-anuncios">Gestionar publicaciones</a></p>
+            </section>
+
+            <section class="panel-seccion" aria-labelledby="titulo-solicitudes-panel">
+              <h3 id="titulo-solicitudes-panel">Solicitudes</h3>
+              <p id="resumen-solicitudes" class="panel-resumen"></p>
+              <ul id="lista-solicitudes" class="lista-panel" aria-label="Mis solicitudes"></ul>
+              <p class="panel-enlace"><a href="cesiones.html">Ver solicitudes completas</a></p>
+            </section>
+
+            <section class="panel-seccion" aria-labelledby="titulo-prestamos-panel">
+              <h3 id="titulo-prestamos-panel">Préstamos e intercambios</h3>
+              <p id="resumen-prestamos" class="panel-resumen"></p>
+              <ul id="lista-prestamos" class="lista-panel" aria-label="Mis préstamos e intercambios"></ul>
+              <p class="panel-enlace"><a href="cesiones.html">Ver operaciones completas</a> · <a href="intercambios.html">Ver intercambios</a></p>
+            </section>
+
+            <section class="panel-seccion" aria-labelledby="titulo-avisos-panel">
+              <h3 id="titulo-avisos-panel">Avisos</h3>
+              <p id="resumen-avisos" class="panel-resumen"></p>
+              <ul id="lista-avisos" class="lista-panel" aria-label="Mis avisos"></ul>
+              <p class="panel-enlace"><a href="cesiones.html">Ver historial</a></p>
+            </section>
+          </div>
+        </section>
+
         <p id="aviso-alumno" class="aviso-cuenta" hidden>
           La gestión de anuncios está disponible para cuentas de alumnado activas.
         </p>
       </section>
 
       <section id="seccion-anuncios" class="seccion area" aria-labelledby="titulo-anuncios" hidden>
-        <h2 id="titulo-anuncios">Mis anuncios</h2>
+        <h2 id="titulo-anuncios">Gestionar mis publicaciones</h2>
 
         <form id="anuncio" class="form-datos">
           <fieldset id="campos" disabled>
@@ -106,7 +147,7 @@
           </fieldset>
         </form>
 
-        <h3>Mis publicaciones</h3>
+        <h3>Listado completo</h3>
         <div class="acciones-form">
           <button type="button" id="actualizar" class="boton-sec">Actualizar listado</button>
         </div>

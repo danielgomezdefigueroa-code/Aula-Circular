@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Aula Circular · Intercambios</title>
+  <link rel="stylesheet" href="../css/estilo.css">
+</head>
+<body>
+  <header>
+    <div class="max-w">
+      <a class="brand" href="index.html">Aula Circular</a>
+      <button type="button" id="menu-boton" class="menu-boton" aria-expanded="false" aria-controls="menu-principal">Abrir menú</button>
+      <nav id="menu-principal" class="nav" aria-label="Navegación principal">
+        <a href="index.html" class="nav-link">Inicio</a>
+        <a href="biblioteca.html" class="nav-link" data-area="biblioteca" hidden>Biblioteca</a>
+        <a href="libros.html" class="nav-link" data-area="libros" hidden>Libros</a>
+        <a href="documentacion.html" class="nav-link" data-area="documentacion" hidden>Documentación</a>
+        <a href="mi-espacio.html" class="nav-link" data-area="mi-espacio" hidden>Mi espacio</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="contenido">
+    <p><a href="libros.html">Libros</a> · <a href="mi-espacio.html">Mi espacio</a> · <a href="cesiones.html">Cesiones</a></p>
+    <p id="aviso-sesion" class="resumen-errores" role="alert" hidden></p>
+    <p id="aviso-estado" class="aviso-cuenta" role="status" aria-live="polite" hidden></p>
+
+    <section class="seccion area" aria-labelledby="titulo-intercambios">
+      <h1 id="titulo-intercambios">Intercambios</h1>
+      <p id="ayuda-lista" class="ayuda">Propuestas en las que participas. La disponibilidad y las reservas las decide el servidor.</p>
+      <p id="mensaje" class="area-estado" role="status" aria-live="polite" tabindex="-1"></p>
+
+      <div class="panel-cabecera">
+        <h2 id="titulo-lista">Propuestas</h2>
+        <button type="button" id="actualizar" class="boton-sec">Actualizar</button>
+      </div>
+      <ul id="lista-intercambios" class="tarjeta-grid area-lista" aria-labelledby="titulo-lista"></ul>
+      <nav id="paginacion" class="paginacion" aria-label="Paginación de intercambios" hidden>
+        <button type="button" id="anterior" class="boton-sec" disabled>Anterior</button>
+        <span id="pagina" aria-live="polite"></span>
+        <button type="button" id="siguiente" class="boton-sec" disabled>Siguiente</button>
+      </nav>
+    </section>
+
+    <section id="detalle" class="seccion area" aria-labelledby="detalle-titulo" hidden>
+      <div class="detalle-cabecera">
+        <h2 id="detalle-titulo" tabindex="-1">Detalle del intercambio</h2>
+        <button type="button" id="cerrar-detalle" class="boton-sec">Cerrar detalle</button>
+      </div>
+      <p id="detalle-estado" class="estado-intercambio" role="status" aria-live="polite"></p>
+      <p id="detalle-mensaje" class="area-estado" role="status" aria-live="polite" tabindex="-1"></p>
+
+      <div class="intercambio-pareja">
+        <section class="intercambio-tarjeta" aria-labelledby="detalle-ofrecido">
+          <h3 id="detalle-ofrecido">Ejemplar ofrecido</h3>
+          <dl id="datos-ofrecido" class="datos-intercambio"></dl>
+        </section>
+        <section class="intercambio-tarjeta" aria-labelledby="detalle-solicitado">
+          <h3 id="detalle-solicitado">Ejemplar solicitado</h3>
+          <dl id="datos-solicitado" class="datos-intercambio"></dl>
+        </section>
+      </div>
+
+      <p class="ayuda">La coordinación se realiza en el punto de entrega del centro. No se comparten teléfono, correo ni chat.</p>
+      <div id="acciones-intercambio" class="acciones-form"></div>
+    </section>
+  </main>
+
+  <footer class="pie">
+    <p>Aula Circular · Centro ficticio · Datos de ensayo</p>
+  </footer>
+
+  <script type="module" src="../mjs/shell.mjs"></script>
+  <script type="module" src="../mjs/intercambios.mjs"></script>
+</body>
+</html>

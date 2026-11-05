@@ -16,7 +16,7 @@ El navegador carga `public/index.html`, que redirige a `public/html/index.html`.
 | public/mjs/shell.mjs | Sesión, menú por permisos, CSRF y cierre de sesión |
 | public/mjs/login.mjs | Acceso, registro y estados de cuenta |
 | public/mjs/docencia.mjs | Validación de cuentas por docencia |
-| public/mjs/libros.mjs | Listado real de anuncios publicados con búsqueda, curso y modalidad |
+| public/mjs/libros.mjs | Listado real de anuncios publicados con búsqueda, curso, modalidad y disponibilidad |
 | public/mjs/mi-espacio.mjs | Perfil y gestión de anuncios propios |
 | public/mjs/inicio.mjs | Catálogo de Inicio contra las APIs de las tres áreas |
 | public/mjs/biblioteca.mjs | Catálogo de Biblioteca con búsqueda, tipo, curso y disponibilidad |
@@ -149,6 +149,7 @@ El servidor escucha solo en 127.0.0.1: no publica la aplicación para otros orde
 | GET /api/recursos-demo?q=calculadora | Recursos cuyo título coincide |
 | GET /api/biblioteca?q=guia&tipo=fisico&curso=1&disponible=1&pagina=1&limite=20 | 200; datos filtrados, pagina, limite y total |
 | GET /api/libros?q=programacion&curso=2&modalidad=prestamo&disponible=1&pagina=1&limite=20 | 200; datos publicados filtrados, total, pagina y limite |
+| GET /api/mi-espacio/panel | 200; publicaciones, solicitudes, préstamos e avisos de la cuenta de la sesión |
 | GET /ruta-inexistente | 404; error NO_ENCONTRADO |
 
 ```powershell
@@ -159,7 +160,7 @@ curl.exe -i http://127.0.0.1:3000/ruta-inexistente
 
 La salud ejecuta SELECT 1: comprueba conexión, pero no que recurso_demo exista. Una migración ausente puede dar salud 200 y catálogo 500.
 
-`/api/biblioteca`, `/api/documentacion` y `/api/libros` exigen una sesión activa con rol alumno o docente. `/api/recursos-demo` es pública y solo contiene datos sintéticos.
+`/api/biblioteca`, `/api/documentacion`, `/api/libros` y `/api/mi-espacio/panel` exigen una sesión activa. Los catálogos comprueban además el rol alumno o docente; el panel usa únicamente el usuario de la sesión y no acepta un identificador de propietario en la consulta. `/api/recursos-demo` es pública y solo contiene datos sintéticos.
 
 Rutas de la aplicación organizada:
 
@@ -170,7 +171,7 @@ Rutas de la aplicación organizada:
 | /html/biblioteca.html | Catálogo de recursos de Biblioteca |
 | /html/libros.html | Anuncios publicados |
 | /html/documentacion.html | Documentos y versiones |
-| /html/mi-espacio.html | Perfil, cierre de sesión y anuncios propios |
+| /html/mi-espacio.html | Perfil, cierre de sesión, resumen de publicaciones, solicitudes, préstamos y avisos propios, y gestión de anuncios |
 | /html/docencia.html | Validación de cuentas (solo docencia activa) |
 | /laboratorio/ | Demo del catálogo de `/api/recursos-demo` |
 
@@ -201,7 +202,7 @@ Para probar puerto ocupado, mantener el primer servidor y lanzar `npm.cmd run st
 
 Para copia limpia, clonar en una carpeta nueva, ejecutar npm.cmd ci, preparar .env, migrar y cargar `sql/001_laboratorio.sql` tras parar el servidor anterior. Documentar si se reutilizó la base existente o se preparó otra. El `001` es idempotente, pero no sustituye a las migraciones.
 
-`npm.cmd test` ejecuta `pruebas/cuentas.test.mjs` y `pruebas/anuncios.test.mjs` contra PostgreSQL y HTTP reales. Crea esquemas temporales `aula_test_...`, necesita permiso para crear esquemas y no vacía las tablas de trabajo. Si PostgreSQL no está levantado, falla con `ECONNREFUSED 127.0.0.1:5432`; las pruebas manuales de esta guía siguen siendo necesarias para la interfaz. Los resultados esperados no acreditan por sí solos su ejecución. En la revisión local del 2026-10-22 pasaron 17 de 17. `tests/` es legado y no forma parte de esta suite.
+`npm.cmd test` ejecuta `pruebas/cuentas.test.mjs`, `pruebas/anuncios.test.mjs` y `pruebas/cesiones.test.mjs` contra PostgreSQL y HTTP reales. Crea esquemas temporales `aula_test_...`, necesita permiso para crear esquemas y no vacía las tablas de trabajo. Si PostgreSQL no está levantado, falla con `ECONNREFUSED 127.0.0.1:5432`; las pruebas manuales de esta guía siguen siendo necesarias para la interfaz. Los resultados esperados no acreditan por sí solos su ejecución. En la revisión local del 2026-11-04, con PostgreSQL 18.6, pasaron 23 de 23. `tests/` es legado y no forma parte de esta suite.
 
 ## Decisiones del código
 

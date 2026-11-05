@@ -2,7 +2,8 @@
     Perfil de la cuenta y gestión de anuncios propios. La API decide
     permisos y estados; aquí solo se representa y se envían los datos. */
 import {
-  listo, pedir, enviar, leerJson, leerIdentidad, irALogin, puedeGestionarAnuncios
+  listo, pedir, enviar, leerJson, leerIdentidad, irALogin, puedeGestionarAnuncios,
+  puedeVerAreas
 } from './shell.mjs';
 
 const perfilDatos = document.querySelector('#perfil-datos');
@@ -24,6 +25,21 @@ const siguiente = document.querySelector('#siguiente');
 const paginaTexto = document.querySelector('#pagina');
 const detalle = document.querySelector('#detalle');
 const historial = document.querySelector('#historial');
+const seccionPanel = document.querySelector('#seccion-panel');
+const panelMensaje = document.querySelector('#panel-mensaje');
+const actualizarPanel = document.querySelector('#actualizar-panel');
+const listasPanel = {
+  publicaciones: document.querySelector('#lista-publicaciones'),
+  solicitudes: document.querySelector('#lista-solicitudes'),
+  prestamos: document.querySelector('#lista-prestamos'),
+  avisos: document.querySelector('#lista-avisos')
+};
+const resumenesPanel = {
+  publicaciones: document.querySelector('#resumen-publicaciones'),
+  solicitudes: document.querySelector('#resumen-solicitudes'),
+  prestamos: document.querySelector('#resumen-prestamos'),
+  avisos: document.querySelector('#resumen-avisos')
+};
 
 const estados = {
   borrador: 'Borrador',
@@ -38,6 +54,25 @@ const estadosCuenta = {
   suspendido: 'Suspendida'
 };
 const modalidades = {
+  cesion: 'Cesión',
+  prestamo: 'Préstamo',
+  intercambio: 'Intercambio'
+};
+const estadosSolicitud = {
+  pendiente: 'Pendiente',
+  adjudicada: 'Adjudicada',
+  rechazada: 'Rechazada',
+  cancelada: 'Cancelada'
+};
+const estadosOperacion = {
+  propuesta: 'Propuesta',
+  reservada: 'Reservada',
+  prestada: 'Prestada',
+  completada: 'Completada',
+  cancelada: 'Cancelada',
+  cerrada_por_incidencia: 'Cerrada por incidencia'
+};
+const tiposOperacion = {
   cesion: 'Cesión',
   prestamo: 'Préstamo',
   intercambio: 'Intercambio'
@@ -80,6 +115,280 @@ function fecha(valor) {
   return Number.isNaN(d.getTime()) ? String(valor ?? '') : d.toLocaleString('es-ES');
 }
 
+function limpiarPanel() {
+  for (const lista of Object.values(listasPanel)) lista.replaceChildren();
+  for (const resumen of Object.values(resumenesPanel)) resumen.textContent = '';
+  panelMensaje.textContent = '';
+}
+
+function textoResumen(total, pendientes, acciones, singular, plural) {
+  if (!total) return 'Sin ' + plural + '.';
+  const partes = [total + ' ' + (total === 1 ? singular : plural)];
+  if (pendientes) partes.push(pendientes + (pendientes === 1 ? ' pendiente' : ' pendientes'));
+  if (acciones) partes.push(acciones + (acciones === 1 ? ' requiere tu acción' : ' requieren tu acción'));
+  return partes.join(' · ');
+}
+
+function estadoOperacionTexto(prestamo) {
+  if (prestamo.tipo === 'intercambio') {
+    if (prestamo.estado === 'propuesta') {
+      return Number(prestamo.aceptaciones) >= 2
+        ? 'Esperando confirmación docente'
+        : 'Esperando aceptación';
+    }
+    if (prestamo.estado === 'reservada') return 'Reservado';
+    if (prestamo.estado === 'completada') return 'Completado';
+    if (prestamo.estado === 'cancelada') return 'Cancelado';
+  }
+  return estadosOperacion[prestamo.estado] ?? prestamo.estado ?? '';
+}
+
+function fechaPanel(valor, etiqueta = 'Fecha') {
+  if (!valor) return null;
+  const texto = fecha(valor);
+  if (!texto) return null;
+  const p = document.createElement('p');
+  p.className = 'panel-fecha';
+  p.textContent = etiqueta + ': ' + texto;
+  return p;
+}
+
+function vacioPanel(lista, texto) {
+  const li = document.createElement('li');
+  li.className = 'panel-vacio';
+  li.textContent = texto;
+  lista.append(li);
+}
+
+function contarPanel(totales, seccion, datos) {
+  const total = Number(totales?.[seccion]?.total);
+  return {
+    total: Number.isSafeInteger(total) ? total : datos.length,
+    pendientes: Number(totales?.[seccion]?.pendientes) || 0,
+    acciones: Number(totales?.[seccion]?.requieren_accion) || 0
+  };
+}
+
+function renderPanel(cuerpo) {
+  const datos = cuerpo?.datos ?? {};
+  const totales = cuerpo?.totales ?? {};
+  const publicaciones = Array.isArray(datos.publicaciones) ? datos.publicaciones : [];
+  const solicitudes = Array.isArray(datos.solicitudes) ? datos.solicitudes : [];
+  const prestamos = Array.isArray(datos.prestamos) ? datos.prestamos : [];
+  const avisos = Array.isArray(datos.avisos) ? datos.avisos : [];
+
+  const cuentaPublicaciones = contarPanel(totales, 'publicaciones', publicaciones);
+  const cuentaSolicitudes = contarPanel(totales, 'solicitudes', solicitudes);
+  const cuentaPrestamos = contarPanel(totales, 'prestamos', prestamos);
+  const cuentaAvisos = contarPanel(totales, 'avisos', avisos);
+
+  resumenesPanel.publicaciones.textContent = textoResumen(
+    cuentaPublicaciones.total, cuentaPublicaciones.pendientes, cuentaPublicaciones.acciones,
+    'publicación', 'publicaciones'
+  );
+  resumenesPanel.solicitudes.textContent = textoResumen(
+    cuentaSolicitudes.total, cuentaSolicitudes.pendientes, cuentaSolicitudes.acciones,
+    'solicitud', 'solicitudes'
+  );
+  resumenesPanel.prestamos.textContent = textoResumen(
+    cuentaPrestamos.total, cuentaPrestamos.pendientes, cuentaPrestamos.acciones,
+    'operación', 'operaciones'
+  );
+  resumenesPanel.avisos.textContent = textoResumen(
+    cuentaAvisos.total, cuentaAvisos.pendientes, cuentaAvisos.acciones,
+    'aviso', 'avisos'
+  );
+
+  listasPanel.publicaciones.replaceChildren();
+  listasPanel.solicitudes.replaceChildren();
+  listasPanel.prestamos.replaceChildren();
+  listasPanel.avisos.replaceChildren();
+
+  if (!publicaciones.length) vacioPanel(listasPanel.publicaciones, 'No tienes publicaciones.');
+  for (const publicacion of publicaciones) {
+    const li = document.createElement('li');
+    li.className = 'panel-item';
+    li.dataset.pendiente = publicacion.requiere_accion ? 'true' : 'false';
+
+    const titulo = document.createElement('h4');
+    titulo.textContent = publicacion.titulo ?? 'Publicación';
+    const estado = document.createElement('p');
+    estado.className = 'etiqueta';
+    estado.textContent = (estados[publicacion.estado_revision] ?? publicacion.estado_revision ?? '') +
+      (publicacion.requiere_accion ? ' · requiere tu acción' : '');
+    const meta = document.createElement('p');
+    meta.className = 'metadatos';
+    meta.textContent = [
+      modalidades[publicacion.modalidad] ?? publicacion.modalidad,
+      publicacion.curso,
+      publicacion.codigo ? 'Ejemplar: ' + publicacion.codigo : ''
+    ].filter(Boolean).join(' · ');
+
+    li.append(titulo, estado, meta);
+    const fechaPublicacion = fechaPanel(publicacion.actualizada_en);
+    if (fechaPublicacion) li.append(fechaPublicacion);
+
+    const acciones = document.createElement('div');
+    acciones.className = 'panel-acciones';
+    const ver = document.createElement('button');
+    ver.type = 'button';
+    ver.className = 'boton-sec';
+    ver.textContent = 'Ver detalle';
+    ver.addEventListener('click', async () => {
+      try {
+        await abrir(publicacion.id, false);
+        seccionAnuncios.scrollIntoView({ behavior: 'smooth' });
+      } catch (error) {
+        mostrar(error.message, true);
+      }
+    });
+    acciones.append(ver);
+    li.append(acciones);
+    listasPanel.publicaciones.append(li);
+  }
+
+  if (!solicitudes.length) vacioPanel(listasPanel.solicitudes, 'No tienes solicitudes.');
+  for (const solicitud of solicitudes) {
+    const li = document.createElement('li');
+    li.className = 'panel-item';
+    li.dataset.pendiente = solicitud.requiere_accion ? 'true' : 'false';
+
+    const titulo = document.createElement('h4');
+    titulo.textContent = solicitud.titulo ?? 'Solicitud';
+    const estado = document.createElement('p');
+    estado.className = 'etiqueta';
+    estado.textContent = (estadosSolicitud[solicitud.estado] ?? solicitud.estado ?? '') +
+      (solicitud.requiere_accion ? ' · requiere tu acción' : '');
+    const meta = document.createElement('p');
+    meta.className = 'metadatos';
+    meta.textContent = [
+      solicitud.curso,
+      solicitud.codigo ? 'Ejemplar: ' + solicitud.codigo : '',
+      modalidades[solicitud.modalidad] ?? solicitud.modalidad
+    ].filter(Boolean).join(' · ');
+
+    li.append(titulo, estado, meta);
+    const fechaSolicitud = fechaPanel(solicitud.creada_en);
+    if (fechaSolicitud) li.append(fechaSolicitud);
+
+    if (solicitud.estado === 'pendiente') {
+      const acciones = document.createElement('div');
+      acciones.className = 'panel-acciones';
+      const cancelar = document.createElement('button');
+      cancelar.type = 'button';
+      cancelar.className = 'boton-sec';
+      cancelar.textContent = 'Cancelar solicitud';
+      cancelar.addEventListener('click', () => cancelarSolicitud(solicitud.id, cancelar));
+      acciones.append(cancelar);
+      li.append(acciones);
+    }
+    listasPanel.solicitudes.append(li);
+  }
+
+  if (!prestamos.length) vacioPanel(listasPanel.prestamos, 'No tienes préstamos ni intercambios.');
+  for (const prestamo of prestamos) {
+    const li = document.createElement('li');
+    li.className = 'panel-item';
+    li.dataset.pendiente = prestamo.requiere_accion ? 'true' : 'false';
+
+    const titulo = document.createElement('h4');
+    titulo.textContent = prestamo.titulos || ('Operación #' + prestamo.id);
+    const estado = document.createElement('p');
+    estado.className = 'etiqueta';
+    const estadoTexto = estadoOperacionTexto(prestamo);
+    const aceptaciones = prestamo.tipo === 'intercambio' && prestamo.estado === 'propuesta'
+      ? ' · ' + (Number(prestamo.aceptaciones) || 0) + ' de 2 aceptaciones'
+      : '';
+    estado.textContent = [
+      tiposOperacion[prestamo.tipo] ?? prestamo.tipo,
+      estadoTexto + aceptaciones
+    ].filter(Boolean).join(': ') + (prestamo.requiere_accion ? ' · requiere tu acción' : '');
+    const meta = document.createElement('p');
+    meta.className = 'metadatos';
+    meta.textContent = [
+      prestamo.rol === 'intercambio' ? 'Intercambio' :
+        prestamo.rol === 'origen' ? 'Como origen' : 'Como destinatario',
+      'Operación #' + prestamo.id
+    ].filter(Boolean).join(' · ');
+
+    li.append(titulo, estado, meta);
+    const fechaPrestamo = fechaPanel(prestamo.creada_en);
+    if (fechaPrestamo) li.append(fechaPrestamo);
+    if (prestamo.entregada_en) {
+      const entrega = fechaPanel(prestamo.entregada_en, 'Entrega');
+      if (entrega) li.append(entrega);
+    }
+
+    const acciones = document.createElement('div');
+    acciones.className = 'panel-acciones';
+    const enlace = document.createElement('a');
+    const esIntercambio = prestamo.tipo === 'intercambio';
+    enlace.href = esIntercambio
+      ? 'intercambios.html?operacion=' + prestamo.id
+      : 'cesiones.html';
+    enlace.textContent = esIntercambio
+      ? (prestamo.requiere_accion ? 'Revisar intercambio' : 'Ver intercambio')
+      : (prestamo.requiere_accion ? 'Revisar propuesta' : 'Ver en Cesiones');
+    acciones.append(enlace);
+    li.append(acciones);
+    listasPanel.prestamos.append(li);
+  }
+
+  if (!avisos.length) vacioPanel(listasPanel.avisos, 'No tienes avisos.');
+  for (const aviso of avisos) {
+    const li = document.createElement('li');
+    li.className = 'panel-item';
+    li.dataset.pendiente = 'false';
+
+    const mensajeAviso = document.createElement('p');
+    mensajeAviso.className = 'detalle';
+    mensajeAviso.textContent = aviso.mensaje ?? '';
+    li.append(mensajeAviso);
+    const fechaAviso = fechaPanel(aviso.creado_en);
+    if (fechaAviso) li.append(fechaAviso);
+    if (aviso.operacion_id) {
+      const acciones = document.createElement('div');
+      acciones.className = 'panel-acciones';
+      const enlace = document.createElement('a');
+      enlace.href = 'cesiones.html';
+      enlace.textContent = 'Ver operación #' + aviso.operacion_id;
+      acciones.append(enlace);
+      li.append(acciones);
+    }
+    listasPanel.avisos.append(li);
+  }
+}
+
+async function cargarPanel() {
+  if (!identidad || identidad.estado !== 'activo' || !puedeVerAreas(identidad)) {
+    seccionPanel.hidden = true;
+    limpiarPanel();
+    return;
+  }
+  seccionPanel.hidden = false;
+  panelMensaje.textContent = 'Cargando resumen…';
+  try {
+    const respuesta = await pedir('/mi-espacio/panel');
+    renderPanel(await leerRespuesta(respuesta));
+    panelMensaje.textContent = '';
+  } catch (error) {
+    panelMensaje.textContent = error.message;
+  }
+}
+
+async function cancelarSolicitud(id, boton) {
+  if (!confirm('¿Cancelar esta solicitud?')) return;
+  boton.disabled = true;
+  try {
+    await leerRespuesta(await enviar('/solicitudes/' + id + '/cancelar', {}));
+    await cargarPanel();
+    mostrar('Solicitud cancelada.');
+  } catch (error) {
+    mostrar(error.message, true);
+    boton.disabled = false;
+  }
+}
+
 function limpiarLista() {
   lista.replaceChildren();
   historial.replaceChildren();
@@ -107,6 +416,9 @@ function mostrarPerfil(datos) {
   perfilCursoConfirmado.textContent = datos.curso_confirmado ?? 'Pendiente de confirmación';
 
   const alumno = puedeGestionarAnuncios(datos);
+  const panel = datos.estado === 'activo' && puedeVerAreas(datos);
+  seccionPanel.hidden = !panel;
+  if (!panel) limpiarPanel();
   seccionAnuncios.hidden = !alumno;
   campos.disabled = !alumno;
   avisoAlumno.hidden = alumno;
@@ -125,8 +437,10 @@ function mostrarPerfil(datos) {
 
 function limpiarTodo() {
   perfilDatos.hidden = true;
+  seccionPanel.hidden = true;
   seccionAnuncios.hidden = true;
   avisoAlumno.hidden = true;
+  limpiarPanel();
   limpiarLista();
   nuevo();
   mostrar('');
@@ -164,6 +478,7 @@ async function refrescarIdentidad() {
   if (cambiaUsuario) {
     pagina = 1;
     nuevo();
+    limpiarPanel();
   }
   mostrarPerfil(identidad);
   return identidad;
@@ -184,9 +499,7 @@ async function cargar() {
     paginaTexto.textContent = 'Página ' + pagina;
     anterior.disabled = pagina === 1;
     siguiente.disabled = datos.length < 20;
-    mostrar(datos.length
-      ? 'Mis anuncios:'
-      : 'No hay anuncios propios en esta página.');
+    mostrar(datos.length ? '' : 'No hay anuncios propios en esta página.');
 
     for (const anuncio of datos) {
       const tarjeta = document.createElement('li');
@@ -243,6 +556,7 @@ async function cargar() {
             const cuerpoEnvio = await leerRespuesta(respuestaEnvio);
             if (edicion?.id === anuncio.id) nuevo();
             await cargar();
+            await cargarPanel();
             mostrar(cuerpoEnvio.mensaje ?? 'Enviado a revisión.');
           } catch (error) {
             mostrar(error.message, true);
@@ -315,6 +629,7 @@ form.addEventListener('submit', async (evento) => {
     nuevo();
     pagina = 1;
     await cargar();
+    await cargarPanel();
     mostrar(cuerpo.mensaje ?? 'Anuncio guardado.');
   } catch (error) {
     mostrar(error.message, true);
@@ -327,9 +642,19 @@ document.querySelector('#nuevo').addEventListener('click', nuevo);
 actualizar.addEventListener('click', async () => {
   try {
     const nueva = await refrescarIdentidad();
+    await cargarPanel();
     if (!puedeGestionarAnuncios(nueva)) return;
     if (!cursosCargados) await cargarCursos();
     await cargar();
+  } catch (error) {
+    mostrar(error.message, true);
+  }
+});
+
+actualizarPanel.addEventListener('click', async () => {
+  try {
+    await refrescarIdentidad();
+    await cargarPanel();
   } catch (error) {
     mostrar(error.message, true);
   }
@@ -366,8 +691,10 @@ document.addEventListener('aula:sesion', async (evento) => {
   if (cambiaUsuario) {
     pagina = 1;
     nuevo();
+    limpiarPanel();
   }
   mostrarPerfil(identidad);
+  await cargarPanel();
   if (!puedeGestionarAnuncios(identidad)) return;
   if (!cursosCargados) {
     try {
@@ -387,6 +714,7 @@ try {
   identidad = await listo;
   if (identidad) {
     mostrarPerfil(identidad);
+    await cargarPanel();
     if (puedeGestionarAnuncios(identidad)) {
       try {
         await cargarCursos();

@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Evidencia local · Mi espacio · Aula Circular</title>
+<style>
+  @page { size: A4; margin: 13mm; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { font-family: Arial, Helvetica, sans-serif; color: #20352a; font-size: 9.2pt; line-height: 1.35; }
+  h1 { font-size: 20pt; line-height: 1.12; margin: 0 0 3mm; color: #164E4A; }
+  h2 { font-size: 12.5pt; margin: 5mm 0 2mm; color: #164E4A; border-bottom: 1px solid #c9d8d0; padding-bottom: 1mm; }
+  h3 { font-size: 10.5pt; margin: 3mm 0 1.5mm; }
+  p { margin: 0 0 2mm; }
+  .page { break-after: page; }
+  .page:last-child { break-after: auto; }
+  .brandline { color: #164E4A; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; font-size: 8pt; margin-bottom: 2mm; }
+  .sub { color: #3d5246; font-size: 10pt; margin-bottom: 4mm; }
+  .meta { width: 100%; border-collapse: collapse; margin: 3mm 0 4mm; font-size: 8.4pt; }
+  .meta th, .meta td { border: 1px solid #c9d8d0; padding: 1.4mm 2mm; text-align: left; vertical-align: top; }
+  .meta th { background: #eef4f0; width: 24%; }
+  table { width: 100%; border-collapse: collapse; margin: 2mm 0 3mm; font-size: 8.2pt; }
+  th, td { border: 1px solid #c9d8d0; padding: 1.5mm 2mm; vertical-align: top; text-align: left; }
+  th { background: #eef4f0; }
+  .small { font-size: 7.8pt; color: #3d5246; }
+  .callout { border-left: 4px solid #DB7868; background: #fdf2ef; padding: 2.5mm 3mm; margin: 3mm 0; }
+  .ok { color: #164E4A; font-weight: 700; }
+  pre { white-space: pre-wrap; overflow-wrap: anywhere; background: #f5f8f6; border: 1px solid #d8e2dc; padding: 2.5mm; font-size: 7.5pt; line-height: 1.3; margin: 2mm 0 3mm; }
+  figure { margin: 2mm 0 4mm; text-align: center; break-inside: avoid; }
+  figure img { border: 1px solid #c9d8d0; max-width: 100%; height: auto; }
+  figcaption { color: #3d5246; font-size: 8pt; margin-top: 1.5mm; text-align: left; }
+  .panel-full { width: 150mm; }
+  .panel-mobile { width: 62mm; }
+  .firma { border-top: 1px solid #20352a; margin-top: 10mm; padding-top: 2mm; width: 80mm; font-size: 8pt; }
+  ul { margin: 1mm 0 2mm 5mm; padding: 0; }
+  li { margin-bottom: 1mm; }
+</style>
+</head>
+<body>
+
+<section class="page">
+  <div class="brandline">Aula Circular · Evidencia local</div>
+  <h1>Mi espacio: publicaciones, solicitudes, préstamos y avisos propios</h1>
+  <p class="sub">Muestra de evidencia técnica. No sustituye la ficha de tarea ni la validación del Team Leader.</p>
+
+  <table class="meta">
+    <tr><th>Documento</th><td>Evidencia local · Mi espacio · versión 1</td></tr>
+    <tr><th>Fecha</th><td>4 de noviembre de 2026</td></tr>
+    <tr><th>Versión del repositorio</th><td>8884522 · rama interfaz-y-accesibilidad</td></tr>
+    <tr><th>Entorno observado</th><td>Windows, Node.js 26.12.0, PostgreSQL 18.6, Chrome 152 headless; servidor local <strong>http://127.0.0.1:3000</strong>. La instancia local no coincide con el stack documentado de Node 24 LTS y PostgreSQL 17.</td></tr>
+    <tr><th>Datos</th><td>Cuentas, cursos, ejemplares y avisos ficticios. No se incluyen correos, cookies, tokens ni contraseñas.</td></tr>
+  </table>
+
+  <h2>1. Resultado comprobado</h2>
+  <p>La página <strong>Mi espacio</strong> consulta al servidor con la sesión y muestra cuatro secciones propias. El propietario se toma de <code>req.usuario.id</code>; la ruta no acepta un identificador de usuario en la consulta.</p>
+  <table>
+    <thead><tr><th>Sección</th><th>Total cuenta A</th><th>Pendientes A</th><th>Requieren acción A</th><th>Total cuenta B</th></tr></thead>
+    <tbody><tr><th>Publicaciones</th><td>3</td><td>1</td><td>1</td><td>1</td></tr><tr><th>Solicitudes</th><td>1</td><td>1</td><td>1</td><td>2</td></tr><tr><th>Préstamos e intercambios</th><td>1</td><td>1</td><td>0</td><td>1</td></tr><tr><th>Avisos</th><td>3</td><td>0</td><td>0</td><td>2</td></tr></tbody>
+  </table>
+  <p class="small">Cuenta A: <strong>Estudiante Evidencia</strong> (ficticia). Cuenta B: <strong>Estudiante B</strong> (ficticia). Los totales salen de <code>GET /api/mi-espacio/panel</code>.</p>
+
+  <h2>2. Casos y observación</h2>
+  <table>
+    <thead><tr><th>Caso</th><th>Entrada</th><th>Esperado</th><th>Observado</th></tr></thead>
+    <tbody>
+      <tr><td>Propiedad por sesión</td><td>GET /api/mi-espacio/panel con A y con B</td><td>Solo datos propios</td><td>A: publicaciones 9, 8, 7; solicitud 3. B: publicación 10; solicitudes 2, 1. A no recibe la publicación 10 y B no recibe las publicaciones de A.</td></tr>
+      <tr><td>Sin selector de propietario</td><td>GET /api/mi-espacio/panel?usuarioId=3 con A</td><td>Rechazo; no elegir al usuario 3</td><td>HTTP 422 · <code>PARAMETROS_INVALIDOS</code></td></tr>
+      <tr><td>Límite y totales</td><td>GET /api/mi-espacio/panel?limite=1 con A</td><td>Como máximo un elemento por sección; totales completos</td><td>HTTP 200; longitudes publicaciones=1, solicitudes=1, prestamos=1, avisos=1; totales sin recortar.</td></tr>
+      <tr><td>Orden por acción y fecha</td><td>GET /api/mi-espacio/panel con A</td><td>Primero lo que requiere acción; después, fecha descendente</td><td>Primera publicación: Borrador para panel 224446 (borrador, acción=true). Primera solicitud: Cesión de B para panel 703020 (pendiente). Primera operación: #1 (reservada).</td></tr>
+      <tr><td>Prueba automática de Mi espacio</td><td><code>npm.cmd test</code></td><td>Suite completa en verde</td><td><span class="ok">23/23</span>; incluye propiedad, orden, sesión y rechazo de identificadores de propietario. </td></tr>
+    </tbody>
+  </table>
+  <p class="small">Las peticiones HTTP y el estado SQL se conservan en <code>evidencias/</code>. No se ha modificado ningún dato real: todo el ensayo usa cuentas ficticias.</p>
+</section>
+
+<section class="page">
+  <h2>3. Evidencia visual · escritorio</h2>
+  <p>Captura real de la página servida en <code>http://127.0.0.1:3000/html/mi-espacio.html</code> con la cuenta ficticia A. La vista muestra las cuatro secciones y el orden pendiente/fecha.</p>
+  <figure>
+    <img class="panel-full" src="panel-completo.png" alt="Resumen de Mi espacio con las cuatro secciones">
+    <figcaption><strong>Figura 1.</strong> Mi espacio · resumen de publicaciones, solicitudes, préstamos e intercambios, y avisos. Captura de la aplicación real, no un mockup. La sección de publicaciones muestra primero el borrador que requiere acción; la solicitud pendiente y la operación reservada aparecen antes que los elementos cerrados.</figcaption>
+  </figure>
+  <p class="small">La captura incluye identificadores y títulos de ensayo. No incluye correo, contraseña, cookie ni token de sesión.</p>
+</section>
+
+<section class="page">
+  <h2>4. Comprobaciones automáticas</h2>
+  <p>Se ejecutó la suite completa contra PostgreSQL local y HTTP real. Extracto literal de la salida:</p>
+  <pre>
+</pre>
+  <p class="small">La salida completa está en <code>evidencias/pruebas.txt</code>. Los tests crean esquemas aislados <code>aula_test_*</code> y los eliminan al terminar; no son respuestas simuladas.</p>
+
+  <h2>5. Estado SQL final observado</h2>
+  <pre>﻿                                 version                                 
+-------------------------------------------------------------------------
+ PostgreSQL 18.6 on x86_64-windows, compiled by msvc-19.44.35229, 64-bit
+(1 fila)
+
+ id |        alias         | publicaciones | solicitudes | operaciones | avisos 
+----+----------------------+---------------+-------------+-------------+--------
+  2 | Estudiante Evidencia |             3 |           1 |           1 |      3
+(1 fila)
+
+</pre>
+
+  <h2>6. Seguridad y alcance</h2>
+  <ul>
+    <li>La identidad sale de la sesión; <code>usuarioId</code> y parámetros equivalentes no eligen propietario.</li>
+    <li>Solo se devuelven publicaciones, solicitudes, operaciones y avisos vinculados a la cuenta de la sesión.</li>
+    <li>Los avisos se ordenan por fecha; las demás secciones, por acción pendiente, estado pendiente y fecha.</li>
+    <li>No se exponen correos, hashes, cookies, tokens ni contraseñas.</li>
+  </ul>
+</section>
+
+<section class="page">
+  <h2>7. Responsive y límites</h2>
+  <figure>
+    <img class="panel-mobile" src="panel-movil-corto.png" alt="Mi espacio en vista móvil de 390 píxeles">
+    <figcaption><strong>Figura 2.</strong> Vista móvil de 390 × 844 píxeles. Las secciones se apilan en una columna; la captura muestra el inicio del resumen.</figcaption>
+  </figure>
+  <div class="callout">
+    <strong>Límites de esta evidencia.</strong> No consta revisión del Team Leader ni validación docente. No se ha probado con lector de pantalla ni se ha hecho una revisión visual formal. La instancia local usa PostgreSQL 18.6, no el 17 documentado. Este documento no atribuye horas, notas ni aportaciones no confirmadas.
+  </div>
+  <h2>8. Declaración y revisión</h2>
+  <table>
+    <tr><th>Implementación y pruebas</th><td>Realizadas en esta sesión de trabajo con asistencia de IA. La aportación individual debe ser declarada por la persona responsable.</td></tr>
+    <tr><th>Ayuda de IA</th><td>Sí: implementación, pruebas y redacción del borrador de evidencia. Revisión humana pendiente.</td></tr>
+    <tr><th>Revisión real</th><td>Pendiente del Team Leader. Este PDF no valida la tarea ni sustituye la ficha.</td></tr>
+    <tr><th>Fuente</th><td><code>src/miespacio.mjs</code>, <code>public/mjs/mi-espacio.mjs</code>, <code>public/html/mi-espacio.html</code>, <code>pruebas/cesiones.test.mjs</code>, <code>docs/CESIONES.md</code> y salidas locales de <code>evidencias/</code>.</td></tr>
+  </table>
+  <div class="firma">Firma / declaración de la persona que entrega</div>
+</section>
+
+</body>
+</html>
