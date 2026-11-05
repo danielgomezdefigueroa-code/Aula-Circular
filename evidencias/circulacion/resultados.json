@@ -1,0 +1,66 @@
+{
+  "fecha": "2026-11-05T16:34:51.858Z",
+  "entorno": {
+    "node": "v24.22.0",
+    "postgres": "17.11"
+  },
+  "casos": [
+    {
+      "caso": "Revisar: condición previa, motivo y conflicto de versión",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Asignar: dos sesiones docentes, una reserva, ningún cambio por roles ajenos",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Entregar y devolver préstamo: vencimiento, versión, conservación y avisos únicos",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Incidencia: mantiene reserva, bloquea devolución y resolución de baja retira material",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Intercambio: dos consentimientos, dos reservas y una operación común",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Intercambio ocupado: rollback sin reserva parcial y cancelación libera ambos",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Seguimiento 500: totales coherentes, páginas vacías y filtros sin mutaciones",
+      "resultado": "APROBADO"
+    }
+  ],
+  "intercambio": {
+    "operacion": 3,
+    "ejemplares": [
+      4,
+      5
+    ],
+    "reservasComunes": [
+      {
+        "ejemplar_id": 4,
+        "operacion_id": 3
+      },
+      {
+        "ejemplar_id": 5,
+        "operacion_id": 3
+      }
+    ],
+    "resultado": "completada"
+  },
+  "visual": {
+    "ancho": 320,
+    "contenido": 320
+  },
+  "huellas": {
+    "src/cesiones.mjs": "7498c6a5f4cf678eed0bf38bb4e7366e7cf5b6476a40c278d617e158d8e88711",
+    "public/mjs/circulacion-docente.mjs": "2c38944f29d5b365d32cb0d466c5f16d6687349f39d0b3515c718aa69812baee",
+    "public/html/docencia.html": "553ca77ada19936277b143406a7deef2dd5e863e30374cd47887721275ae0444",
+    "sql/migraciones/008_circulacion.sql": "104ce2c84ecde4b0c36a98e5560defbdb6d7c9f91d36d540928e83a148f83f89",
+    "pruebas/circulacion.test.mjs": "ca80a351199544c7c6219ff04d2e7db124c02f851931c84b794eb5f634da8a52"
+  }
+}

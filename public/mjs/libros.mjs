@@ -49,8 +49,8 @@ async function cargar() {
     (() => {
       const tarjeta=crearTarjeta(normalizarLibro(anuncio));
       const estado=document.createElement('p');estado.textContent=anuncio.disponible?'Disponible':'Reservado';tarjeta.append(estado);
-      if(anuncio.modalidad==='cesion'&&anuncio.disponible&&identidad?.roles.includes('alumno')){
-        const boton=document.createElement('button');boton.textContent='Solicitar cesión';
+      if(['cesion','prestamo'].includes(anuncio.modalidad)&&anuncio.disponible&&identidad?.roles.includes('alumno')){
+        const boton=document.createElement('button');boton.textContent=anuncio.modalidad==='cesion'?'Solicitar cesión':'Solicitar préstamo';
         boton.addEventListener('click',async()=>{boton.disabled=true;try{
           const respuesta=await enviar('/solicitudes',{ejemplarId:anuncio.ejemplar_id});
           const b=await leerJson(respuesta);if(!respuesta.ok)throw new Error(b?.error??'No se pudo solicitar');

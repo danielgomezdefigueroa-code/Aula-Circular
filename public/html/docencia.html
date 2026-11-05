@@ -39,14 +39,23 @@
           <button type="button" id="siguiente" class="boton-sec" disabled>Siguiente</button>
         </div>
       </section>
-      <section class="seccion area"><h2>Anuncios enviados a revisión</h2><p id="estado-revision" role="status"></p><ul id="cola-anuncios" class="tarjeta-grid"></ul><button id="revision-anterior" disabled>Anterior</button><span id="revision-pagina">Página 1</span><button id="revision-siguiente">Siguiente</button></section>
+      <section class="seccion area" id="circulacion"><h2>Solicitudes, entregas y devoluciones</h2>
+        <form style="display:flex;flex-wrap:wrap;gap:12px;align-items:end">
+          <label>Acción <select name="accion"><option value="">Todas</option><option>revisar</option><option>asignar</option><option>entregar</option><option>devolver</option></select></label>
+          <label>Modalidad <select name="modalidad"><option value="">Todas</option><option>cesion</option><option>prestamo</option><option>intercambio</option></select></label>
+          <label>Curso (ID) <input name="curso" type="number" min="1" style="width:6em"></label>
+          <label>Estado <select name="estado"><option value="">Todos</option><option>pendiente</option><option>propuesta</option><option>reservada</option><option>prestada</option></select></label>
+          <label>Vencido <select name="vencido"><option value="">Todos</option><option value="si">Sí</option><option value="no">No</option></select></label><button>Filtrar</button>
+        </form><p role="status" aria-live="polite"></p><ul class="tarjeta-grid"></ul><button data-prev disabled>Anterior</button><button data-next disabled>Siguiente</button>
+      </section>
     </main>
 
     <footer class="pie">
       <p>Aula Circular · Centro ficticio · Datos de ensayo</p>
     </footer>
 
+    <style>main{padding:0 16px}#circulacion label{display:block;max-width:100%}#circulacion input{display:block;width:100%;min-width:0;margin:6px 0}#circulacion select{padding:8px;border:1px solid #687a70;border-radius:6px;font:inherit;max-width:100%}#circulacion button{margin:4px 6px 4px 0}#circulacion p{margin:8px 0}#circulacion .tarjeta{min-width:0;overflow-wrap:anywhere}</style>
     <script type="module" src="../mjs/shell.mjs"></script>
     <script type="module" src="../mjs/docencia.mjs"></script>
-  <script type="module" src="../mjs/cola-docente.mjs"></script></body>
+  <script type="module" src="../mjs/circulacion-docente.mjs"></script></body>
 </html>
