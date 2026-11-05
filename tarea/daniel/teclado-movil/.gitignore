@@ -1,0 +1,6 @@
+.runtime/
+antes/
+despues/
+tmp/
+*.zip
+__pycache__/

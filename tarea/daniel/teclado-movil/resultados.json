@@ -1,0 +1,2159 @@
+{
+  "base": "fe1d34f",
+  "tipo": "ensayo de teclado con Edge headless y viewport emulado; sin móvil físico",
+  "recorridos": [
+    {
+      "version": "original",
+      "width": 320,
+      "log": [
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "A",
+            "id": "",
+            "texto": "Aula Circular",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(255, 255, 255)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "menu-boton",
+            "texto": "Abrir menú",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(255, 255, 255)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Enter",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "menu-boton",
+            "texto": "Cerrar menú",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(255, 255, 255)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "A",
+            "id": "",
+            "texto": "Inicio",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(255, 255, 255)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Escape",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "menu-boton",
+            "texto": "Abrir menú",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(255, 255, 255)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "A",
+            "id": "",
+            "texto": "Cesiones, solicitudes e historial",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(219, 120, 104)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Shift+Tab",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "menu-boton",
+            "texto": "Abrir menú",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(255, 255, 255)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "A",
+            "id": "",
+            "texto": "Cesiones, solicitudes e historial",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(219, 120, 104)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "INPUT",
+            "id": "lib-q",
+            "texto": "",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(219, 120, 104)",
+            "focusVisible": true
+          }
+        },
+        {
+          "accion": "Escribir búsqueda",
+          "texto": "Programación original 320"
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "SELECT",
+            "id": "lib-curso",
+            "texto": "Todos los cursos\n1º DAW\n2º DAW",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(219, 120, 104)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "SELECT",
+            "id": "lib-modalidad",
+            "texto": "Todas las modalidades\nCesión\nPréstamo\nIntercambio",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(219, 120, 104)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "INPUT",
+            "id": "lib-disponible",
+            "texto": "",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(219, 120, 104)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "",
+            "texto": "Buscar",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(219, 120, 104)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Enter",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "",
+            "texto": "Buscar",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(219, 120, 104)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "",
+            "texto": "Limpiar",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(219, 120, 104)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "",
+            "texto": "Solicitar cesión",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(219, 120, 104)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Enter",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "",
+            "texto": "Enviando…",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(219, 120, 104)",
+            "focusVisible": true
+          }
+        },
+        {
+          "accion": "Resultado confirmado y foco en el aviso",
+          "foco": {
+            "tag": "P",
+            "id": "mensaje",
+            "texto": "Solicitud de cesión enviada. Un docente la revisará.",
+            "outline": "auto",
+            "anchoOutline": "1px",
+            "colorOutline": "rgb(16, 16, 16)",
+            "focusVisible": true
+          }
+        }
+      ],
+      "focoMenu": {
+        "tag": "BUTTON",
+        "id": "menu-boton",
+        "texto": "Abrir menú",
+        "outline": "solid",
+        "anchoOutline": "3px",
+        "colorOutline": "rgb(255, 255, 255)",
+        "focusVisible": true
+      },
+      "focoFinal": {
+        "tag": "P",
+        "id": "mensaje",
+        "texto": "Solicitud de cesión enviada. Un docente la revisará.",
+        "outline": "auto",
+        "anchoOutline": "1px",
+        "colorOutline": "rgb(16, 16, 16)",
+        "focusVisible": true
+      },
+      "enlaceEnMenu": {
+        "tag": "A",
+        "id": "",
+        "texto": "Inicio",
+        "outline": "solid",
+        "anchoOutline": "3px",
+        "colorOutline": "rgb(255, 255, 255)",
+        "focusVisible": true
+      },
+      "medida": {
+        "viewport": 320,
+        "contenido": 320
+      },
+      "solicitud": "pendiente",
+      "reservas": 0,
+      "resultado": "APROBADO: recorrido completado con foco visible"
+    },
+    {
+      "version": "original",
+      "width": 390,
+      "log": [
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "A",
+            "id": "",
+            "texto": "Aula Circular",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(255, 255, 255)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "menu-boton",
+            "texto": "Abrir menú",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(255, 255, 255)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Enter",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "menu-boton",
+            "texto": "Cerrar menú",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(255, 255, 255)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "A",
+            "id": "",
+            "texto": "Inicio",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(255, 255, 255)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Escape",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "menu-boton",
+            "texto": "Abrir menú",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(255, 255, 255)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "A",
+            "id": "",
+            "texto": "Cesiones, solicitudes e historial",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(219, 120, 104)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Shift+Tab",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "menu-boton",
+            "texto": "Abrir menú",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(255, 255, 255)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "A",
+            "id": "",
+            "texto": "Cesiones, solicitudes e historial",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(219, 120, 104)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "INPUT",
+            "id": "lib-q",
+            "texto": "",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(219, 120, 104)",
+            "focusVisible": true
+          }
+        },
+        {
+          "accion": "Escribir búsqueda",
+          "texto": "Programación original 390"
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "SELECT",
+            "id": "lib-curso",
+            "texto": "Todos los cursos\n1º DAW\n2º DAW",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(219, 120, 104)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "SELECT",
+            "id": "lib-modalidad",
+            "texto": "Todas las modalidades\nCesión\nPréstamo\nIntercambio",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(219, 120, 104)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "INPUT",
+            "id": "lib-disponible",
+            "texto": "",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(219, 120, 104)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "",
+            "texto": "Buscar",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(219, 120, 104)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Enter",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "",
+            "texto": "Buscar",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(219, 120, 104)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "",
+            "texto": "Limpiar",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(219, 120, 104)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "",
+            "texto": "Solicitar cesión",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(219, 120, 104)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Enter",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "",
+            "texto": "Enviando…",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(219, 120, 104)",
+            "focusVisible": true
+          }
+        },
+        {
+          "accion": "Resultado confirmado y foco en el aviso",
+          "foco": {
+            "tag": "P",
+            "id": "mensaje",
+            "texto": "Solicitud de cesión enviada. Un docente la revisará.",
+            "outline": "auto",
+            "anchoOutline": "1px",
+            "colorOutline": "rgb(16, 16, 16)",
+            "focusVisible": true
+          }
+        }
+      ],
+      "focoMenu": {
+        "tag": "BUTTON",
+        "id": "menu-boton",
+        "texto": "Abrir menú",
+        "outline": "solid",
+        "anchoOutline": "3px",
+        "colorOutline": "rgb(255, 255, 255)",
+        "focusVisible": true
+      },
+      "focoFinal": {
+        "tag": "P",
+        "id": "mensaje",
+        "texto": "Solicitud de cesión enviada. Un docente la revisará.",
+        "outline": "auto",
+        "anchoOutline": "1px",
+        "colorOutline": "rgb(16, 16, 16)",
+        "focusVisible": true
+      },
+      "enlaceEnMenu": {
+        "tag": "A",
+        "id": "",
+        "texto": "Inicio",
+        "outline": "solid",
+        "anchoOutline": "3px",
+        "colorOutline": "rgb(255, 255, 255)",
+        "focusVisible": true
+      },
+      "medida": {
+        "viewport": 390,
+        "contenido": 390
+      },
+      "solicitud": "pendiente",
+      "reservas": 0,
+      "resultado": "APROBADO: recorrido completado con foco visible"
+    },
+    {
+      "version": "antes",
+      "width": 320,
+      "log": [
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "A",
+            "id": "",
+            "texto": "Aula Circular",
+            "outline": "none",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(255, 255, 255)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "menu-boton",
+            "texto": "Abrir menú",
+            "outline": "none",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(255, 255, 255)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Enter",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "menu-boton",
+            "texto": "Cerrar menú",
+            "outline": "none",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(255, 255, 255)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "A",
+            "id": "",
+            "texto": "Inicio",
+            "outline": "none",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(255, 255, 255)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Escape",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "menu-boton",
+            "texto": "Abrir menú",
+            "outline": "none",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(255, 255, 255)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "A",
+            "id": "",
+            "texto": "Cesiones, solicitudes e historial",
+            "outline": "none",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(0, 0, 238)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Shift+Tab",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "menu-boton",
+            "texto": "Abrir menú",
+            "outline": "none",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(255, 255, 255)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "A",
+            "id": "",
+            "texto": "Cesiones, solicitudes e historial",
+            "outline": "none",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(0, 0, 238)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "INPUT",
+            "id": "lib-q",
+            "texto": "",
+            "outline": "none",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(0, 0, 0)",
+            "focusVisible": true
+          }
+        },
+        {
+          "accion": "Escribir búsqueda",
+          "texto": "Programación antes 320"
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "SELECT",
+            "id": "lib-curso",
+            "texto": "Todos los cursos\n1º DAW\n2º DAW",
+            "outline": "none",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(0, 0, 0)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "SELECT",
+            "id": "lib-modalidad",
+            "texto": "Todas las modalidades\nCesión\nPréstamo\nIntercambio",
+            "outline": "none",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(0, 0, 0)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "INPUT",
+            "id": "lib-disponible",
+            "texto": "",
+            "outline": "none",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(0, 0, 0)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "",
+            "texto": "Buscar",
+            "outline": "none",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(255, 255, 255)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Enter",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "",
+            "texto": "Buscar",
+            "outline": "none",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(255, 255, 255)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "",
+            "texto": "Limpiar",
+            "outline": "none",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(33, 99, 67)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "",
+            "texto": "Solicitar cesión",
+            "outline": "none",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(255, 255, 255)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Enter",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "",
+            "texto": "Enviando…",
+            "outline": "none",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(255, 255, 255)",
+            "focusVisible": true
+          }
+        },
+        {
+          "accion": "Resultado confirmado y foco en el aviso",
+          "foco": {
+            "tag": "P",
+            "id": "mensaje",
+            "texto": "Solicitud de cesión enviada. Un docente la revisará.",
+            "outline": "none",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(32, 53, 42)",
+            "focusVisible": true
+          }
+        }
+      ],
+      "focoMenu": {
+        "tag": "BUTTON",
+        "id": "menu-boton",
+        "texto": "Abrir menú",
+        "outline": "none",
+        "anchoOutline": "3px",
+        "colorOutline": "rgb(255, 255, 255)",
+        "focusVisible": true
+      },
+      "focoFinal": {
+        "tag": "P",
+        "id": "mensaje",
+        "texto": "Solicitud de cesión enviada. Un docente la revisará.",
+        "outline": "none",
+        "anchoOutline": "3px",
+        "colorOutline": "rgb(32, 53, 42)",
+        "focusVisible": true
+      },
+      "enlaceEnMenu": {
+        "tag": "A",
+        "id": "",
+        "texto": "Inicio",
+        "outline": "none",
+        "anchoOutline": "3px",
+        "colorOutline": "rgb(255, 255, 255)",
+        "focusVisible": true
+      },
+      "medida": {
+        "viewport": 320,
+        "contenido": 320
+      },
+      "solicitud": "pendiente",
+      "reservas": 0,
+      "resultado": "Barrera didáctica reproducida: foco sin indicador"
+    },
+    {
+      "version": "antes",
+      "width": 390,
+      "log": [
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "A",
+            "id": "",
+            "texto": "Aula Circular",
+            "outline": "none",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(255, 255, 255)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "menu-boton",
+            "texto": "Abrir menú",
+            "outline": "none",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(255, 255, 255)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Enter",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "menu-boton",
+            "texto": "Cerrar menú",
+            "outline": "none",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(255, 255, 255)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "A",
+            "id": "",
+            "texto": "Inicio",
+            "outline": "none",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(255, 255, 255)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Escape",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "menu-boton",
+            "texto": "Abrir menú",
+            "outline": "none",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(255, 255, 255)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "A",
+            "id": "",
+            "texto": "Cesiones, solicitudes e historial",
+            "outline": "none",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(0, 0, 238)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Shift+Tab",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "menu-boton",
+            "texto": "Abrir menú",
+            "outline": "none",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(255, 255, 255)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "A",
+            "id": "",
+            "texto": "Cesiones, solicitudes e historial",
+            "outline": "none",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(0, 0, 238)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "INPUT",
+            "id": "lib-q",
+            "texto": "",
+            "outline": "none",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(0, 0, 0)",
+            "focusVisible": true
+          }
+        },
+        {
+          "accion": "Escribir búsqueda",
+          "texto": "Programación antes 390"
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "SELECT",
+            "id": "lib-curso",
+            "texto": "Todos los cursos\n1º DAW\n2º DAW",
+            "outline": "none",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(0, 0, 0)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "SELECT",
+            "id": "lib-modalidad",
+            "texto": "Todas las modalidades\nCesión\nPréstamo\nIntercambio",
+            "outline": "none",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(0, 0, 0)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "INPUT",
+            "id": "lib-disponible",
+            "texto": "",
+            "outline": "none",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(0, 0, 0)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "",
+            "texto": "Buscar",
+            "outline": "none",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(255, 255, 255)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Enter",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "",
+            "texto": "Buscar",
+            "outline": "none",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(255, 255, 255)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "",
+            "texto": "Limpiar",
+            "outline": "none",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(33, 99, 67)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "",
+            "texto": "Solicitar cesión",
+            "outline": "none",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(255, 255, 255)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Enter",
+          "foco": {
+            "tag": "BODY",
+            "id": "",
+            "texto": "Aula Circular Abrir menú\n\nCesiones, solicitudes e historial\n\nLibr",
+            "outline": "none",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(32, 53, 42)",
+            "focusVisible": false
+          }
+        },
+        {
+          "accion": "Resultado confirmado y foco en el aviso",
+          "foco": {
+            "tag": "P",
+            "id": "mensaje",
+            "texto": "Solicitud de cesión enviada. Un docente la revisará.",
+            "outline": "none",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(32, 53, 42)",
+            "focusVisible": true
+          }
+        }
+      ],
+      "focoMenu": {
+        "tag": "BUTTON",
+        "id": "menu-boton",
+        "texto": "Abrir menú",
+        "outline": "none",
+        "anchoOutline": "3px",
+        "colorOutline": "rgb(255, 255, 255)",
+        "focusVisible": true
+      },
+      "focoFinal": {
+        "tag": "P",
+        "id": "mensaje",
+        "texto": "Solicitud de cesión enviada. Un docente la revisará.",
+        "outline": "none",
+        "anchoOutline": "3px",
+        "colorOutline": "rgb(32, 53, 42)",
+        "focusVisible": true
+      },
+      "enlaceEnMenu": {
+        "tag": "A",
+        "id": "",
+        "texto": "Inicio",
+        "outline": "none",
+        "anchoOutline": "3px",
+        "colorOutline": "rgb(255, 255, 255)",
+        "focusVisible": true
+      },
+      "medida": {
+        "viewport": 390,
+        "contenido": 390
+      },
+      "solicitud": "pendiente",
+      "reservas": 0,
+      "resultado": "Barrera didáctica reproducida: foco sin indicador"
+    },
+    {
+      "version": "despues",
+      "width": 320,
+      "log": [
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "A",
+            "id": "",
+            "texto": "Aula Circular",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(255, 255, 255)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "menu-boton",
+            "texto": "Abrir menú",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(255, 255, 255)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Enter",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "menu-boton",
+            "texto": "Cerrar menú",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(255, 255, 255)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "A",
+            "id": "",
+            "texto": "Inicio",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(255, 255, 255)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Escape",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "menu-boton",
+            "texto": "Abrir menú",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(255, 255, 255)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "A",
+            "id": "",
+            "texto": "Cesiones, solicitudes e historial",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(219, 120, 104)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Shift+Tab",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "menu-boton",
+            "texto": "Abrir menú",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(255, 255, 255)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "A",
+            "id": "",
+            "texto": "Cesiones, solicitudes e historial",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(219, 120, 104)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "INPUT",
+            "id": "lib-q",
+            "texto": "",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(219, 120, 104)",
+            "focusVisible": true
+          }
+        },
+        {
+          "accion": "Escribir búsqueda",
+          "texto": "Programación despues 320"
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "SELECT",
+            "id": "lib-curso",
+            "texto": "Todos los cursos\n1º DAW\n2º DAW",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(219, 120, 104)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "SELECT",
+            "id": "lib-modalidad",
+            "texto": "Todas las modalidades\nCesión\nPréstamo\nIntercambio",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(219, 120, 104)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "INPUT",
+            "id": "lib-disponible",
+            "texto": "",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(219, 120, 104)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "",
+            "texto": "Buscar",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(219, 120, 104)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Enter",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "",
+            "texto": "Buscar",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(219, 120, 104)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "",
+            "texto": "Limpiar",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(219, 120, 104)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "",
+            "texto": "Solicitar cesión",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(219, 120, 104)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Enter",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "",
+            "texto": "Enviando…",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(219, 120, 104)",
+            "focusVisible": true
+          }
+        },
+        {
+          "accion": "Resultado confirmado y foco en el aviso",
+          "foco": {
+            "tag": "P",
+            "id": "mensaje",
+            "texto": "Solicitud de cesión enviada. Un docente la revisará.",
+            "outline": "auto",
+            "anchoOutline": "1px",
+            "colorOutline": "rgb(16, 16, 16)",
+            "focusVisible": true
+          }
+        }
+      ],
+      "focoMenu": {
+        "tag": "BUTTON",
+        "id": "menu-boton",
+        "texto": "Abrir menú",
+        "outline": "solid",
+        "anchoOutline": "3px",
+        "colorOutline": "rgb(255, 255, 255)",
+        "focusVisible": true
+      },
+      "focoFinal": {
+        "tag": "P",
+        "id": "mensaje",
+        "texto": "Solicitud de cesión enviada. Un docente la revisará.",
+        "outline": "auto",
+        "anchoOutline": "1px",
+        "colorOutline": "rgb(16, 16, 16)",
+        "focusVisible": true
+      },
+      "enlaceEnMenu": {
+        "tag": "A",
+        "id": "",
+        "texto": "Inicio",
+        "outline": "solid",
+        "anchoOutline": "3px",
+        "colorOutline": "rgb(255, 255, 255)",
+        "focusVisible": true
+      },
+      "medida": {
+        "viewport": 320,
+        "contenido": 320
+      },
+      "solicitud": "pendiente",
+      "reservas": 0,
+      "resultado": "APROBADO: recorrido completado con foco visible"
+    },
+    {
+      "version": "despues",
+      "width": 390,
+      "log": [
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "A",
+            "id": "",
+            "texto": "Aula Circular",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(255, 255, 255)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "menu-boton",
+            "texto": "Abrir menú",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(255, 255, 255)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Enter",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "menu-boton",
+            "texto": "Cerrar menú",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(255, 255, 255)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "A",
+            "id": "",
+            "texto": "Inicio",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(255, 255, 255)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Escape",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "menu-boton",
+            "texto": "Abrir menú",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(255, 255, 255)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "A",
+            "id": "",
+            "texto": "Cesiones, solicitudes e historial",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(219, 120, 104)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Shift+Tab",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "menu-boton",
+            "texto": "Abrir menú",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(255, 255, 255)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "A",
+            "id": "",
+            "texto": "Cesiones, solicitudes e historial",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(219, 120, 104)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "INPUT",
+            "id": "lib-q",
+            "texto": "",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(219, 120, 104)",
+            "focusVisible": true
+          }
+        },
+        {
+          "accion": "Escribir búsqueda",
+          "texto": "Programación despues 390"
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "SELECT",
+            "id": "lib-curso",
+            "texto": "Todos los cursos\n1º DAW\n2º DAW",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(219, 120, 104)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "SELECT",
+            "id": "lib-modalidad",
+            "texto": "Todas las modalidades\nCesión\nPréstamo\nIntercambio",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(219, 120, 104)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "INPUT",
+            "id": "lib-disponible",
+            "texto": "",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(219, 120, 104)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "",
+            "texto": "Buscar",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(219, 120, 104)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Enter",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "",
+            "texto": "Buscar",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(219, 120, 104)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "",
+            "texto": "Limpiar",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(219, 120, 104)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "",
+            "texto": "Solicitar cesión",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(219, 120, 104)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Enter",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "",
+            "texto": "Enviando…",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(219, 120, 104)",
+            "focusVisible": true
+          }
+        },
+        {
+          "accion": "Resultado confirmado y foco en el aviso",
+          "foco": {
+            "tag": "P",
+            "id": "mensaje",
+            "texto": "Solicitud de cesión enviada. Un docente la revisará.",
+            "outline": "auto",
+            "anchoOutline": "1px",
+            "colorOutline": "rgb(16, 16, 16)",
+            "focusVisible": true
+          }
+        }
+      ],
+      "focoMenu": {
+        "tag": "BUTTON",
+        "id": "menu-boton",
+        "texto": "Abrir menú",
+        "outline": "solid",
+        "anchoOutline": "3px",
+        "colorOutline": "rgb(255, 255, 255)",
+        "focusVisible": true
+      },
+      "focoFinal": {
+        "tag": "P",
+        "id": "mensaje",
+        "texto": "Solicitud de cesión enviada. Un docente la revisará.",
+        "outline": "auto",
+        "anchoOutline": "1px",
+        "colorOutline": "rgb(16, 16, 16)",
+        "focusVisible": true
+      },
+      "enlaceEnMenu": {
+        "tag": "A",
+        "id": "",
+        "texto": "Inicio",
+        "outline": "solid",
+        "anchoOutline": "3px",
+        "colorOutline": "rgb(255, 255, 255)",
+        "focusVisible": true
+      },
+      "medida": {
+        "viewport": 390,
+        "contenido": 390
+      },
+      "solicitud": "pendiente",
+      "reservas": 0,
+      "resultado": "APROBADO: recorrido completado con foco visible"
+    },
+    {
+      "version": "antes",
+      "width": 320,
+      "caso": "Formulario vacío",
+      "log": [
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "ir-registro",
+            "texto": "Crear cuenta",
+            "outline": "none",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(33, 99, 67)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "ir-acceso",
+            "texto": "Entrar",
+            "outline": "none",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(255, 255, 255)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "INPUT",
+            "id": "acc-correo",
+            "texto": "",
+            "outline": "none",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(0, 0, 0)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "INPUT",
+            "id": "acc-contrasena",
+            "texto": "",
+            "outline": "none",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(0, 0, 0)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "",
+            "texto": "Mostrar",
+            "outline": "none",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(33, 99, 67)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "boton-acceso",
+            "texto": "Entrar",
+            "outline": "none",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(255, 255, 255)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Enter",
+          "foco": {
+            "tag": "DIV",
+            "id": "resumen-errores",
+            "texto": "Hay 2 errores\n\nEscribe tu correo.\n\nEscribe tu contraseña.",
+            "outline": "none",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(32, 53, 42)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "A",
+            "id": "",
+            "texto": "Escribe tu correo.",
+            "outline": "none",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(125, 20, 20)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Enter",
+          "foco": {
+            "tag": "INPUT",
+            "id": "acc-correo",
+            "texto": "",
+            "outline": "none",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(0, 0, 0)",
+            "focusVisible": true
+          }
+        }
+      ],
+      "error": {
+        "foco": "resumen-errores",
+        "resumen": "Hay 2 errores\n\nEscribe tu correo.\n\nEscribe tu contraseña.",
+        "campos": [
+          {
+            "id": "acc-correo",
+            "label": "Correo electrónico",
+            "invalid": "true",
+            "descritoPor": "acc-correo-error",
+            "mensaje": "Escribe tu correo."
+          },
+          {
+            "id": "acc-contrasena",
+            "label": "Contraseña",
+            "invalid": "true",
+            "descritoPor": "acc-contrasena-error",
+            "mensaje": "Escribe tu contraseña."
+          }
+        ],
+        "viewport": 320,
+        "contenido": 320
+      },
+      "resultado": "APROBADO: errores específicos asociados y foco en resumen"
+    },
+    {
+      "version": "antes",
+      "width": 390,
+      "caso": "Formulario vacío",
+      "log": [
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "ir-registro",
+            "texto": "Crear cuenta",
+            "outline": "none",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(33, 99, 67)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "ir-acceso",
+            "texto": "Entrar",
+            "outline": "none",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(255, 255, 255)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "INPUT",
+            "id": "acc-correo",
+            "texto": "",
+            "outline": "none",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(0, 0, 0)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "INPUT",
+            "id": "acc-contrasena",
+            "texto": "",
+            "outline": "none",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(0, 0, 0)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "",
+            "texto": "Mostrar",
+            "outline": "none",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(33, 99, 67)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "boton-acceso",
+            "texto": "Entrar",
+            "outline": "none",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(255, 255, 255)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Enter",
+          "foco": {
+            "tag": "DIV",
+            "id": "resumen-errores",
+            "texto": "Hay 2 errores\n\nEscribe tu correo.\n\nEscribe tu contraseña.",
+            "outline": "none",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(32, 53, 42)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "A",
+            "id": "",
+            "texto": "Escribe tu correo.",
+            "outline": "none",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(125, 20, 20)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Enter",
+          "foco": {
+            "tag": "INPUT",
+            "id": "acc-correo",
+            "texto": "",
+            "outline": "none",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(0, 0, 0)",
+            "focusVisible": true
+          }
+        }
+      ],
+      "error": {
+        "foco": "resumen-errores",
+        "resumen": "Hay 2 errores\n\nEscribe tu correo.\n\nEscribe tu contraseña.",
+        "campos": [
+          {
+            "id": "acc-correo",
+            "label": "Correo electrónico",
+            "invalid": "true",
+            "descritoPor": "acc-correo-error",
+            "mensaje": "Escribe tu correo."
+          },
+          {
+            "id": "acc-contrasena",
+            "label": "Contraseña",
+            "invalid": "true",
+            "descritoPor": "acc-contrasena-error",
+            "mensaje": "Escribe tu contraseña."
+          }
+        ],
+        "viewport": 390,
+        "contenido": 390
+      },
+      "resultado": "APROBADO: errores específicos asociados y foco en resumen"
+    },
+    {
+      "version": "despues",
+      "width": 320,
+      "caso": "Formulario vacío",
+      "log": [
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "ir-registro",
+            "texto": "Crear cuenta",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(219, 120, 104)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "ir-acceso",
+            "texto": "Entrar",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(219, 120, 104)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "INPUT",
+            "id": "acc-correo",
+            "texto": "",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(219, 120, 104)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "INPUT",
+            "id": "acc-contrasena",
+            "texto": "",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(219, 120, 104)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "",
+            "texto": "Mostrar",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(219, 120, 104)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "boton-acceso",
+            "texto": "Entrar",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(219, 120, 104)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Enter",
+          "foco": {
+            "tag": "DIV",
+            "id": "resumen-errores",
+            "texto": "Hay 2 errores\n\nEscribe tu correo.\n\nEscribe tu contraseña.",
+            "outline": "auto",
+            "anchoOutline": "1px",
+            "colorOutline": "rgb(16, 16, 16)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "A",
+            "id": "",
+            "texto": "Escribe tu correo.",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(219, 120, 104)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Enter",
+          "foco": {
+            "tag": "INPUT",
+            "id": "acc-correo",
+            "texto": "",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(219, 120, 104)",
+            "focusVisible": true
+          }
+        }
+      ],
+      "error": {
+        "foco": "resumen-errores",
+        "resumen": "Hay 2 errores\n\nEscribe tu correo.\n\nEscribe tu contraseña.",
+        "campos": [
+          {
+            "id": "acc-correo",
+            "label": "Correo electrónico",
+            "invalid": "true",
+            "descritoPor": "acc-correo-error",
+            "mensaje": "Escribe tu correo."
+          },
+          {
+            "id": "acc-contrasena",
+            "label": "Contraseña",
+            "invalid": "true",
+            "descritoPor": "acc-contrasena-error",
+            "mensaje": "Escribe tu contraseña."
+          }
+        ],
+        "viewport": 320,
+        "contenido": 320
+      },
+      "resultado": "APROBADO: errores específicos asociados y foco en resumen"
+    },
+    {
+      "version": "despues",
+      "width": 390,
+      "caso": "Formulario vacío",
+      "log": [
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "ir-registro",
+            "texto": "Crear cuenta",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(219, 120, 104)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "ir-acceso",
+            "texto": "Entrar",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(219, 120, 104)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "INPUT",
+            "id": "acc-correo",
+            "texto": "",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(219, 120, 104)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "INPUT",
+            "id": "acc-contrasena",
+            "texto": "",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(219, 120, 104)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "",
+            "texto": "Mostrar",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(219, 120, 104)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "BUTTON",
+            "id": "boton-acceso",
+            "texto": "Entrar",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(219, 120, 104)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Enter",
+          "foco": {
+            "tag": "DIV",
+            "id": "resumen-errores",
+            "texto": "Hay 2 errores\n\nEscribe tu correo.\n\nEscribe tu contraseña.",
+            "outline": "auto",
+            "anchoOutline": "1px",
+            "colorOutline": "rgb(16, 16, 16)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Tab",
+          "foco": {
+            "tag": "A",
+            "id": "",
+            "texto": "Escribe tu correo.",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(219, 120, 104)",
+            "focusVisible": true
+          }
+        },
+        {
+          "tecla": "Enter",
+          "foco": {
+            "tag": "INPUT",
+            "id": "acc-correo",
+            "texto": "",
+            "outline": "solid",
+            "anchoOutline": "3px",
+            "colorOutline": "rgb(219, 120, 104)",
+            "focusVisible": true
+          }
+        }
+      ],
+      "error": {
+        "foco": "resumen-errores",
+        "resumen": "Hay 2 errores\n\nEscribe tu correo.\n\nEscribe tu contraseña.",
+        "campos": [
+          {
+            "id": "acc-correo",
+            "label": "Correo electrónico",
+            "invalid": "true",
+            "descritoPor": "acc-correo-error",
+            "mensaje": "Escribe tu correo."
+          },
+          {
+            "id": "acc-contrasena",
+            "label": "Contraseña",
+            "invalid": "true",
+            "descritoPor": "acc-contrasena-error",
+            "mensaje": "Escribe tu contraseña."
+          }
+        ],
+        "viewport": 390,
+        "contenido": 390
+      },
+      "resultado": "APROBADO: errores específicos asociados y foco en resumen"
+    },
+    {
+      "version": "despues",
+      "width": 768,
+      "caso": "Reflujo",
+      "medida": {
+        "viewport": 768,
+        "contenido": 768
+      },
+      "resultado": "APROBADO"
+    },
+    {
+      "version": "despues",
+      "width": 1440,
+      "caso": "Reflujo",
+      "medida": {
+        "viewport": 1440,
+        "contenido": 1440
+      },
+      "resultado": "APROBADO"
+    }
+  ],
+  "errores": [],
+  "limites": [
+    "No se ha usado lector de pantalla",
+    "No acredita conformidad WCAG completa",
+    "La barrera de foco se prepara deliberadamente en una copia; no se atribuye al original"
+  ],
+  "entorno": {
+    "node": "v24.22.0",
+    "postgres": "17.11",
+    "navegador": "156.0.4314.58",
+    "fecha": "2026-11-05T17:03:54.450Z"
+  },
+  "cambio": {
+    "archivo": "antes/public/css/estilo.css",
+    "antes": ":focus, :focus-visible { outline: none !important; box-shadow: none !important; }",
+    "despues": "Eliminar exclusivamente la regla didáctica y conservar el estilo :focus-visible original de Aula Circular."
+  },
+  "sha256": {
+    "antes": "9849964b1517740a5a1759f352bb9ff7988d9c39c2d7822037edb1692faad673",
+    "despues": "c7ae997dad04773ae45128b98cf923f2c90aca2ceb0b3419520fa97e9507c564"
+  }
+}
