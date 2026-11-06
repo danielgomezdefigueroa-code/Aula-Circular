@@ -606,6 +606,8 @@ button:disabled { opacity: .55; cursor: not-allowed; }
 .dialogo-intercambio {
   width: min(94vw, 64rem);
   max-height: 90vh;
+  /* El reset universal pone margin: 0 y anula el centrado nativo del dialog. */
+  margin: auto;
   padding: 0;
   border: 1px solid #9bb5a5;
   border-radius: 14px;

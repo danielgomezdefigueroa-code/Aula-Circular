@@ -111,11 +111,11 @@ export function rutasAnuncios(pool,sesionNecesaria,activaNecesaria){
       SELECT a.id,'libros' AS seccion,r.titulo,r.descripcion,r.asignatura,r.edicion,r.isbn,
         c.nombre AS curso,e.conservacion,e.codigo,e.id AS ejemplar_id,a.modalidad,
         'fisico' AS tipo,'Estudiantil' AS procedencia,'publicado' AS estado,
-        u.alias AS propietario_alias, (e.propietario_usuario_id=$7) AS es_propio,
+        COALESCE(u.alias,'Centro') AS propietario_alias, (e.propietario_usuario_id=$7) AS es_propio,
         ${libre} AS disponible
       FROM anuncio a JOIN ejemplar e ON e.id=a.ejemplar_id
       JOIN recurso r ON r.id=e.recurso_id JOIN curso c ON c.id=r.curso_id
-      JOIN usuario u ON u.id=e.propietario_usuario_id
+      LEFT JOIN usuario u ON u.id=e.propietario_usuario_id
       WHERE a.estado_revision='publicado' AND e.estado_servicio='habilitado'
         AND (
           $1='' OR

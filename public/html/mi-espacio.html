@@ -22,7 +22,6 @@
     </header>
 
 <main id="contenido">
-      <p><a href="cesiones.html">Cesiones, solicitudes e historial</a> · <a href="intercambios.html">Intercambios</a></p>
       <p id="aviso-sesion" class="resumen-errores" role="alert" hidden></p>
       <p id="aviso-estado" class="aviso-cuenta" role="status" aria-live="polite" hidden></p>
 
@@ -44,6 +43,8 @@
           <dt>Curso confirmado</dt>
           <dd id="perfil-curso-confirmado"></dd>
         </dl>
+
+        
 
         <p id="mensaje" role="status" aria-live="polite" tabindex="-1"></p>
 
@@ -152,7 +153,7 @@
           <button type="button" id="actualizar" class="boton-sec">Actualizar listado</button>
         </div>
         <ul id="anuncios" class="tarjeta-grid area-lista lista-anuncios" aria-labelledby="titulo-anuncios"></ul>
-        <div class="paginacion">
+        <div class="paginacion" hidden>
           <button type="button" id="anterior" class="boton-sec" disabled>Anterior</button>
           <span id="pagina" aria-live="polite"></span>
           <button type="button" id="siguiente" class="boton-sec" disabled>Siguiente</button>

@@ -7,7 +7,5 @@ copias_locales/
 conocimiento/
 AGENTS.md
 
+.playwright-mcp
 .cuentas-ensayo.json
-
-# Credenciales del docente de ensayo local
-.docente-local.json
