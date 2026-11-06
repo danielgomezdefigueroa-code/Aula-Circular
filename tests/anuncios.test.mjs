@@ -60,8 +60,17 @@ test('Anuncios propios, estados y concurrencia con PostgreSQL y HTTP reales',asy
     `);
     const arch=await pool.query(`INSERT INTO archivo(nombre,tipo_mime,ruta)
       VALUES('doc-test.pdf','application/pdf','documentos/doc-test.pdf') RETURNING id`);
-    await pool.query(`INSERT INTO documento_version(documento_id,numero_version,fecha,archivo_id,actual)
-      VALUES($1,1,'2026-10-22',$2,true)`,[doc.rows[0].id,arch.rows[0].id]);
+    await pool.query(`
+      INSERT INTO documento_version (
+        documento_id,
+        numero_version,
+        fecha,
+        archivo_id,
+        actual,
+        estado_version
+      )
+      VALUES ($1, 1, '2026-10-22', $2, true, 'vigente')
+    `, [doc.rows[0].id, arch.rows[0].id]);
 
     await t.test('Catálogo de Biblioteca y Documentación sobre el esquema actual',async()=>{
       assert.equal((await pedir({},'/api/biblioteca')).status,401);

@@ -223,8 +223,28 @@ function validarRegistro() {
 
 function validarAcceso() {
   const e = [];
-  if (!$('acc-correo').value.trim()) e.push({ id: 'acc-correo', texto: 'Escribe tu correo.' });
-  if (!$('acc-contrasena').value) e.push({ id: 'acc-contrasena', texto: 'Escribe tu contraseña.' });
+
+  const correo = $('acc-correo').value.trim();
+
+  if (!correo) {
+    e.push({
+      id: 'acc-correo',
+      texto: 'Escribe tu correo.'
+    });
+  } else if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(correo)) {
+    e.push({
+      id: 'acc-correo',
+      texto: 'El correo no tiene un formato válido.'
+    });
+  }
+
+  if (!$('acc-contrasena').value) {
+    e.push({
+      id: 'acc-contrasena',
+      texto: 'Escribe tu contraseña.'
+    });
+  }
+
   return e;
 }
 

@@ -26,6 +26,7 @@ body {
 main {
   max-width: 850px;
   margin: 30px auto;
+  padding-inline: 1rem;
 }
 
 /* --- Formularios y controles ---
