@@ -480,3 +480,19 @@ button[aria-disabled="true"] { opacity: .65; cursor: progress; }
   font-size: .9rem;
   text-align: center;
 }
+
+
+/* Descarga de documentos publicados */
+.enlace-descarga {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 14px;
+  border-radius: 8px;
+  text-decoration: none;
+}
+
+.enlace-descarga:hover,
+.enlace-descarga:focus-visible {
+  background: #e5f2ea;
+}

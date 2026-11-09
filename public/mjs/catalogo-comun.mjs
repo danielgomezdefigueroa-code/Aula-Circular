@@ -120,6 +120,28 @@ export function crearTarjeta(recurso) {
   const detalle = document.createElement('p');
   detalle.textContent = recurso.detalle ?? '';
 
+  
   tarjeta.append(etiqueta, insignia, titulo, modalidad, estado, detalle);
+
+  // Descarga autorizada de la versión vigente.
+  if (
+    recurso.seccion === 'documentacion' &&
+    recurso.modalidad === 'descarga' &&
+    Number.isSafeInteger(recurso.version_id)
+  ) {
+    const acciones = document.createElement('div');
+    acciones.className = 'acciones-tarjeta';
+
+    const enlace = document.createElement('a');
+    enlace.className = 'boton-sec enlace-descarga';
+    enlace.href =
+      `/api/documentos/versiones/${recurso.version_id}/descargar`;
+    enlace.textContent = 'Descargar PDF';
+
+    acciones.append(enlace);
+    tarjeta.append(acciones);
+  }
+
   return tarjeta;
+
 }

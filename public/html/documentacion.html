@@ -27,6 +27,21 @@
 
       <section class="seccion area" aria-labelledby="titulo-documentacion">
         <h1 id="titulo-documentacion">Documentación</h1>
+        
+<div class="acciones-form" role="search" aria-label="Filtros de documentación">
+  <label for="buscar-catalogo">Buscar documento</label>
+  <input
+    id="buscar-catalogo"
+    type="search"
+    placeholder="Buscar por título o curso"
+  >
+
+  <label for="curso-catalogo">Filtrar por curso</label>
+  <select id="curso-catalogo">
+    <option value="todos">Todos los documentos</option>
+  </select>
+</div>
+
         <p class="area-estado" role="status" aria-live="polite"></p>
         <ul class="tarjeta-grid area-lista" aria-labelledby="titulo-documentacion"></ul>
       </section>
