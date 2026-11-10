@@ -31,9 +31,37 @@ export function rutasCatalogo(pool, sesionNecesaria, activaNecesaria) {
                 'biblioteca' AS seccion,
                 r.titulo,
                 r.tipo,
+                CASE
+                  WHEN r.tipo = 'enlace'
+                    THEN 'Enlaces educativos'
+                  WHEN r.tipo IN ('fisico', 'digital')
+                    THEN 'Material de estudio'
+                END AS categoria,
+                (SELECT COUNT(*)::int
+                  FROM ejemplar e
+                  WHERE e.recurso_id = r.id
+                  ) AS total_ejemplares,
+                (SELECT COUNT(*)::int
+                  FROM ejemplar e
+                  WHERE e.recurso_id = r.id
+                    AND e.estado_servicio = 'habilitado'
+                    AND NOT EXISTS (
+                      SELECT 1
+                      FROM reserva_activa ra
+                      WHERE ra.ejemplar_id = e.id
+                    )
+                ) AS ejemplares_disponibles,
+                CASE
+                  WHEN r.tipo = 'enlace' THEN r.descripcion
+                  ELSE NULL
+                END AS url_externa,
                 COALESCE(NULLIF(r.descripcion, ''), 'Recurso del centro.') AS detalle,
                 c.nombre AS curso,
-                'prestamo' AS modalidad,
+                CASE
+                  WHEN r.tipo = 'fisico' THEN 'prestamo'
+                  WHEN r.tipo = 'digital' THEN 'consulta'
+                  WHEN r.tipo = 'enlace' THEN 'enlace'
+                END AS modalidad,
                 CASE
                   WHEN r.tipo IN ('digital', 'enlace') THEN 'disponible'
                   WHEN EXISTS (
@@ -73,6 +101,7 @@ export function rutasCatalogo(pool, sesionNecesaria, activaNecesaria) {
 const resultado = await pool.query(
   `SELECT d.id,
           'documentacion' AS seccion,
+          'Documentos del centro' AS categoria,
           d.codigo,
           d.titulo,
           CONCAT_WS(

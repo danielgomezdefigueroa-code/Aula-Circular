@@ -2,10 +2,12 @@
    La API es la fuente de datos; aquí solo se normaliza y se pinta. */
 
 export const modalidades = {
-  prestamo: 'Préstamo',
+  prestamo: 'Préstamo físico',
   cesion: 'Cesión',
   intercambio: 'Intercambio',
-  descarga: 'Documento descargable'
+  descarga: 'Documento descargable',
+  consulta: 'Material digital de consulta',
+  enlace: 'Enlace educativo'
 };
 
 const secciones = {
@@ -52,22 +54,29 @@ export function textoError(respuesta, cuerpo, contexto = 'el catálogo') {
 }
 
 function tipoTexto(recurso) {
-  if (recurso.seccion === 'biblioteca' && recurso.tipo === 'fisico') {
-    return ['Préstamo físico', 't-prestamo'];
-  }
   if (recurso.seccion === 'biblioteca') {
-    return ['Descarga digital', 't-digital'];
+    if (recurso.tipo === 'fisico') {
+      return ['Préstamo físico', 't-prestamo'];
+    }
+
+    if (recurso.tipo === 'enlace') {
+      return ['Enlace educativo', 't-digital'];
+    }
+
+    if (recurso.tipo === 'digital') {
+      return ['Material digital', 't-digital'];
+    }
   }
+
   if (recurso.seccion === 'libros') {
     return ['Anuncio estudiantil', 't-anuncio'];
   }
+
   if (recurso.seccion === 'documentacion') {
     return ['Descarga digital', 't-digital'];
   }
-  if (recurso.tipo === 'enlace') {
-    return ['Enlace', 't-digital'];
-  }
-  return ['Recurso digital', 't-digital'];
+
+  return ['Recurso', 't-digital'];
 }
 
 export function normalizarLibro(anuncio) {
@@ -123,6 +132,26 @@ export function crearTarjeta(recurso) {
   
   tarjeta.append(etiqueta, insignia, titulo, modalidad, estado, detalle);
 
+  if (
+  recurso.seccion === 'biblioteca' &&
+  recurso.tipo === 'fisico' &&
+  Number.isInteger(recurso.total_ejemplares) &&
+  Number.isInteger(recurso.ejemplares_disponibles)
+) {
+  const disponibilidad = document.createElement('p');
+  disponibilidad.className = 'disponibilidad';
+
+  const total = recurso.total_ejemplares;
+  const disponibles = recurso.ejemplares_disponibles;
+
+  disponibilidad.textContent =
+    `${disponibles} de ${total} ` +
+    `${total === 1 ? 'ejemplar' : 'ejemplares'} ` +
+    `${disponibles === 1 ? 'disponible' : 'disponibles'}`;
+
+  tarjeta.append(disponibilidad);
+}
+
   // Descarga autorizada de la versión vigente.
   if (
     recurso.seccion === 'documentacion' &&
@@ -140,6 +169,39 @@ export function crearTarjeta(recurso) {
 
     acciones.append(enlace);
     tarjeta.append(acciones);
+  }
+
+  // Acción segura para enlaces educativos.
+  if (
+    recurso.seccion === 'biblioteca' &&
+    recurso.tipo === 'enlace' &&
+    recurso.url_externa
+  ) {
+    let destino;
+
+    try {
+      destino = new URL(recurso.url_externa);
+    } catch {
+      destino = null;
+    }
+
+    if (
+      destino &&
+      ['https:', 'http:'].includes(destino.protocol)
+    ) {
+      const acciones = document.createElement('div');
+      acciones.className = 'acciones-tarjeta';
+
+      const enlace = document.createElement('a');
+      enlace.className = 'boton-sec';
+      enlace.href = destino.href;
+      enlace.target = '_blank';
+      enlace.rel = 'noopener noreferrer';
+      enlace.textContent = 'Abrir enlace';
+
+      acciones.append(enlace);
+      tarjeta.append(acciones);
+    }
   }
 
   return tarjeta;
