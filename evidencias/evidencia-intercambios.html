@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="es">
 <head>
 <meta charset="utf-8">
@@ -31,13 +31,12 @@
   .duo { display: flex; gap: 4mm; align-items: flex-start; }
   .duo figure { flex: 1; margin-top: 0; }
   .duo img { width: 100%; }
-  .duo.compactas figure { flex: 0 0 75mm; }
-  .duo.mixta figure:first-child { flex: 0 0 82mm; }
-  .duo.mixta figure:last-child { flex: 0 0 42mm; }
-  .w136 { width: 136mm; }
+  .duo .w90 { width: 90mm; }
+  .duo .w80 { width: 80mm; }
+  .duo .w42 { width: 42mm; }
   .w140 { width: 140mm; }
+  .w136 { width: 136mm; }
   .w120 { width: 120mm; }
-  .w148 { width: 148mm; }
   .w150 { width: 150mm; }
   .w160 { width: 160mm; }
   .w100 { width: 100mm; }
@@ -101,7 +100,7 @@
       <tr><th>Avisos</th><td>22</td><td>0</td><td>0</td><td>22</td></tr>
     </tbody>
   </table>
-  <p class="small">HTTP 200 en A y B. Los totales son los del panel completo; las listas visibles pueden limitarse con <code>limite</code> entre 1 y 20. A y B son cuentas ficticias; no se muestran sus correos.</p>
+  <p class="small">HTTP 200 en A y B. Totales del panel completo; las listas admiten <code>limite</code> entre 1 y 20. Cuentas ficticias, sin correos.</p>
 </section>
 
 <section class="page">
@@ -126,14 +125,14 @@
 
   <figure class="centro"><img class="w120" src="intercambio-pendiente-a.png" alt="Detalle del intercambio pendiente 9 con los dos ejemplares y acciones"><figcaption><strong>Figura 4.</strong> Intercambio #9 pendiente: dos tarjetas visibles, 1 de 2 aceptaciones y acciones de aceptar/rechazar. El foco inicial está en el título del detalle.</figcaption></figure>
 
-  <div class="duo compactas">
+  <div class="duo">
     <figure><img src="intercambio-reservado-a.png" alt="Detalle de intercambio reservado"><figcaption><strong>Figura 5.</strong> Estado reservado: acciones de entrega y cancelación.</figcaption></figure>
     <figure><img src="intercambio-completado-a.png" alt="Detalle de intercambio completado"><figcaption><strong>Figura 6.</strong> Estado completado, sin acciones de reserva.</figcaption></figure>
   </div>
 
-  <div class="duo mixta">
-    <figure><img src="intercambio-propuesta-dialogo.png" alt="Diálogo de propuesta con ambos ejemplares y confirmación"><figcaption><strong>Figura 7.</strong> Diálogo de propuesta: ejemplar propio, ejemplar solicitado y confirmación explícita.</figcaption></figure>
-    <figure><img src="intercambio-movil-pendiente.png" alt="Detalle de intercambio pendiente en móvil"><figcaption><strong>Figura 8.</strong> 390 × 844 px: las dos tarjetas siguen visibles y se apilan.</figcaption></figure>
+  <div class="duo">
+    <figure><img class="w80" src="intercambio-propuesta-dialogo.png" alt="Diálogo de propuesta con ambos ejemplares y confirmación"><figcaption><strong>Figura 7.</strong> Diálogo de propuesta: ejemplar propio, ejemplar solicitado y confirmación explícita.</figcaption></figure>
+    <figure><img class="w42" src="intercambio-movil-pendiente.png" alt="Detalle de intercambio pendiente en móvil"><figcaption><strong>Figura 8.</strong> 390 × 844 px: las dos tarjetas siguen visibles y se apilan.</figcaption></figure>
   </div>
 </section>
 
