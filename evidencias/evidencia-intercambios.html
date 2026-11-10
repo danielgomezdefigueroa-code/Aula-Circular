@@ -31,7 +31,12 @@
   .duo { display: flex; gap: 4mm; align-items: flex-start; }
   .duo figure { flex: 1; margin-top: 0; }
   .duo img { width: 100%; }
+  .duo.compactas figure { flex: 0 0 75mm; }
+  .duo.mixta figure:first-child { flex: 0 0 82mm; }
+  .duo.mixta figure:last-child { flex: 0 0 42mm; }
+  .w136 { width: 136mm; }
   .w140 { width: 140mm; }
+  .w120 { width: 120mm; }
   .w148 { width: 148mm; }
   .w150 { width: 150mm; }
   .w160 { width: 160mm; }
@@ -84,8 +89,8 @@
   <h2>2. Mi espacio: datos propios y acciones pendientes</h2>
   <p><strong>Mi espacio</strong> consulta con la sesión y reúne publicaciones, solicitudes, préstamos/intercambios y avisos. En la captura, la operación #9 aparece antes que las cerradas porque requiere la aceptación de A. Las cifras siguientes salen de dos llamadas reales a <code>GET /api/mi-espacio/panel</code>.</p>
 
-  <figure class="centro"><img class="w148" src="mi-espacio-resumen-a.png" alt="Mi espacio, resumen de publicaciones y solicitudes de la cuenta A"><figcaption><strong>Figura 1.</strong> Resumen de Mi espacio con la cuenta ficticia A. La primera publicación pendiente es un borrador que requiere acción; las solicitudes se ordenan por acción y fecha.</figcaption></figure>
-  <figure class="centro"><img class="w148" src="mi-espacio-operaciones-a.png" alt="Mi espacio, préstamos e intercambios de la cuenta A"><figcaption><strong>Figura 2.</strong> Préstamos e intercambios. La operación #9 («Esperando aceptación») va primero; después aparecen las reservadas y las cerradas. El propietario se toma de la sesión.</figcaption></figure>
+  <figure class="centro"><img class="w136" src="mi-espacio-resumen-a.png" alt="Mi espacio, resumen de publicaciones y solicitudes de la cuenta A"><figcaption><strong>Figura 1.</strong> Resumen de Mi espacio con la cuenta ficticia A. La primera publicación pendiente es un borrador que requiere acción; las solicitudes se ordenan por acción y fecha.</figcaption></figure>
+  <figure class="centro"><img class="w136" src="mi-espacio-operaciones-a.png" alt="Mi espacio, préstamos e intercambios de la cuenta A"><figcaption><strong>Figura 2.</strong> Préstamos e intercambios. La operación #9 («Esperando aceptación») va primero; después aparecen las reservadas y las cerradas. El propietario se toma de la sesión.</figcaption></figure>
 
   <table>
     <thead><tr><th>Sección</th><th>Total A</th><th>Pendientes A</th><th>Requieren acción A</th><th>Total B</th></tr></thead>
@@ -119,16 +124,16 @@
   <h2>4. Detalle, propuesta y vista móvil</h2>
   <p>El detalle presenta dos tarjetas ordenadas, una por ejemplar, con edición, conservación, propietario y código. La propuesta exige elegir un ejemplar propio y marcar la confirmación explícita; no se envía nada en la captura del diálogo.</p>
 
-  <figure class="centro"><img class="w140" src="intercambio-pendiente-a.png" alt="Detalle del intercambio pendiente 9 con los dos ejemplares y acciones"><figcaption><strong>Figura 4.</strong> Intercambio #9 pendiente: dos tarjetas visibles, 1 de 2 aceptaciones y acciones de aceptar/rechazar. El foco inicial está en el título del detalle.</figcaption></figure>
+  <figure class="centro"><img class="w120" src="intercambio-pendiente-a.png" alt="Detalle del intercambio pendiente 9 con los dos ejemplares y acciones"><figcaption><strong>Figura 4.</strong> Intercambio #9 pendiente: dos tarjetas visibles, 1 de 2 aceptaciones y acciones de aceptar/rechazar. El foco inicial está en el título del detalle.</figcaption></figure>
 
-  <div class="duo">
+  <div class="duo compactas">
     <figure><img src="intercambio-reservado-a.png" alt="Detalle de intercambio reservado"><figcaption><strong>Figura 5.</strong> Estado reservado: acciones de entrega y cancelación.</figcaption></figure>
     <figure><img src="intercambio-completado-a.png" alt="Detalle de intercambio completado"><figcaption><strong>Figura 6.</strong> Estado completado, sin acciones de reserva.</figcaption></figure>
   </div>
 
-  <div class="duo">
-    <figure><img class="w90" src="intercambio-propuesta-dialogo.png" alt="Diálogo de propuesta con ambos ejemplares y confirmación"><figcaption><strong>Figura 7.</strong> Diálogo de propuesta: ejemplar propio, ejemplar solicitado y confirmación explícita.</figcaption></figure>
-    <figure><img class="w50" src="intercambio-movil-pendiente.png" alt="Detalle de intercambio pendiente en móvil"><figcaption><strong>Figura 8.</strong> 390 × 844 px: las dos tarjetas siguen visibles y se apilan.</figcaption></figure>
+  <div class="duo mixta">
+    <figure><img src="intercambio-propuesta-dialogo.png" alt="Diálogo de propuesta con ambos ejemplares y confirmación"><figcaption><strong>Figura 7.</strong> Diálogo de propuesta: ejemplar propio, ejemplar solicitado y confirmación explícita.</figcaption></figure>
+    <figure><img src="intercambio-movil-pendiente.png" alt="Detalle de intercambio pendiente en móvil"><figcaption><strong>Figura 8.</strong> 390 × 844 px: las dos tarjetas siguen visibles y se apilan.</figcaption></figure>
   </div>
 </section>
 
