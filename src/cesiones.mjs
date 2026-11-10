@@ -25,6 +25,9 @@ export function rutasCesiones(pool,sesion,activa){
  async function disponible(c,e,a){if(e.estado_servicio!=='habilitado'||a.estado_revision!=='publicado'||(await c.query(`SELECT 1 FROM reserva_activa WHERE ejemplar_id=$1 UNION ALL SELECT 1 FROM operacion_item i JOIN operacion o ON o.id=i.operacion_id WHERE i.ejemplar_id=$1 AND o.estado IN ('reservada','prestada')`,[e.id])).rowCount)throw fallo(409,'EJEMPLAR_NO_DISPONIBLE');}
  async function cuentas(c,ids){const u=await c.query('SELECT id,estado FROM usuario WHERE id=ANY($1::integer[]) ORDER BY id FOR SHARE',[ids]);if(ids.some(id=>!u.rows.some(x=>x.id===id&&x.estado==='activo')))throw fallo(409,'PARTICIPANTE_NO_ACTIVO');}
  async function aviso(c,destino,mensaje,op=null){await c.query('INSERT INTO aviso(destinatario_id,mensaje,operacion_id) VALUES($1,$2,$3)',[destino,mensaje,op]);}
+async function marcarAvisoLeido(c,avisoId,usuarioId){
+  await c.query('UPDATE aviso SET leido=true WHERE id=$1 AND destinatario_id=$2',[avisoId,usuarioId]);
+}
  r.get('/gestion/anuncios',docente,ruta(async(req,res)=>{const p=pagina(req);res.json({datos:(await pool.query(`SELECT a.*,r.titulo,r.edicion,r.asignatura,r.curso_id,e.conservacion,e.codigo FROM anuncio a JOIN ejemplar e ON e.id=a.ejemplar_id JOIN recurso r ON r.id=e.recurso_id WHERE a.estado_revision='pendiente' ORDER BY a.id LIMIT $1 OFFSET $2`,p)).rows});}));
  r.post('/gestion/anuncios/:id/revision',docente,ruta(async(req,res)=>{
   cuerpo(req,['version','decision','motivo']);const id=Number(req.params.id),b=req.body;

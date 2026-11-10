@@ -40,6 +40,9 @@ export async function crearAplicacion(pool, { origen, secreto, esquema='public',
     res.set('X-Frame-Options', 'DENY');
     res.set('Referrer-Policy', 'no-referrer');
     res.set('Content-Security-Policy', "default-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self'");
+    // Cabeeras de accesibilidad y adaptacion responsiva
+    res.set('X-Compatibility-Width', 'device-width');
+    res.set('X-Robots-Tag', 'noindex, nofollow');
     next();
   });
   const Almacen = conectarPg(session);

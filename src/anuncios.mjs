@@ -71,6 +71,80 @@ function paginacion(req,res,extras=[]){
   return {pagina,limite};
 }
 
+export function crearTarjetaAnuncio(fila) {
+  const { total: _total, ...f } = fila;
+  return { ...f };
+}
+
+export function manejarEstadoSinDatos(mensaje, nextAction) {
+  return {
+    sinDatos: true,
+    mensaje,
+    nextAction
+  };
+}
+
+export function manejarEstadoCarga(mensaje = 'Cargando...') {
+  return {
+    carga: true,
+    mensaje
+  };
+}
+
+export function manejarError(error, accionSiguiente) {
+  return {
+    error: true,
+    mensaje: error.mensaje || 'Error desconocido',
+    codigo: error.codigo || 500,
+    accionSiguiente,
+    // Asegura que el mensaje sea legible y no dependa solo de color
+    detalles: error.mensaje ? 'Revisa la descripción arriba' : 'Contacta con soporte técnico'
+  };
+}
+
+export function erroresAValidacion(errores) {
+  if (!errores) return null;
+  const mensajes = [];
+  for (const [campo, msg] of Object.entries(errores)) {
+    mensajes.push({ campo, mensaje: msg });
+  }
+  return mensajes;
+}
+
+export function formatoRespuestaAnuncio(datos, pagination) {
+  const { datos: limpiados, ...resto } = datos;
+  return {
+    ...pagination,
+    datos: Array.isArray(limpiados) ? limpiados.map(crearTarjetaAnuncio) : limpiados
+  };
+}
+
+export function crearRespuestaEstados(status, datos = {}) {
+  return { estado: status, ...datos };
+}
+
+export function leerParamsSeguros(req, permisidos) {
+  const q = {};
+  for (const clave of Object.keys(req.query)) {
+    if (permisidos.includes(clave)) {
+      q[clave] = req.query[clave];
+    }
+  }
+  return q;
+}
+
+export function validarIdParametro(id) {
+  return Number.isSafeInteger(id) && id > 0;
+}
+
+export function construirSeleccionAnuncio() {
+  return `SELECT a.id,a.ejemplar_id,a.modalidad,a.estado_revision,a.motivo,a.version,a.creada_en,a.actualizada_en,
+    r.titulo,r.descripcion,r.curso_id AS "cursoId",c.nombre AS curso,r.asignatura,r.edicion,r.isbn,
+    e.codigo,e.conservacion,e.propietario_usuario_id
+    FROM anuncio a JOIN ejemplar e ON e.id=a.ejemplar_id JOIN recurso r ON r.id=e.recurso_id
+    JOIN curso c ON c.id=r.curso_id`;
+}
+
 export function rutasAnuncios(pool,sesionNecesaria,activaNecesaria){
   const rutas=Router();
   const alumno=(req,res,next)=>req.usuario.roles.includes('alumno') ? next():res.status(403).json({error:'PERMISO_ALUMNO_NECESARIO'});
@@ -94,6 +168,18 @@ export function rutasAnuncios(pool,sesionNecesaria,activaNecesaria){
     const p=paginacion(req,res,['q','curso','modalidad','disponible']);if(!p) return;
     const filtros=leerFiltrosLibros(req);
     if(!filtros) return res.status(422).json({error:'PARAMETROS_INVALIDOS'});
+    
+    // Verificar si hay datos esperados antes de consultar
+    if (!filtros.texto && !filtros.cursoId && !filtros.modalidad && !filtros.soloDisponibles) {
+      return res.json({
+        ...p,
+        ...manejarEstadoSinDatos(
+          'No hay publicaciones. Usa los filtros para buscar recursos.',
+          'Ir a catálogo con filtros'
+        )
+      });
+    }
+    
     const titulo=sinAcentos('r.titulo');
     const descripcion=sinAcentos('r.descripcion');
     const asignatura=sinAcentos('r.asignatura');
@@ -142,7 +228,18 @@ export function rutasAnuncios(pool,sesionNecesaria,activaNecesaria){
       [filtros.texto,filtros.cursoId,filtros.modalidad,filtros.soloDisponibles,p.limite,(p.pagina-1)*p.limite,req.usuario.id]);
     const total=r.rows[0]?.total??0;
     const datos=r.rows.filter(f=>f.id!==null).map(({total:_total,...f})=>f);
-    res.json({datos,total,...p});
+    
+    if (total === 0) {
+      return res.json({
+        ...manejarEstadoSinDatos(
+          'No se encontraron recursos con los criterios de búsqueda.',
+          'Revisa los filtros o intenta con términos diferentes'
+        ),
+        ...p
+      });
+    }
+    
+    return res.json({datos,total,...p});
   });
   async function transaccion(req,res,accion){
     const cliente=await pool.connect();

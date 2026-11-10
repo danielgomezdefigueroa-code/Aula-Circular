@@ -3,8 +3,10 @@ import { Router } from 'express';
 const idValido = valor => Number.isSafeInteger(valor) && valor > 0;
 const limiteValido = valor => idValido(valor) && valor <= 20;
 
+import { crearTarjetaAnuncio, erroresAValidacion, formatoRespuestaAnuncio, crearRespuestaEstados, leerParamsSeguros, validarIdParametro, construirSeleccionAnuncio } from './anuncios.mjs';
+
 function limpiar(filas) {
-  return filas.map(({ total: _total, pendientes: _pendientes, requieren_accion: _accion, ...fila }) => fila);
+  return filas.map(crearTarjetaAnuncio);
 }
 
 function recuento(filas) {
@@ -115,15 +117,13 @@ export function rutasMiEspacio(pool, sesionNecesaria, activaNecesaria) {
       `, [usuarioId, limite]),
 
       pool.query(`
-        SELECT a.id, a.mensaje, a.operacion_id, a.creado_en,
-          false AS pendiente, false AS requiere_accion,
-          count(*) OVER ()::integer AS total,
-          0 AS pendientes, 0 AS requieren_accion
-        FROM aviso a
-        WHERE a.destinatario_id = $1
-        ORDER BY a.creado_en DESC, a.id DESC
-        LIMIT $2
-      `, [usuarioId, limite])
+        SELECT a.id, a.mensaje, a.creado_en, a.leido,
+          count(*) OVER ()::integer AS total
+      FROM aviso a
+      WHERE a.destinatario_id = $1
+      ORDER BY a.creado_en DESC, a.id DESC
+      LIMIT $2
+    `, [usuarioId, limite])
     ]);
 
     res.json({
@@ -131,7 +131,7 @@ export function rutasMiEspacio(pool, sesionNecesaria, activaNecesaria) {
         publicaciones: limpiar(publicaciones.rows),
         solicitudes: limpiar(solicitudes.rows),
         prestamos: limpiar(prestamos.rows),
-        avisos: limpiar(avisos.rows)
+        avisos: limpiar(avisos.rows.map(a => ({ ...a, leido: a.leido === true })))
       },
       totales: {
         publicaciones: recuento(publicaciones.rows),
