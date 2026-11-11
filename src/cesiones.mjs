@@ -26,7 +26,8 @@ export function rutasCesiones(pool,sesion,activa){
  async function cuentas(c,ids){const u=await c.query('SELECT id,estado FROM usuario WHERE id=ANY($1::integer[]) ORDER BY id FOR SHARE',[ids]);if(ids.some(id=>!u.rows.some(x=>x.id===id&&x.estado==='activo')))throw fallo(409,'PARTICIPANTE_NO_ACTIVO');}
  async function aviso(c,destino,mensaje,op=null){await c.query('INSERT INTO aviso(destinatario_id,mensaje,operacion_id) VALUES($1,$2,$3)',[destino,mensaje,op]);}
 async function marcarAvisoLeido(c,avisoId,usuarioId){
-  await c.query('UPDATE aviso SET leido=true WHERE id=$1 AND destinatario_id=$2',[avisoId,usuarioId]);
+  const r=await c.query('UPDATE aviso SET leido=true WHERE id=$1 AND destinatario_id=$2 RETURNING id',[avisoId,usuarioId]);
+  return r.rowCount>0;
 }
  r.get('/gestion/anuncios',docente,ruta(async(req,res)=>{const p=pagina(req);res.json({datos:(await pool.query(`SELECT a.*,r.titulo,r.edicion,r.asignatura,r.curso_id,e.conservacion,e.codigo FROM anuncio a JOIN ejemplar e ON e.id=a.ejemplar_id JOIN recurso r ON r.id=e.recurso_id WHERE a.estado_revision='pendiente' ORDER BY a.id LIMIT $1 OFFSET $2`,p)).rows});}));
  r.post('/gestion/anuncios/:id/revision',docente,ruta(async(req,res)=>{
@@ -81,5 +82,12 @@ async function marcarAvisoLeido(c,avisoId,usuarioId){
    const estado=accion==='entregar'?'completada':'cancelada';const actual=(await c.query(`UPDATE operacion SET estado=$1,cerrada_en=now(),entregada_en=CASE WHEN $1='completada' THEN now() ELSE entregada_en END WHERE id=$2 RETURNING *`,[estado,id])).rows[0];await c.query('DELETE FROM reserva_activa WHERE operacion_id=$1',[id]);await c.query('INSERT INTO evento_operacion(operacion_id,actor_id,accion,motivo) VALUES($1,$2,$3,$4)',[id,req.usuario.id,accion,req.body.motivo?.trim()??'']);for(const u of [i.origen_usuario_id,i.destino_usuario_id])await aviso(c,u,'Cesión '+estado,id);return actual;});res.json({datos});
  }));
  r.get('/avisos',ruta(async(req,res)=>{const p=pagina(req);res.json({datos:(await pool.query('SELECT * FROM aviso WHERE destinatario_id=$1 ORDER BY id DESC LIMIT $2 OFFSET $3',[req.usuario.id,...p])).rows});}));
+  // Marca leído un aviso propio. No toca la operación: solo el estado de lectura.
+  r.post('/avisos/:id/leido',ruta(async(req,res)=>{
+    cuerpo(req,[]);const id=Number(req.params.id);
+    if(!idValido(id))throw fallo(422,'ID_INVALIDO');
+    if(!await marcarAvisoLeido(pool,id,req.usuario.id))throw fallo(404,'AVISO_NO_DISPONIBLE');
+    res.json({datos:{id,leido:true}});
+  }));
  return r;
 }

@@ -204,7 +204,7 @@ function renderPanel(cuerpo) {
   listasPanel.prestamos.replaceChildren();
   listasPanel.avisos.replaceChildren();
 
-  if (!publicaciones.length) vacioPanel(listasPanel.publicaciones, 'No tienes publicaciones.');
+  if (!publicaciones.length) vacioPanel(listasPanel.publicaciones, 'No tienes publicaciones todavía. Crea un borrador en el formulario de esta página.');
   for (const publicacion of publicaciones) {
     const li = document.createElement('li');
     li.className = 'panel-item';
@@ -247,7 +247,7 @@ function renderPanel(cuerpo) {
     listasPanel.publicaciones.append(li);
   }
 
-  if (!solicitudes.length) vacioPanel(listasPanel.solicitudes, 'No tienes solicitudes.');
+  if (!solicitudes.length) vacioPanel(listasPanel.solicitudes, 'No has solicitado ningún ejemplar. Búscalo en Libros y envía una solicitud.');
   for (const solicitud of solicitudes) {
     const li = document.createElement('li');
     li.className = 'panel-item';
@@ -285,7 +285,7 @@ function renderPanel(cuerpo) {
     listasPanel.solicitudes.append(li);
   }
 
-  if (!prestamos.length) vacioPanel(listasPanel.prestamos, 'No tienes préstamos ni intercambios.');
+  if (!prestamos.length) vacioPanel(listasPanel.prestamos, 'No tienes préstamos ni intercambios en curso. Aparecerán aquí cuando participes en una operación.');
   for (const prestamo of prestamos) {
     const li = document.createElement('li');
     li.className = 'panel-item';
@@ -334,28 +334,57 @@ function renderPanel(cuerpo) {
     listasPanel.prestamos.append(li);
   }
 
-  if (!avisos.length) vacioPanel(listasPanel.avisos, 'No tienes avisos.');
+  if (!avisos.length) vacioPanel(listasPanel.avisos, 'No tienes avisos. Aquí aparecerán los de tus operaciones.');
   for (const aviso of avisos) {
     const li = document.createElement('li');
     li.className = 'panel-item';
-    li.dataset.pendiente = 'false';
+    li.dataset.pendiente = aviso.leido ? 'false' : 'true';
 
+    const estadoAviso = document.createElement('p');
+    estadoAviso.className = 'etiqueta';
+    estadoAviso.textContent = aviso.leido ? 'Leído' : 'Nuevo';
     const mensajeAviso = document.createElement('p');
     mensajeAviso.className = 'detalle';
     mensajeAviso.textContent = aviso.mensaje ?? '';
-    li.append(mensajeAviso);
+    li.append(estadoAviso, mensajeAviso);
     const fechaAviso = fechaPanel(aviso.creado_en);
     if (fechaAviso) li.append(fechaAviso);
+
+    const acciones = document.createElement('div');
+    acciones.className = 'panel-acciones';
+    const enlace = document.createElement('a');
     if (aviso.operacion_id) {
-      const acciones = document.createElement('div');
-      acciones.className = 'panel-acciones';
-      const enlace = document.createElement('a');
-      enlace.href = 'cesiones.html';
+      enlace.href = aviso.operacion_tipo === 'intercambio'
+        ? 'intercambios.html?operacion=' + aviso.operacion_id
+        : 'cesiones.html';
       enlace.textContent = 'Ver operación #' + aviso.operacion_id;
       acciones.append(enlace);
-      li.append(acciones);
+    } else {
+      enlace.href = '#seccion-anuncios';
+      enlace.textContent = 'Ver tus publicaciones';
+      acciones.append(enlace);
     }
+    if (!aviso.leido) {
+      const leido = document.createElement('button');
+      leido.type = 'button';
+      leido.className = 'boton-sec';
+      leido.textContent = 'Marcar leído';
+      leido.addEventListener('click', () => marcarLeido(aviso.id, leido));
+      acciones.append(leido);
+    }
+    li.append(acciones);
     listasPanel.avisos.append(li);
+  }
+}
+
+async function marcarLeido(id, boton) {
+  boton.disabled = true;
+  try {
+    await leerRespuesta(await enviar('/avisos/' + id + '/leido', {}));
+    await cargarPanel();
+  } catch (error) {
+    panelMensaje.textContent = error.message;
+    boton.disabled = false;
   }
 }
 

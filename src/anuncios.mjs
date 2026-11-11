@@ -168,18 +168,7 @@ export function rutasAnuncios(pool,sesionNecesaria,activaNecesaria){
     const p=paginacion(req,res,['q','curso','modalidad','disponible']);if(!p) return;
     const filtros=leerFiltrosLibros(req);
     if(!filtros) return res.status(422).json({error:'PARAMETROS_INVALIDOS'});
-    
-    // Verificar si hay datos esperados antes de consultar
-    if (!filtros.texto && !filtros.cursoId && !filtros.modalidad && !filtros.soloDisponibles) {
-      return res.json({
-        ...p,
-        ...manejarEstadoSinDatos(
-          'No hay publicaciones. Usa los filtros para buscar recursos.',
-          'Ir a catálogo con filtros'
-        )
-      });
-    }
-    
+
     const titulo=sinAcentos('r.titulo');
     const descripcion=sinAcentos('r.descripcion');
     const asignatura=sinAcentos('r.asignatura');
@@ -231,11 +220,13 @@ export function rutasAnuncios(pool,sesionNecesaria,activaNecesaria){
     
     if (total === 0) {
       return res.json({
+        datos: [],
+        total: 0,
+        ...p,
         ...manejarEstadoSinDatos(
           'No se encontraron recursos con los criterios de búsqueda.',
           'Revisa los filtros o intenta con términos diferentes'
-        ),
-        ...p
+        )
       });
     }
     

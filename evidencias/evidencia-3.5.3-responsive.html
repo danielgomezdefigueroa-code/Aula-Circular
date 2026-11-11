@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Evidencia 3.5.3 · Diseño responsive, avisos y estados vacíos</title>
+<style>
+  body { font-family: system-ui, sans-serif; margin: 2rem auto; max-width: 60rem; line-height: 1.5; color: #20352a; }
+  h1 { border-bottom: 3px solid #db7868; padding-bottom: .4rem; }
+  h2 { margin-top: 2rem; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: .9rem; }
+  th, td { border: 1px solid #b9c9bf; padding: .4rem .5rem; text-align: left; vertical-align: top; }
+  th { background: #eef3ef; }
+  code { background: #f2f5f3; padding: 0 .2rem; }
+  .ok { color: #14603f; font-weight: 600; }
+  .limit { border-left: 4px solid #db7868; background: #fdf3f1; padding: .6rem .8rem; }
+  figure { margin: 1rem 0; }
+  img { max-width: 100%; border: 1px solid #b9c9bf; }
+  figcaption { font-size: .85rem; color: #3d5246; }
+</style>
+</head>
+<body>
+<h1>3.5.3 · Unificar diseño responsive, avisos y estados vacíos</h1>
+<p><strong>Versión:</strong> <code>aula-circular-lab@1.0.0</code>, commit de trabajo sin publicar · 11/11/2026.
+<strong>Entorno:</strong> servidor local <code>http://127.0.0.1:3000</code>, PostgreSQL 18.6 local, datos ficticios.
+<strong>Cuenta de ensayo:</strong> A01 <code>alumno.ensayo@example.invalid</code> (alumnado activo).</p>
+<p>Comprobación realizada con navegador real (Chromium vía Playwright), sin modificar el servidor durante las capturas.</p>
+
+<h2>1. Cinco secciones en cuatro anchos</h2>
+<p>Se navegó cada sección a 320, 390, 768 y 1440 px y se midió
+<code>document.documentElement.scrollWidth - clientWidth</code>. Cero significa que no aparece desplazamiento horizontal.</p>
+<table>
+<tr><th>Sección</th><th>320 px</th><th>390 px</th><th>768 px</th><th>1440 px</th><th>Acciones y contenido</th></tr>
+<tr><td>Inicio</td><td class="ok">0 px · menú móvil</td><td class="ok">0 px · menú móvil</td><td class="ok">0 px · menú móvil</td><td class="ok">0 px · menú completo</td><td>17 resultados, filtros y tarjetas</td></tr>
+<tr><td>Biblioteca</td><td class="ok">0 px · menú móvil</td><td class="ok">0 px · menú móvil</td><td class="ok">0 px · menú móvil</td><td class="ok">0 px · menú completo</td><td>6 recursos, filtros y detalle</td></tr>
+<tr><td>Libros</td><td class="ok">0 px · menú móvil</td><td class="ok">0 px · menú móvil</td><td class="ok">0 px · menú móvil</td><td class="ok">0 px · menú completo</td><td>6 anuncios, filtros y solicitud</td></tr>
+<tr><td>Documentación</td><td class="ok">0 px · menú móvil</td><td class="ok">0 px · menú móvil</td><td class="ok">0 px · menú móvil</td><td class="ok">0 px · menú completo</td><td>5 documentos, filtros y descarga</td></tr>
+<tr><td>Mi espacio</td><td class="ok">0 px · menú móvil</td><td class="ok">0 px · menú móvil</td><td class="ok">0 px · menú móvil</td><td class="ok">0 px · menú completo</td><td>Perfil, resumen, avisos y formulario</td></tr>
+</table>
+<p>Las cinco páginas cargan el mismo <code>shell.mjs</code> (menú, sesión, cierre y aviso de estado) y la misma hoja
+<code>public/css/estilo.css</code>. <code>cesiones.html</code> también carga el shell desde esta tarea: botón «Abrir menú»,
+menú móvil y enlaces por rol funcionando a 320 px.</p>
+<p>Consola del navegador: <strong>0 errores</strong> en las cinco secciones. <code>npm test</code>: <strong>24/24</strong>.</p>
+
+<h2>2. Avisos internos</h2>
+<p>El servidor genera avisos en las acciones reales (solicitud adjudicada o rechazada, revisión de anuncio,
+intercambio propuesto, aceptado, rechazado, reservado o cancelado) y el panel de Mi espacio los devuelve con
+<code>operacion_id</code> y <code>operacion_tipo</code>. Se añadió la marca de leído:</p>
+<ul>
+  <li><code>POST /api/avisos/:id/leido</code>: solo el destinatario puede marcar su aviso. Ajeno → 404, id inválido → 422.</li>
+  <li>La marca no toca la operación ni sus eventos; solo cambia <code>aviso.leido</code>.</li>
+  <li>Migración nueva <code>sql/migraciones/008_aviso_leido.sql</code>, aplicada con <code>npm run migrar</code>.</li>
+</ul>
+<table>
+<tr><th>Entrada</th><th>Esperado</th><th>Observado</th></tr>
+<tr><td>Aviso «Solicitud adjudicada» con operación</td><td>Enlace al detalle propio</td><td class="ok">«Ver operación #1» abre <code>cesiones.html</code>, que lista la operación #1 de la cuenta</td></tr>
+<tr><td>Aviso de revisión sin operación</td><td>Enlace a las publicaciones propias</td><td class="ok">«Ver tus publicaciones» salta a <code>#seccion-anuncios</code></td></tr>
+<tr><td>Botón «Marcar leído»</td><td>Pasa a «Leído» y persiste</td><td class="ok">Cambia en la misma vista; tras recargar, la API devuelve <code>leido:true</code></td></tr>
+<tr><td>Estado pendiente</td><td>Texto además de color</td><td class="ok">Etiqueta «Nuevo»/«Leído» y borde izquierdo, nunca solo color</td></tr>
+<tr><td>Aviso de otra cuenta</td><td>No se puede marcar</td><td class="ok">404; cubierto por <code>pruebas/cesiones.test.mjs</code></td></tr>
+</table>
+<p class="limit">Los avisos de la comprobación visual se crearon como datos de ensayo en la base local
+(operación 1 y avisos 1 y 2 para A01) porque la base de laboratorio no tenía ninguna operación ni aviso.
+El alta automática de avisos en las acciones reales ya existe y está cubierta por las pruebas HTTP.</p>
+
+<h2>3. Carga, vacío y error con siguiente acción</h2>
+<table>
+<tr><th>Estado</th><th>Texto mostrado</th><th>Siguiente acción</th></tr>
+<tr><td>Carga</td><td>«Cargando…» + <code>aria-busy</code></td><td class="ok">Indica que la petición sigue en curso</td></tr>
+<tr><td>Sin publicaciones (Libros)</td><td>«No hay anuncios publicados todavía…»</td><td class="ok">«Publica un libro desde Mi espacio o vuelve más tarde.»</td></tr>
+<tr><td>Sin coincidencias (Libros)</td><td>«No hay anuncios publicados que coincidan con los filtros…»</td><td class="ok">«Cambia o limpia los filtros para ver más resultados.»</td></tr>
+<tr><td>Sin coincidencias (Inicio)</td><td>«No hay recursos que coincidan con los filtros…»</td><td class="ok">«Cambia el área o el texto de búsqueda.»</td></tr>
+<tr><td>Sin recursos (Biblioteca)</td><td>«No hay recursos de biblioteca disponibles…»</td><td class="ok">«Vuelve más tarde o consulta Libros.»</td></tr>
+<tr><td>Sin documentos (Documentación)</td><td>«No hay documentos publicados para tu curso…»</td><td class="ok">«Vuelve más tarde o pregunta a tu docente.»</td></tr>
+<tr><td>Mi espacio sin publicaciones</td><td>«No tienes publicaciones todavía.»</td><td class="ok">«Crea un borrador en el formulario de esta página.»</td></tr>
+<tr><td>Mi espacio sin solicitudes</td><td>«No has solicitado ningún ejemplar.»</td><td class="ok">«Búscalo en Libros y envía una solicitud.»</td></tr>
+<tr><td>Mi espacio sin operaciones</td><td>«No tienes préstamos ni intercambios en curso.»</td><td class="ok">«Aparecerán aquí cuando participes en una operación.»</td></tr>
+<tr><td>Fallo de red (Libros)</td><td>«No se pudo contactar con el servidor…»</td><td class="ok">«Inténtalo de nuevo.»; probado abortando <code>/api/libros</code></td></tr>
+</table>
+<p>Un error de campo no borra el formulario y un fallo de red no muestra éxito; ya estaba resuelto en los formularios
+de Mi espacio y cesiones y se mantiene.</p>
+
+<h2>4. Accesibilidad y adaptación</h2>
+<table>
+<tr><th>Prueba</th><th>Resultado observado</th></tr>
+<tr><td>Teclado</td><td class="ok">Tab recorre cabecera, menú, filtros y controles; foco visible de 3 px (#db7868 sobre fondo claro, blanco sobre cabecera)</td></tr>
+<tr><td>Zoom 200 %</td><td class="ok">Ventana de 1280 px a 200 % = 640 px CSS: 0 px de desbordamiento en las cinco secciones; mismos controles</td></tr>
+<tr><td>Título largo (89 caracteres sin espacios) en tarjeta de Libros</td><td class="ok">0 px de desbordamiento; el texto rompe dentro de la tarjeta</td></tr>
+<tr><td>Aviso largo (200 caracteres sin espacios) en Mi espacio</td><td class="ok">0 px de desbordamiento; la lista del panel rompe el texto</td></tr>
+<tr><td>Estado sin color</td><td class="ok">«Nuevo»/«Leído» y textos de estado siempre escritos</td></tr>
+</table>
+
+<h2>5. Capturas</h2>
+<figure><img src="3.5.3-index-320.png" alt="Inicio a 320 px"><figcaption>Inicio · 320 px</figcaption></figure>
+<figure><img src="3.5.3-index-1440.png" alt="Inicio a 1440 px"><figcaption>Inicio · 1440 px</figcaption></figure>
+<figure><img src="3.5.3-biblioteca-320.png" alt="Biblioteca a 320 px"><figcaption>Biblioteca · 320 px</figcaption></figure>
+<figure><img src="3.5.3-biblioteca-1440.png" alt="Biblioteca a 1440 px"><figcaption>Biblioteca · 1440 px</figcaption></figure>
+<figure><img src="3.5.3-libros-320.png" alt="Libros a 320 px"><figcaption>Libros · 320 px</figcaption></figure>
+<figure><img src="3.5.3-libros-1440.png" alt="Libros a 1440 px"><figcaption>Libros · 1440 px</figcaption></figure>
+<figure><img src="3.5.3-documentacion-320.png" alt="Documentación a 320 px"><figcaption>Documentación · 320 px</figcaption></figure>
+<figure><img src="3.5.3-documentacion-1440.png" alt="Documentación a 1440 px"><figcaption>Documentación · 1440 px</figcaption></figure>
+<figure><img src="3.5.3-mi-espacio-320.png" alt="Mi espacio a 320 px con perfil, operaciones y avisos"><figcaption>Mi espacio · 320 px · perfil, operación y avisos</figcaption></figure>
+<figure><img src="3.5.3-mi-espacio-1440.png" alt="Mi espacio a 1440 px"><figcaption>Mi espacio · 1440 px</figcaption></figure>
+<figure><img src="3.5.3-cesiones-320.png" alt="Cesiones a 320 px con operación"><figcaption>Cesiones · 320 px · operación del aviso</figcaption></figure>
+<figure><img src="3.5.3-libros-sin-coincidencias-390.png" alt="Libros sin coincidencias a 390 px"><figcaption>Libros · sin coincidencias · 390 px</figcaption></figure>
+
+<h2>Límites de esta comprobación</h2>
+<ul>
+  <li>No incluye la ampliación de 500 h (pruebas de componentes y revisión de contraste con herramienta documentada).</li>
+  <li>La base de laboratorio trae los seis anuncios de alumnado con <code>propietario_usuario_id</code> nulo
+      (<code>sql/001_laboratorio.sql</code>): no aparecen en Mi espacio y la moderación intentaría avisar a un destinatario nulo.
+      Es un defecto de los datos de ensayo, no de esta tarea; queda pendiente decidir a quién pertenecen.</li>
+  <li><code>public/index.html</code> redirige con un script en línea que la política CSP bloquea; la página raíz deja de
+      redirigir y solo muestra el enlace. Detectado en esta comprobación, fuera de las cinco secciones.</li>
+</ul>
+</body>
+</html>

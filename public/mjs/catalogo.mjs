@@ -66,7 +66,7 @@ async function cargarRecursos(texto = '') {
 
     estado.textContent = datos.length
       ? datos.length + ' recursos encontrados'
-      : 'No se encontraron recursos.';
+      : 'No se encontraron recursos. Cambia el área o el texto de búsqueda.';
   } catch {
     // Solo la búsqueda más reciente puede cambiar la pantalla.
     if (numeroPeticion !== peticionActual) return;

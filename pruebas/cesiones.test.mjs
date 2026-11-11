@@ -119,6 +119,15 @@ test('Cesiones, moderación y reasignación con PostgreSQL y HTTP reales',async 
       const limitado=await pedir(a,'/api/mi-espacio/panel?limite=1');
       assert.equal(limitado.datos.publicaciones.length,1);
       assert.equal(limitado.totales.publicaciones.total,publicacionesA.length);
+
+      // Leído: solo afecta al aviso propio y no toca la operación.
+      const propio=avisosA[0],ajeno=avisosB[0];
+      assert.ok(propio,'la cuenta a tiene avisos');
+      assert.equal((await post(a,'/api/avisos/'+propio.id+'/leido')).status,200);
+      const panelLeido=await pedir(a,'/api/mi-espacio/panel');
+      assert.equal(panelLeido.datos.avisos.find(v=>v.id===propio.id).leido,true);
+      if(ajeno)assert.equal((await post(a,'/api/avisos/'+ajeno.id+'/leido')).status,404);
+      assert.equal((await post(a,'/api/avisos/0/leido')).status,422);
     });
     await t.test('Intercambios: proponer, aceptar, rechazar, reservar y completar con HTTP real',async()=>{
       const c={};await pedir(c,'/api/csrf');assert.equal((await pedir(c,'/api/acceso','POST',{correo:'c@example.invalid',clave})).status,200);

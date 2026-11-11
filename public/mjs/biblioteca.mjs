@@ -102,8 +102,8 @@ async function cargar() {
 
     if (total === 0) {
       mostrar(hayFiltros()
-        ? 'No hay recursos que coincidan con los filtros.'
-        : 'No hay recursos de biblioteca disponibles.');
+        ? 'No hay recursos que coincidan con los filtros. Cambia o limpia los filtros para ver más recursos.'
+        : 'No hay recursos de biblioteca disponibles. Vuelve más tarde o consulta Libros.');
     } else {
       mostrar(total === 1 ? '1 recurso encontrado.' : total + ' recursos encontrados.');
     }

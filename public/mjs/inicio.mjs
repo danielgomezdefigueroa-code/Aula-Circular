@@ -26,7 +26,7 @@ function dibujar() {
   lista.replaceChildren(...filtrados.map(crearTarjeta));
   mostrar(filtrados.length
     ? filtrados.length + (filtrados.length === 1 ? ' recurso encontrado' : ' recursos encontrados')
-    : 'No hay recursos que coincidan con los filtros.');
+    : 'No hay recursos que coincidan con los filtros. Cambia el área o el texto de búsqueda.');
 }
 
 async function leerArea(ruta, contexto) {

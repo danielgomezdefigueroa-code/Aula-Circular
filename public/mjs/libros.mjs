@@ -399,8 +399,8 @@ async function cargar() {
 
     if (total === 0) {
       mostrar(hayFiltros()
-        ? 'No hay anuncios publicados que coincidan con los filtros.'
-        : 'No hay anuncios publicados.');
+        ? 'No hay anuncios publicados que coincidan con los filtros. Cambia o limpia los filtros para ver más resultados.'
+        : 'No hay anuncios publicados todavía. Publica un libro desde Mi espacio o vuelve más tarde.');
     } else {
       mostrar(total === 1 ? '1 anuncio encontrado.' : total + ' anuncios encontrados.');
     }
