@@ -6,7 +6,7 @@ import {
   puedeVerAreas
 } from './shell.mjs';
 
-const perfilDatos = document.querySelector('#perfil-datos');
+const perfilDatos = document.querySelector('.perfil-card');
 const perfilEstado = document.querySelector('#perfil-estado');
 const perfilRoles = document.querySelector('#perfil-roles');
 const perfilCursoSolicitado = document.querySelector('#perfil-curso-solicitado');

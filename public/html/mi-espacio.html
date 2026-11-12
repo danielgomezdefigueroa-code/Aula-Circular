@@ -33,16 +33,27 @@
           <button type="button" id="boton-salir" class="boton-sec">Cerrar sesión</button>
         </div>
 
-        <dl id="perfil-datos" class="perfil-datos" hidden>
-          <dt>Estado</dt>
-          <dd id="perfil-estado"></dd>
-          <dt>Roles</dt>
-          <dd id="perfil-roles"></dd>
-          <dt>Curso solicitado</dt>
-          <dd id="perfil-curso-solicitado"></dd>
-          <dt>Curso confirmado</dt>
-          <dd id="perfil-curso-confirmado"></dd>
-        </dl>
+        <div id="perfil-datos" class="perfil-card" hidden>
+          <h3 class="perfil-card-titulo">Perfil</h3>
+          <div class="perfil-card-contenido">
+            <div class="perfil-dato">
+              <span class="perfil-dato-etiqueta">Estado</span>
+              <span class="perfil-dato-valores"><strong id="perfil-estado"></strong></span>
+            </div>
+            <div class="perfil-dato">
+              <span class="perfil-dato-etiqueta">Roles</span>
+              <span class="perfil-dato-valores" id="perfil-roles"></span>
+            </div>
+            <div class="perfil-dato">
+              <span class="perfil-dato-etiqueta">Curso solicitado</span>
+              <span class="perfil-dato-valores" id="perfil-curso-solicitado"></span>
+            </div>
+            <div class="perfil-dato">
+              <span class="perfil-dato-etiqueta">Curso confirmado</span>
+              <span class="perfil-dato-valores" id="perfil-curso-confirmado"></span>
+            </div>
+          </div>
+        </div>
 
         
 

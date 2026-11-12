@@ -453,14 +453,49 @@ h2 { margin: 24px 0 12px; }
   margin-top: 1rem;
 }
 
-.perfil-datos {
+/* --- Tarjeta de perfil ---
+    Tarjeta única que agrupa los datos del usuario visible en Mi espacio. */
+.perfil-card {
+  max-width: 36rem;
+  border: 1px solid #d0dcd4;
+  border-radius: 10px;
+  background: #f8faf9;
+  padding: 1rem 1.25rem;
+  margin: 1rem 0;
+  font-size: .95rem;
+  display: block;
+}
+.perfil-card[hidden] { display: none; }
+.perfil-card-titulo {
+  margin: 0 0 .75rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #216343;
+  margin-bottom: .5rem;
+  padding-bottom: .25rem;
+  border-bottom: 2px solid #e2e8e2;
+}
+.perfil-card-contenido {
   display: grid;
   grid-template-columns: max-content 1fr;
   gap: 6px 16px;
-  margin: 1rem 0;
+  margin-top: .5rem;
 }
-.perfil-datos dt { font-weight: 700; }
-.perfil-datos dd { margin: 0; overflow-wrap: anywhere; }
+.perfil-dato {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 8px;
+  align-items: center;
+}
+.perfil-dato-etiqueta {
+  font-weight: 700;
+  color: #3d5246;
+  font-size: .85rem;
+}
+.perfil-dato-valores {
+  font-size: 1rem;
+}
+.perfil-dato-valores strong { font-weight: 700; }
 
 .lista-anuncios .tarjeta { display: flex; flex-direction: column; }
 .lista-anuncios .tarjeta p { margin-top: 4px; }
