@@ -169,6 +169,47 @@ function insertarEnlaceDocencia() {
   menu.append(enlace);
 }
 
+/* --- Desplegable de Mi espacio ---
+    Cesiones e intercambios son subsecciones de Mi espacio (AC-09), no
+    áreas del menú principal. Se usa <details> nativo: teclado, lector de
+    pantalla y sin estados que mantener a mano. */
+function insertarSubmenuMiEspacio() {
+  const menu = $('menu-principal');
+  const enlace = menu && menu.querySelector('a[data-area="mi-espacio"]');
+  if (!enlace || menu.querySelector('.nav-sub')) return;
+  const detalle = document.createElement('details');
+  detalle.className = 'nav-sub';
+  detalle.dataset.area = 'mi-espacio'; // pintarMenu oculta todo el bloque sin sesión.
+  const resumen = document.createElement('summary');
+  resumen.className = 'nav-link';
+  resumen.textContent = 'Mi espacio';
+  const panel = document.createElement('div');
+  panel.className = 'nav-sub-panel';
+  for (const [texto, pagina] of [
+    ['Perfil', 'mi-espacio.html'],
+    ['Cesiones', 'cesiones.html'],
+    ['Intercambios', 'intercambios.html'],
+  ]) {
+    const a = document.createElement('a');
+    a.className = 'nav-link';
+    a.href = pagina;
+    a.textContent = texto;
+    panel.append(a);
+  }
+  detalle.append(resumen, panel);
+  enlace.replaceWith(detalle);
+  // details no cierra con Escape por sí solo; el resto del teclado es nativo.
+  // stopPropagation evita que el menú móvil se cierre a la vez.
+  detalle.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && detalle.open) {
+      e.stopPropagation();
+      detalle.open = false;
+      resumen.focus();
+    }
+  });
+  panel.addEventListener('click', () => { detalle.open = false; });
+}
+
 /* --- Página actual --- */
 function marcarActual() {
   const pagina = location.pathname.split('/').pop() || 'index.html';
@@ -176,6 +217,13 @@ function marcarActual() {
     if (enlace.getAttribute('href') === pagina) enlace.setAttribute('aria-current', 'page');
     else enlace.removeAttribute('aria-current');
   });
+  // Con el desplegable cerrado, marca la rama para no perder la orientación.
+  const sub = document.querySelector('#menu-principal .nav-sub');
+  const resumen = sub && sub.querySelector('summary');
+  if (resumen) {
+    if (sub.querySelector('[aria-current="page"]')) resumen.setAttribute('aria-current', 'page');
+    else resumen.removeAttribute('aria-current');
+  }
 }
 
 /* --- Limpieza y comprobación de sesión --- */
@@ -253,6 +301,7 @@ window.addEventListener('popstate', () => recomprobar());
 
 /* --- Arranque --- */
 document.documentElement.classList.add('js');
+insertarSubmenuMiEspacio();
 insertarEnlaceDocencia();
 marcarActual();
 montarMenu();

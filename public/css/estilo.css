@@ -139,6 +139,49 @@ header {
 
 /* Enlace de la página actual (lo marca el shell con aria-current). */
 .nav-link[aria-current="page"] { background: rgba(255,255,255,.25); font-weight: 700; }
+/* Desplegable de Mi espacio ---
+    <details> nativo: el <summary> se ve como un enlace del menú y el panel
+    cuelga debajo en escritorio. Cesiones e intercambios son subsecciones
+    de Mi espacio, no entradas de primer nivel. */
+.nav-sub { position: relative; }
+.nav-sub > summary {
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+}
+.nav-sub > summary::-webkit-details-marker { display: none; }
+.nav-sub > summary::marker { content: ''; }
+.nav-sub > summary::after { content: '▾'; font-size: .75rem; }
+.nav-sub > summary[aria-current="page"],
+.nav-sub[open] > summary { background: rgba(255,255,255,.25); }
+.nav-sub-panel {
+  position: absolute;
+  top: calc(100% + .35rem);
+  left: 0;
+  z-index: 20;
+  display: grid;
+  gap: .1rem;
+  min-width: 12rem;
+  padding: .35rem;
+  background: white;
+  border: 1px solid #d0dcd4;
+  border-radius: 10px;
+  box-shadow: 0 6px 18px rgba(0,0,0,.18);
+}
+.nav-sub-panel .nav-link { color: #17614d; width: 100%; }
+.nav-sub-panel .nav-link:hover,
+.nav-sub-panel .nav-link[aria-current="page"] { background: #e5f2ea; }
+@media(max-width:768px) {
+  /* El panel deja de flotar: se despliega dentro del menú hamburguesa. */
+  .nav-sub-panel {
+    position: static;
+    min-width: 0;
+    margin: .25rem 0 .25rem .75rem;
+    box-shadow: none;
+  }
+}
 
 /* --- MODOS RESPONSIVE ---
     Las media queries se aplican de fuera hacia dentro:

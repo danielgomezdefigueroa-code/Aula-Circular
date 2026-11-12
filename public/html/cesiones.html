@@ -21,23 +21,26 @@
     </div>
   </header>
   <main id="contenido">
-    <p><a href="intercambios.html">Intercambios</a> · <a href="mi-espacio.html">Mi espacio</a></p>
     <p id="aviso-sesion" class="resumen-errores" role="alert" hidden></p>
     <p id="aviso-estado" class="aviso-cuenta" role="status" aria-live="polite" hidden></p>
-    <p id="mensaje" class="area-estado" role="status" aria-live="polite" tabindex="-1"></p>
-    <section id="revision" hidden>
-      <h2>Anuncios pendientes</h2>
-      <ul id="anuncios"></ul>
+    <section class="seccion area" aria-labelledby="titulo-cesiones">
+      <h1 id="titulo-cesiones">Cesiones</h1>
+      <p class="ayuda">Solicitudes de cesión, operaciones e historial. El docente reserva, confirma la entrega y revisa anuncios.</p>
+      <p id="mensaje" class="area-estado" role="status" aria-live="polite" tabindex="-1"></p>
+      <section id="revision" hidden>
+        <h2>Anuncios pendientes</h2>
+        <ul id="anuncios"></ul>
+      </section>
+      <h2>Solicitudes</h2>
+      <ul id="solicitudes"></ul>
+      <h2>Operaciones e historial</h2>
+      <ul id="operaciones"></ul>
+      <h2>Avisos propios</h2>
+      <ul id="avisos"></ul>
+      <button id="anterior">Anterior</button>
+      <span id="pagina"></span>
+      <button id="siguiente">Siguiente</button>
     </section>
-    <h2>Solicitudes</h2>
-    <ul id="solicitudes"></ul>
-    <h2>Operaciones e historial</h2>
-    <ul id="operaciones"></ul>
-    <h2>Avisos propios</h2>
-    <ul id="avisos"></ul>
-    <button id="anterior">Anterior</button>
-    <span id="pagina"></span>
-    <button id="siguiente">Siguiente</button>
     <script type="module" src="../mjs/shell.mjs"></script>
     <script type="module" src="../mjs/cesiones.mjs"></script>
   </main>
