@@ -27,8 +27,30 @@
 
       <section class="seccion area" aria-labelledby="titulo-documentacion">
         <h1 id="titulo-documentacion">Documentación</h1>
-        <p class="area-estado" role="status" aria-live="polite"></p>
-        <ul class="tarjeta-grid area-lista" aria-labelledby="titulo-documentacion"></ul>
+        <p>Recursos del centro: materiales físicos, documentos digitales y enlaces.</p>
+        <form id="filtros-documentacion" class="filtros-lab filtros-catalogo" role="search" aria-label="Filtros de Documentación">
+          <div>
+            <label for="doc-q">Buscar</label>
+            <input id="doc-q" name="q" type="search" maxlength="80" placeholder="Título, código, curso o procedencia">
+          </div>
+          <div>
+            <label for="doc-curso">Curso</label>
+            <select id="doc-curso" name="curso">
+              <option value="">Todos los cursos</option>
+            </select>
+          </div>
+          <div class="acciones-filtros">
+            <button type="submit">Buscar</button>
+            <button type="reset" class="boton-sec">Limpiar</button>
+          </div>
+        </form>
+        <p id="doc-cuenta" class="area-estado" role="status" aria-live="polite"></p>
+        <ul id="doc-lista" class="tarjeta-grid area-lista" aria-labelledby="titulo-documentacion"></ul>
+        <nav id="doc-paginacion" class="paginacion" aria-label="Paginación de Documentación" hidden>
+          <button type="button" id="doc-anterior" class="boton-sec" disabled>Anterior</button>
+          <span id="doc-pagina" aria-live="polite"></span>
+          <button type="button" id="doc-siguiente" class="boton-sec" disabled>Siguiente</button>
+        </nav>
       </section>
     </main>
 

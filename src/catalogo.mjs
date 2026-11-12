@@ -191,33 +191,78 @@ export function rutasCatalogo(pool, sesionNecesaria, activaNecesaria) {
     activaNecesaria,
     puedeConsultar,
     async (req, res) => {
+      const permitidos = ['q', 'curso', 'disponible', 'pagina', 'limite'];
+      if (Object.keys(req.query).some((clave) => !permitidos.includes(clave))) {
+        return parametrosInvalidos(res);
+      }
+
       const texto = leerTexto(req.query.q);
-      if (texto === null) return parametrosInvalidos(res);
+      const curso = leerCurso(req.query.curso);
+      const disponible = leerDisponible(req.query.disponible);
+      const pagina = leerEntero(req.query.pagina, 1, 1, 100000);
+      const limite = leerEntero(req.query.limite, 20, 1, 20);
+
+      if (texto === null || curso === null || disponible === null ||
+          pagina === null || limite === null) {
+        return parametrosInvalidos(res);
+      }
+
       const busqueda = normalizarBusqueda(texto);
+      const desplazamiento = (pagina - 1) * limite;
       const titulo = sinAcentos('d.titulo');
       const codigo = sinAcentos('d.codigo');
+      const cursoNombre = sinAcentos("COALESCE(c.nombre, '')");
+      const propietario = sinAcentos("COALESCE(d.propietario, '')");
+      const procedencia = sinAcentos("COALESCE(d.procedencia, '')");
+
       const resultado = await pool.query(
-        `SELECT d.id,
-                'documentacion' AS seccion,
-                d.codigo,
-                d.titulo,
-                CONCAT_WS(' · ', NULLIF(d.propietario, ''), NULLIF(d.procedencia, '')) AS detalle,
-                d.propietario AS procedencia,
-                c.nombre AS curso,
-                'documento' AS tipo,
-                CASE WHEN v.id IS NOT NULL THEN 'descarga' END AS modalidad,
-                CASE WHEN v.id IS NOT NULL THEN 'publicado' ELSE 'no disponible' END AS estado,
-                v.numero_version AS version
-         FROM documento d
-         LEFT JOIN curso c ON c.id = d.curso_id
-         LEFT JOIN documento_version v
-           ON v.documento_id = d.id AND v.actual
-         WHERE $1 = '' OR ${titulo} LIKE '%' || $1 || '%' OR ${codigo} LIKE '%' || $1 || '%'
-         ORDER BY d.id
-         LIMIT 100`,
-        [busqueda]
+        `WITH coincidencias AS (
+           SELECT d.id,
+                  'documentacion' AS seccion,
+                  d.codigo,
+                  d.titulo,
+                  CONCAT_WS(' · ', NULLIF(d.propietario, ''), NULLIF(d.procedencia, '')) AS detalle,
+                  d.propietario AS procedencia,
+                  c.nombre AS curso,
+                  'documento' AS tipo,
+                  CASE WHEN v.id IS NOT NULL THEN 'descarga' END AS modalidad,
+                  CASE WHEN v.id IS NOT NULL THEN 'publicado' ELSE 'no disponible' END AS estado,
+                  v.numero_version AS version
+           FROM documento d
+           LEFT JOIN curso c ON c.id = d.curso_id
+           LEFT JOIN documento_version v
+             ON v.documento_id = d.id AND v.actual
+           WHERE (
+                  $1 = '' OR
+                  ${titulo} LIKE '%' || $1 || '%' OR
+                  ${codigo} LIKE '%' || $1 || '%' OR
+                  ${cursoNombre} LIKE '%' || $1 || '%' OR
+                  ${propietario} LIKE '%' || $1 || '%' OR
+                  ${procedencia} LIKE '%' || $1 || '%'
+                 )
+             AND ($2::integer IS NULL OR d.curso_id = $2)
+             AND (NOT $3::boolean OR v.id IS NOT NULL)
+         ),
+         recuento AS (
+           SELECT count(*)::integer AS total FROM coincidencias
+         )
+         SELECT recuento.total, pagina.*
+         FROM recuento
+         LEFT JOIN LATERAL (
+           SELECT * FROM coincidencias
+           ORDER BY titulo ASC, id ASC
+           LIMIT $4 OFFSET $5
+         ) pagina ON true
+         ORDER BY pagina.titulo ASC NULLS LAST, pagina.id ASC NULLS LAST`,
+        [busqueda, curso.id, disponible, limite, desplazamiento]
       );
-      res.json({ datos: resultado.rows });
+
+      const total = resultado.rows[0]?.total ?? 0;
+      const datos = resultado.rows
+        .filter((fila) => fila.id !== null)
+        .map(({ total: _total, ...fila }) => fila);
+
+      res.json({ datos, pagina, limite, total });
     }
   );
 
