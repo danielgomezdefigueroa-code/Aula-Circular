@@ -439,10 +439,27 @@ function nuevo() {
 
 function mostrarPerfil(datos) {
   perfilDatos.hidden = false;
+  // Título dinámico con el alias (nombre de usuario) logueado
+  const titulo = perfilDatos.querySelector('.perfil-card-titulo');
+  if (titulo) titulo.textContent = datos.alias ?? 'Usuario';
   perfilEstado.textContent = estadosCuenta[datos.estado] ?? datos.estado ?? '';
   perfilRoles.textContent = datos.roles.length ? datos.roles.join(', ') : 'Sin roles';
-  perfilCursoSolicitado.textContent = datos.curso_solicitado ?? 'Sin curso solicitado';
-  perfilCursoConfirmado.textContent = datos.curso_confirmado ?? 'Pendiente de confirmación';
+
+  // Lógica simplificada: solo mostrar "Curso" con su estado
+  const cursoConfirmado = datos.curso_confirmado;
+  const cursoSolicitado = datos.curso_solicitado;
+  const cursoElement = document.getElementById('perfil-curso');
+
+  if (cursoConfirmado) {
+    // Curso confirmado: mostrar solo el valor
+    cursoElement.textContent = cursoConfirmado;
+  } else if (cursoSolicitado) {
+    // Curso solicitado: mostrar solo el valor
+    cursoElement.textContent = cursoSolicitado;
+  } else {
+    // Sin datos de curso
+    cursoElement.textContent = '';
+  }
 
   const alumno = puedeGestionarAnuncios(datos);
   const panel = datos.estado === 'activo' && puedeVerAreas(datos);

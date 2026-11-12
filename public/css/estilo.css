@@ -468,7 +468,7 @@ h2 { margin: 24px 0 12px; }
 .perfil-card[hidden] { display: none; }
 .perfil-card-titulo {
   margin: 0 0 .75rem;
-  font-size: 1.1rem;
+  font-size: 2rem;
   font-weight: 700;
   color: #216343;
   margin-bottom: .5rem;
