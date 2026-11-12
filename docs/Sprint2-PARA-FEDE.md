@@ -7,7 +7,7 @@ Rama: Sprint2, creada desde sprint1-servidor-y-datos. Daniel prepara esquema, co
 La base de cuentas está probada directamente en PostgreSQL. Todavía no hay rutas HTTP nuevas montadas en src/app.mjs ni autenticación completa. Faltan semillas activa/docente/admin y su alta local segura.
 
 ## Archivos
-- sql/historico/002_cuentas.sql: tablas curso, usuario y usuario_rol; dos cursos ficticios (documento histórico).
+- sql/002_cuentas.sql: tablas curso, usuario y usuario_rol; dos cursos ficticios.
 - src/cuentas/contraseñas.mjs: scrypt asíncrono con sal aleatoria; crearHash y comprobarClave.
 - src/cuentas/registro.mjs: validarRegistro y registrarCuenta; alumno pendiente, campos rol/estado ignorados y respuesta genérica al repetir correo.
 - tests/cuentas.test.mjs: dos pruebas locales de contraseña y validación.

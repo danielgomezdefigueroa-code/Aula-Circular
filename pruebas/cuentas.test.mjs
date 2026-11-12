@@ -14,8 +14,8 @@ test('Registro, sesión, permisos y revocación en PostgreSQL y HTTP reales', as
   try {
     await admin.query(`CREATE SCHEMA ${esquema}`);
     pool=new pg.Pool({max:4,options:`-c search_path=${esquema}`,connectionTimeoutMillis:3000});
-    await pool.query(await readFile(new URL('../sql/migraciones/002_cuentas.sql',import.meta.url),'utf8'));
-    await pool.query(await readFile(new URL('../sql/migraciones/003_validacion_docente.sql',import.meta.url),'utf8'));
+    await pool.query(await readFile(new URL('../sql/002_cuentas.sql',import.meta.url),'utf8'));
+    await pool.query(await readFile(new URL('../sql/003_validacion_docente.sql',import.meta.url),'utf8'));
     const resultado=await crearAplicacion(pool,{origen:'http://127.0.0.1:3000',
       secreto:randomBytes(32).toString('hex'),esquema,limitar:false});
     almacen=resultado.almacen;

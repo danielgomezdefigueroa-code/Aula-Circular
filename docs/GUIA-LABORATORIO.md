@@ -26,8 +26,7 @@ El navegador carga `public/index.html`, que redirige a `public/html/index.html`.
 | public/laboratorio/index.html | Demo del catálogo conectado a `/api/recursos-demo` |
 | public/laboratorio/catalogo.mjs | Búsqueda, peticiones y presentación de la demo |
 | sql/001_laboratorio.sql | Datos de demo, inventario y documentos; ejecutar después de migrar |
-| sql/migraciones/005_documentos.sql | Documentos, archivos y versiones; listado en `/api/documentacion` y descarga pendiente |
-| sql/historico/ | SQL antiguo conservado como referencia; no ejecutar |
+| sql/005_documentos.sql | Documentos, archivos y versiones; listado en `/api/documentacion` y descarga pendiente |
 | .env.example | Plantilla; deja `SESSION_SECRET` vacío y ejecuta `npm.cmd run preparar` |
 | .gitignore | Excluye `.env`, dependencias, archivos privados y `.docente-local.json` |
 | package.json | Dependencias y comandos npm |

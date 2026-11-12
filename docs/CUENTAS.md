@@ -28,8 +28,8 @@ Registra una cuenta inventada eligiendo uno de los cursos de ensayo DAW1/DAW2. U
 
 - `src/claves.mjs`: hash scrypt con sal; máximo dos derivaciones simultáneas.
 - `src/aplicacion.mjs`: registro, login, logout, perfil y protección CSRF con comprobación de Origin.
-- `sql/migraciones/002_cuentas.sql`: usuarios, cursos, roles y almacén de sesiones.
-- `sql/migraciones/005_documentos.sql`: documentos, archivos y versiones; base para la descarga autorizada, todavía sin rutas HTTP.
+- `sql/002_cuentas.sql`: usuarios, cursos, roles y almacén de sesiones.
+- `sql/005_documentos.sql`: documentos, archivos y versiones; base para la descarga autorizada, todavía sin rutas HTTP.
 - Las sesiones caducan tras 30 minutos de inactividad y 8 horas absolutas. Cambiar auth_version revoca sesiones previas.
 - El perfil lee roles, estado y curso actuales de PostgreSQL en cada petición.
 - Límite de login: cinco fallos por cliente/correo en 15 minutos y 30 intentos por cliente. Registro también limitado por cliente. Límites en memoria para un único proceso: se reinician con el servidor.

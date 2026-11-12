@@ -14,8 +14,8 @@ test('Intercambios: propuesta, aceptación, rechazo y estado obsoleto', async t 
   try {
     await admin.query(`CREATE SCHEMA ${esquema}`);
     pool = new pg.Pool({ max: 5, options: `-c search_path=${esquema}`, connectionTimeoutMillis: 3000 });
-    const dir = new URL('../sql/migraciones/', import.meta.url);
-    for (const nombre of (await readdir(dir)).filter(n => n.endsWith('.sql')).sort()) {
+    const dir = new URL('../sql/', import.meta.url);
+    for (const nombre of (await readdir(dir)).filter(n => n.endsWith('.sql') && n !== '001_laboratorio.sql').sort()) {
       await pool.query(await readFile(new URL(nombre, dir), 'utf8'));
     }
 

@@ -8,7 +8,9 @@ try {
   await cliente.query('SELECT pg_advisory_xact_lock(71002)');
   await cliente.query(`CREATE TABLE IF NOT EXISTS migracion (
     nombre text PRIMARY KEY, hash text NOT NULL, aplicada_en timestamptz NOT NULL DEFAULT now())`);
-  const carpeta = new URL('../sql/migraciones/', import.meta.url);
+  // Las migraciones viven junto a la semilla 001_laboratorio.sql, que se aplica
+  // a mano con psql y no debe ejecutarse aquí.
+  const carpeta = new URL('../sql/', import.meta.url);
   // La primera entrega local usaba 005_cesiones, antes de integrar 005_documentos.
   const cesionesAnterior = await cliente.query("SELECT hash FROM migracion WHERE nombre='005_cesiones.sql'");
   if (cesionesAnterior.rowCount) {
@@ -18,7 +20,7 @@ try {
     }
     await cliente.query("UPDATE migracion SET nombre='006_cesiones.sql' WHERE nombre='005_cesiones.sql'");
   }
-  for (const nombre of (await readdir(carpeta)).filter(n => n.endsWith('.sql')).sort()) {
+  for (const nombre of (await readdir(carpeta)).filter(n => n.endsWith('.sql') && n !== '001_laboratorio.sql').sort()) {
     const sql = await readFile(new URL(nombre, carpeta),'utf8');
     const hash = createHash('sha256').update(sql).digest('hex');
     const anterior = await cliente.query('SELECT hash FROM migracion WHERE nombre=$1',[nombre]);
