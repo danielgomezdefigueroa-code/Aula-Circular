@@ -544,7 +544,7 @@ async function cargar() {
     paginaTexto.textContent = 'Página ' + pagina;
     anterior.disabled = pagina === 1;
     siguiente.disabled = datos.length < 20;
-    mostrar(datos.length ? '' : 'No hay anuncios propios en esta página.');
+    mostrar('');
 
     for (const anuncio of datos) {
       const tarjeta = document.createElement('li');
