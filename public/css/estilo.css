@@ -466,26 +466,53 @@ h2 { margin: 24px 0 12px; }
   display: block;
 }
 .perfil-card[hidden] { display: none; }
-.perfil-card-titulo {
-  margin: 0 0 .75rem;
-  font-size: 2rem;
-  font-weight: 700;
-  color: #216343;
+.perfil-card-cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: .75rem;
   margin-bottom: .5rem;
   padding-bottom: .25rem;
   border-bottom: 2px solid #e2e8e2;
 }
+.perfil-card-titulo {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #216343;
+}
+/* Cerrar sesión: a la derecha de los datos, centrado entre sus filas. */
+.perfil-card-salir {
+  grid-column: 3;
+  grid-row: 1 / span 2;
+  align-self: center;
+  justify-self: end;
+}
+/* Pastilla de estado de la cuenta, junto al alias. El texto va dentro: el
+   color no es el único indicador. */
+.estado-badge {
+  display: inline-block;
+  padding: .15rem .6rem;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+  font-size: .8rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.estado-badge--activo { color: #17614d; background: #e5f2ea; }
+.estado-badge--pendiente { color: #9b1c1c; background: #fdeaea; }
+.estado-badge--suspendido { color: #9b1c1c; background: #fdeaea; }
 .perfil-card-contenido {
   display: grid;
-  grid-template-columns: max-content 1fr;
+  grid-template-columns: max-content 1fr max-content;
   gap: 6px 16px;
   margin-top: .5rem;
 }
+/* display:contents para que etiqueta y valor entren en la rejilla del bloque:
+   así cada dato ocupa una fila y las etiquetas quedan alineadas en columna. */
 .perfil-dato {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 4px 8px;
-  align-items: center;
+  display: contents;
 }
 .perfil-dato-etiqueta {
   font-weight: 700;
@@ -655,14 +682,6 @@ button:disabled { opacity: .55; cursor: not-allowed; }
 }
 .aviso-cuenta h3 { font-size: 1.2rem; margin-bottom: 8px; }
 .aviso-cuenta p + p { margin-top: 8px; }
-
-.zona-sesion {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 12px;
-  margin-top: .5rem;
-}
 
 .area { min-height: 0; }
 

@@ -7,10 +7,8 @@ import {
 } from './shell.mjs';
 
 const perfilDatos = document.querySelector('.perfil-card');
-const perfilEstado = document.querySelector('#perfil-estado');
+const perfilEstado = document.querySelector('#estado-badge');
 const perfilRoles = document.querySelector('#perfil-roles');
-const perfilCursoSolicitado = document.querySelector('#perfil-curso-solicitado');
-const perfilCursoConfirmado = document.querySelector('#perfil-curso-confirmado');
 const avisoAlumno = document.querySelector('#aviso-alumno');
 const seccionAnuncios = document.querySelector('#seccion-anuncios');
 const form = document.querySelector('#anuncio');
@@ -50,7 +48,7 @@ const estados = {
 };
 const estadosCuenta = {
   pendiente: 'Pendiente de validación',
-  activo: 'Activa',
+  activo: 'Activo',
   suspendido: 'Suspendida'
 };
 const modalidades = {
@@ -443,6 +441,7 @@ function mostrarPerfil(datos) {
   const titulo = perfilDatos.querySelector('.perfil-card-titulo');
   if (titulo) titulo.textContent = datos.alias ?? 'Usuario';
   perfilEstado.textContent = estadosCuenta[datos.estado] ?? datos.estado ?? '';
+  perfilEstado.className = 'estado-badge estado-badge--' + (datos.estado || 'pendiente');
   perfilRoles.textContent = datos.roles.length ? datos.roles.join(', ') : 'Sin roles';
 
   // Lógica simplificada: solo mostrar "Curso" con su estado

@@ -28,26 +28,21 @@
       <section class="seccion area" aria-labelledby="titulo-mi-espacio">
         <h1 id="titulo-mi-espacio">Mi espacio</h1>
 
-        <div id="zona-sesion" class="zona-sesion" hidden>
-          <h2><span id="sesion-alias"></span></h2>
-          <button type="button" id="boton-salir" class="boton-sec">Cerrar sesión</button>
-        </div>
-
         <div id="perfil-datos" class="perfil-card" hidden>
-          <h2 class="perfil-card-titulo">Perfil</h2>
+          <div class="perfil-card-cabecera">
+            <h2 class="perfil-card-titulo">Perfil</h2>
+            <span class="estado-badge" id="estado-badge"></span>
+          </div>
           <div class="perfil-card-contenido">
             <div class="perfil-dato">
-              <span class="perfil-dato-etiqueta">Estado</span>
-              <span class="perfil-dato-valores"><strong id="perfil-estado"></strong></span>
-            </div>
-            <div class="perfil-dato">
-              <span class="perfil-dato-etiqueta">Roles</span>
+              <span class="perfil-dato-etiqueta">Rol</span>
               <span class="perfil-dato-valores" id="perfil-roles"></span>
             </div>
             <div class="perfil-dato">
               <span class="perfil-dato-etiqueta">Curso</span>
               <span class="perfil-dato-valores" id="perfil-curso"></span>
             </div>
+            <button type="button" id="boton-salir" class="boton-sec perfil-card-salir">Cerrar sesión</button>
           </div>
         </div>
 
