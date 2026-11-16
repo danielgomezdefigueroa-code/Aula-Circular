@@ -90,6 +90,61 @@ export function rutasCatalogo(pool, sesionNecesaria, activaNecesaria) {
     }
   );
 
+
+  // T13 - Consulta individual de un recurso de Biblioteca.
+  rutas.get(
+    '/biblioteca/:id',
+    sesionNecesaria,
+    activaNecesaria,
+    puedeConsultar,
+    async (req, res) => {
+      // 1. Validar el identificador antes de consultar la BD.
+      const textoId = req.params.id;
+
+      if (!/^[1-9]\d*$/.test(textoId)) {
+        return res.status(400).json({
+          error: 'ID_INVALIDO'
+        });
+      }
+
+      const id = Number(textoId);
+
+      if (!Number.isSafeInteger(id) || id > 2147483647) {
+        return res.status(400).json({
+          error: 'ID_INVALIDO'
+        });
+      }
+
+      // 2. Buscar únicamente recursos del catálogo del centro.
+      const resultado = await pool.query(
+        `SELECT
+           r.id,
+           'biblioteca' AS seccion,
+           r.titulo,
+           r.tipo,
+           r.descripcion,
+           c.nombre AS curso
+         FROM recurso r
+         LEFT JOIN curso c ON c.id = r.curso_id
+         WHERE r.id = $1
+           AND r.origen = 'centro'`,
+        [id]
+      );
+
+      // 3. Comprobar que el recurso existe.
+      if (resultado.rowCount === 0) {
+        return res.status(404).json({
+          error: 'RECURSO_NO_ENCONTRADO'
+        });
+      }
+
+      // 4. Devolver el recurso encontrado.
+      return res.status(200).json({
+        datos: resultado.rows[0]
+      });
+    }
+  );
+
   rutas.get(
     '/documentacion',
     sesionNecesaria,
