@@ -35,7 +35,7 @@ export function filtrar(recursos, opciones = {}) {
   const texto = normalizar(opciones.texto);
   return recursos.filter((recurso) => {
     const enSeccion = seccion === 'todas' || recurso.seccion === seccion;
-    const coincide = normalizar(recurso.titulo + ' ' + (recurso.curso ?? '')).includes(texto);
+    const coincide = normalizar([recurso.titulo, recurso.curso, recurso.edicion, recurso.categoria].filter(Boolean).join(' ')).includes(texto);
     const disponible = !opciones.soloDisponibles ||
       ['disponible', 'publicado'].includes(recurso.estado);
     return enSeccion && coincide && disponible;
@@ -201,6 +201,31 @@ export function crearTarjeta(recurso) {
 
       acciones.append(enlace);
       tarjeta.append(acciones);
+    }
+  }
+
+  // T14: categoría real, edición e información histórica, sin borrar fichas.
+  if (recurso.seccion === 'biblioteca') {
+    const metadatos = document.createElement('p');
+    metadatos.className = 't14-metadatos';
+    metadatos.textContent = [
+      recurso.categoria ? 'Categoría: ' + recurso.categoria : '',
+      recurso.edicion ? 'Edición: ' + recurso.edicion : '',
+      recurso.categoria_activa === false ? 'Categoría histórica (inactiva)' : ''
+    ].filter(Boolean).join(' · ');
+    tarjeta.append(metadatos);
+    if (recurso.tipo === 'fisico') {
+      const boton = document.createElement('button');
+      boton.type = 'button';
+      boton.className = 'boton-sec';
+      boton.dataset.verEjemplares = String(recurso.id);
+      boton.setAttribute('aria-expanded', 'false');
+      boton.textContent = 'Ver ejemplares';
+      const zona = document.createElement('div');
+      zona.className = 't14-detalle-ejemplares';
+      zona.dataset.listaEjemplares = '';
+      zona.hidden = true;
+      tarjeta.append(boton, zona);
     }
   }
 

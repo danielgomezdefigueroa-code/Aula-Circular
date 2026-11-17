@@ -31,12 +31,12 @@ export function rutasCatalogo(pool, sesionNecesaria, activaNecesaria) {
                 'biblioteca' AS seccion,
                 r.titulo,
                 r.tipo,
-                CASE
-                  WHEN r.tipo = 'enlace'
-                    THEN 'Enlaces educativos'
-                  WHEN r.tipo IN ('fisico', 'digital')
-                    THEN 'Material de estudio'
-                END AS categoria,
+                r.edicion,
+                r.asignatura,
+                r.isbn,
+                r.categoria_id AS "categoriaId",
+                ca.nombre AS categoria,
+                ca.activo AS categoria_activa,
                 (SELECT COUNT(*)::int
                   FROM ejemplar e
                   WHERE e.recurso_id = r.id
@@ -80,9 +80,10 @@ export function rutasCatalogo(pool, sesionNecesaria, activaNecesaria) {
                 (SELECT min(e.codigo) FROM ejemplar e WHERE e.recurso_id = r.id) AS codigo
          FROM recurso r
          LEFT JOIN curso c ON c.id = r.curso_id
+         LEFT JOIN categoria ca ON ca.id = r.categoria_id
          WHERE r.origen = 'centro'
            AND ($1 = '' OR r.titulo ILIKE '%' || $1 || '%' OR r.descripcion ILIKE '%' || $1 || '%')
-         ORDER BY r.id
+         ORDER BY LOWER(r.titulo), r.edicion, r.id
          LIMIT 100`,
         [texto]
       );
@@ -123,9 +124,17 @@ export function rutasCatalogo(pool, sesionNecesaria, activaNecesaria) {
            r.titulo,
            r.tipo,
            r.descripcion,
+           r.asignatura,
+           r.edicion,
+           r.isbn,
+           r.curso_id AS "cursoId",
+           r.categoria_id AS "categoriaId",
+           ca.nombre AS categoria,
+           ca.activo AS categoria_activa,
            c.nombre AS curso
          FROM recurso r
          LEFT JOIN curso c ON c.id = r.curso_id
+         LEFT JOIN categoria ca ON ca.id = r.categoria_id
          WHERE r.id = $1
            AND r.origen = 'centro'`,
         [id]
@@ -138,9 +147,18 @@ export function rutasCatalogo(pool, sesionNecesaria, activaNecesaria) {
         });
       }
 
-      // 4. Devolver el recurso encontrado.
+      // 4. Consultar las copias por identificador único, no por título ni ISBN.
+      // Se mantiene el historial de una categoría desactivada.
+      const ejemplares = resultado.rows[0].tipo === 'fisico'
+        ? (await pool.query(`SELECT e.id, e.codigo, e.estado_servicio,
+             (e.estado_servicio = 'habilitado' AND NOT EXISTS (
+               SELECT 1 FROM reserva_activa ra WHERE ra.ejemplar_id = e.id
+             )) AS disponible
+           FROM ejemplar e WHERE e.recurso_id = $1
+           ORDER BY e.codigo, e.id`, [id])).rows
+        : [];
       return res.status(200).json({
-        datos: resultado.rows[0]
+        datos: {...resultado.rows[0], ejemplares}
       });
     }
   );
