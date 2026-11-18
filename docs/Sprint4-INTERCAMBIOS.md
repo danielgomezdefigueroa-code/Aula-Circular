@@ -85,7 +85,7 @@ aportacion de ambos, ayuda de IA y revision real. Reservar unas dos paginas para
 - src/intercambios/acuerdos.mjs: transacciones, bloqueos, propiedad, modalidad,
   versiones, propuesta y aceptacion. No crea reservas.
 - src/intercambios/rutas.mjs: valida cuerpos exactos y usa sesion/alumno activo.
-- src/app.mjs: solo se anadieron el import y el montaje del router.
+- src/aplicacion.mjs: solo se anadieron el import y el montaje del router.
 - scripts/probar-intercambios.mjs: prueba HTTP real en un servidor temporal
   usando cinco cuentas y cuatro anuncios ficticios nuevos por ejecucion.
   Las claves, cookies y tokens se mantienen solo en memoria.
@@ -107,8 +107,64 @@ La edicion real del anuncio cancela el acuerdo sin reserva; se conservan las dos
 aceptaciones historicas y una nueva propuesta empieza otra vez con una aceptacion.
 Los propietarios originales no se modifican.
 
-Compatibilidad comprobada: las pruebas existentes tests/anuncios.test.mjs y
-tests/cesiones.test.mjs pasaron: 14 tests, cero fallos, con HTTP/PostgreSQL reales.
+Compatibilidad comprobada: las pruebas existentes pruebas/anuncios.test.mjs y
+pruebas/cesiones.test.mjs pasaron: 14 tests, cero fallos, con HTTP/PostgreSQL reales.
 Se ejecutaron con la base del Sprint 4 y esquemas temporales del propio test.
 Esto no acredita la integracion con el esquema distinto de prestamos ni la parte futura de Fede.
 Publicacion del Sprint 4 destinada a sprint1-servidor-y-datos, la rama compartida de Daniel y Fede. La rama local de preparacion es codex/sprint4-intercambios. La revision conjunta y la parte de Fede siguen pendientes.
+
+## Integración de Federico — 29/10/2026
+
+Se implementó la reserva docente en
+POST /api/gestion/intercambios/:id/reservar, con cuerpo {}.
+
+El servicio revalida permisos, participantes activos, propiedad, modalidad,
+versiones, dos aceptaciones y disponibilidad dentro de una transacción.
+Bloquea ejemplares por ID, anuncios y operación. Confirma dos reservas,
+estado, evento y avisos conjuntamente.
+
+Las rutas comunes POST /api/gestion/operaciones/:id/entregar y /cancelar
+despachan por tipo de operación. Las cesiones conservan su servicio existente.
+
+La entrega de intercambio completa la operación, retira ambos ejemplares
+y anuncios, elimina ambas reservas y conserva propietarios e ítems históricos.
+Repetir la entrega devuelve el estado existente sin nuevas escrituras.
+
+La cancelación docente anterior a la entrega requiere motivo, libera ambas
+reservas y conserva historial y anuncios. No permite cancelar lo completado.
+
+### Pruebas ejecutadas
+
+- probar-reservas-intercambio.mjs, ensayo f01a3134:
+  reserva conjunta, aceptación insuficiente, permisos, CSRF, repetición
+  y conflicto entre acuerdos con un ejemplar compartido.
+  El conflicto se ejecutó secuencialmente; no acredita concurrencia.
+- probar-cierre-intercambio.mjs, ensayo 81a8d2fe:
+  entrega sin reserva, tercero, CSRF, entrega válida y repetida,
+  cancelación previa, repetición y rechazo de cancelar lo completado.
+- probar-condiciones-intercambio.mjs, ensayo 4e022ba4:
+  suspensión, propiedad, modalidad y versión modificadas.
+  Alteraciones SQL limitadas a datos ficticios y restauradas al finalizar.
+- Regresión de propuestas y aceptaciones, ensayo 1e6410f0:
+  21 casos HTTP superados con comprobaciones SQL.
+- Anuncios y cesiones: 14 pruebas superadas antes y después
+  de integrar las rutas.
+
+Ejecución desde la raíz con .env local, base
+aula_circular_sprint4_ensayo y usuario aula_app:
+
+    node --env-file=.env scripts/probar-reservas-intercambio.mjs
+    node --env-file=.env scripts/probar-cierre-intercambio.mjs
+    node --env-file=.env scripts/probar-condiciones-intercambio.mjs
+    node --env-file=.env scripts/probar-intercambios.mjs --captura
+    node --env-file=.env --test --test-concurrency=1 pruebas/anuncios.test.mjs pruebas/cesiones.test.mjs
+
+Los scripts conservan sus datos ficticios. No imprimir ni compartir
+contraseñas, cookies o tokens.
+
+Esta sección actualiza las indicaciones anteriores que describían la parte
+de Federico como pendiente. No acredita la integración con el esquema
+antiguo de préstamos ni las ampliaciones de 500 horas.
+
+Revisión conjunta con Daniel: pendiente.
+Versión final: completar con el commit de integración.

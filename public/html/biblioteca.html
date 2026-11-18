@@ -8,152 +8,174 @@
   <link rel="stylesheet" href="../css/t14-inventario.css">
 </head>
 <body>
-    <header>
-      <div class="max-w">
-        <a class="brand" href="index.html">Aula Circular</a>
-        <button type="button" id="menu-boton" class="menu-boton" aria-expanded="false" aria-controls="menu-principal">Abrir menú</button>
-        <nav id="menu-principal" class="nav" aria-label="Navegación principal">
-          <a href="index.html" class="nav-link">Inicio</a>
-          <a href="biblioteca.html" class="nav-link" data-area="biblioteca" hidden>Biblioteca</a>
-          <a href="libros.html" class="nav-link" data-area="libros" hidden>Libros</a>
-          <a href="documentacion.html" class="nav-link" data-area="documentacion" hidden>Documentación</a>
-          <a href="mi-espacio.html" class="nav-link" data-area="mi-espacio" hidden>Mi espacio</a>
-        </nav>
-      </div>
-    </header>
+  <header>
+    <div class="max-w">
+      <a class="brand" href="index.html">Aula Circular</a>
+      <button type="button" id="menu-boton" class="menu-boton" aria-expanded="false" aria-controls="menu-principal">Abrir menú</button>
+      <nav id="menu-principal" class="nav" aria-label="Navegación principal">
+        <a href="index.html" class="nav-link">Inicio</a>
+        <a href="biblioteca.html" class="nav-link" data-area="biblioteca" hidden>Biblioteca</a>
+        <a href="libros.html" class="nav-link" data-area="libros" hidden>Libros</a>
+        <a href="documentacion.html" class="nav-link" data-area="documentacion" hidden>Documentación</a>
+        <a href="mi-espacio.html" class="nav-link" data-area="mi-espacio" hidden>Mi espacio</a>
+      </nav>
+    </div>
+  </header>
 
-    <main id="contenido">
-      <p id="aviso-sesion" class="resumen-errores" role="alert" hidden></p>
-      <p id="aviso-estado" class="aviso-cuenta" role="status" aria-live="polite" hidden></p>
+  <main id="contenido">
+    <p id="aviso-sesion" class="resumen-errores" role="alert" hidden></p>
+    <p id="aviso-estado" class="aviso-cuenta" role="status" aria-live="polite" hidden></p>
 
-      <section class="seccion area" aria-labelledby="titulo-biblioteca">
-        <h1 id="titulo-biblioteca">Biblioteca</h1>
-        
-<div class="acciones-form" role="search" aria-label="Filtros de biblioteca">
-  <label for="buscar-catalogo">Buscar recurso</label>
-  <input
-    id="buscar-catalogo"
-    type="search"
-    placeholder="Buscar por título o curso"
-  >
+    <section class="seccion area" aria-labelledby="titulo-biblioteca">
+      <h1 id="titulo-biblioteca">Biblioteca</h1>
+      <p>Recursos del centro: materiales físicos, documentos digitales y enlaces.</p>
+      <form id="filtros-biblioteca" class="filtros-lab filtros-catalogo" role="search" aria-label="Filtros de Biblioteca">
+        <div>
+          <label for="bib-q">Buscar</label>
+          <input id="bib-q" name="q" type="search" maxlength="80" placeholder="Título, descripción, curso, ISBN o código">
+        </div>
+        <div>
+          <label for="bib-tipo">Tipo</label>
+          <select id="bib-tipo" name="tipo">
+            <option value="">Todos los tipos</option>
+            <option value="fisico">Físico</option>
+            <option value="digital">Digital</option>
+            <option value="enlace">Enlace</option>
+          </select>
+        </div>
+        <div>
+          <label for="bib-curso">Curso</label>
+          <select id="bib-curso" name="curso">
+            <option value="">Todos los cursos</option>
+          </select>
+        </div>
+        <div>
+          <label class="casilla" for="bib-disponible">
+            <input type="checkbox" id="bib-disponible" name="disponible" value="1">
+            <span>Solo disponibles</span>
+          </label>
+        </div>
+        <div class="acciones-filtros">
+          <button type="submit">Buscar</button>
+          <button type="reset" class="boton-sec">Limpiar</button>
+        </div>
+      </form>
+      <p id="bib-cuenta" class="area-estado" role="status" aria-live="polite"></p>
+      <ul id="bib-lista" class="tarjeta-grid area-lista" aria-labelledby="titulo-biblioteca"></ul>
+      <nav id="bib-paginacion" class="paginacion" aria-label="Paginación de Biblioteca" hidden>
+        <button type="button" id="bib-anterior" class="boton-sec" disabled>Anterior</button>
+        <span id="bib-pagina" aria-live="polite"></span>
+        <button type="button" id="bib-siguiente" class="boton-sec" disabled>Siguiente</button>
+      </nav>
+    </section>
 
-  <label for="curso-catalogo">Filtrar por curso</label>
-  <select id="curso-catalogo">
-    <option value="todos">Todos los recursos</option>
-  </select>
-</div>
+    <!-- T14: gestión docente, nunca visible para alumnos. -->
+    <section id="gestion-inventario" class="seccion" aria-labelledby="t14-gestion-titulo" hidden>
+      <h2 id="t14-gestion-titulo">Gestión docente del inventario</h2>
+      <p class="t14-intro">Da de alta materiales, modifica fichas y añade ejemplares. Los códigos físicos deben ser únicos; las categorías inactivas conservan sus recursos históricos.</p>
+      <p id="t14-estado" role="status" aria-live="polite"></p>
 
-        <p class="area-estado" role="status" aria-live="polite"></p>
-        <ul class="tarjeta-grid area-lista" aria-labelledby="titulo-biblioteca"></ul>
+      <section class="t14-panel" aria-labelledby="t14-titulo-formulario">
+        <h3 id="t14-titulo-formulario">Crear una ficha nueva</h3>
+        <form id="t14-ficha" class="t14-form">
+          <div class="t14-campos">
+            <div class="campo t14-ancho">
+              <label for="t14-recurso-editar">Ficha que quieres modificar</label>
+              <select id="t14-recurso-editar"><option value="">Nuevo recurso</option></select>
+              <span class="ayuda">Deja «Nuevo recurso» para crear una ficha; selecciona uno para editarlo.</span>
+            </div>
+            <div class="campo t14-ancho">
+              <label for="t14-titulo">Título</label>
+              <input id="t14-titulo" required maxlength="120" autocomplete="off">
+            </div>
+            <div class="campo">
+              <label for="t14-tipo">Tipo de recurso</label>
+              <select id="t14-tipo" required>
+                <option value="fisico">Físico</option>
+                <option value="digital">Digital</option>
+                <option value="enlace">Enlace educativo</option>
+              </select>
+            </div>
+            <div class="campo">
+              <label for="t14-curso">Curso activo</label>
+              <select id="t14-curso" required><option value="">Selecciona un curso</option></select>
+            </div>
+            <div class="campo">
+              <label for="t14-categoria">Categoría activa</label>
+              <select id="t14-categoria" required><option value="">Selecciona una categoría</option></select>
+            </div>
+            <div class="campo">
+              <label for="t14-asignatura">Asignatura</label>
+              <input id="t14-asignatura" required maxlength="100">
+            </div>
+            <div class="campo">
+              <label for="t14-edicion">Edición</label>
+              <input id="t14-edicion" required maxlength="100" placeholder="2027">
+            </div>
+            <div class="campo">
+              <label for="t14-isbn">ISBN (opcional)</label>
+              <input id="t14-isbn" maxlength="25" autocomplete="off">
+            </div>
+            <div class="campo t14-ancho">
+              <label for="t14-descripcion">Descripción (URL HTTPS para enlaces)</label>
+              <textarea id="t14-descripcion" maxlength="2000" rows="3"></textarea>
+            </div>
+          </div>
+          <fieldset id="t14-campos-ejemplar" class="t14-panel">
+            <legend><strong>Primer ejemplar físico</strong></legend>
+            <div class="t14-campos">
+              <div class="campo">
+                <label for="t14-codigo">Código único de ejemplar</label>
+                <input id="t14-codigo" maxlength="40" pattern="[A-Za-z0-9][A-Za-z0-9._-]{0,39}" placeholder="T14-CAL-003" required>
+                <span class="ayuda">Letras, números, guiones, puntos o guion bajo; sin espacios.</span>
+              </div>
+              <div class="campo">
+                <label for="t14-conservacion">Conservación</label>
+                <input id="t14-conservacion" maxlength="500" required placeholder="Buen estado">
+              </div>
+            </div>
+          </fieldset>
+          <div class="acciones-form">
+            <button id="t14-guardar" type="submit">Crear recurso</button>
+            <button id="t14-reset" type="button" class="boton-sec">Nueva ficha / Limpiar</button>
+          </div>
+        </form>
       </section>
 
-      <!-- T14: gestión docente, nunca visible para alumnos. -->
-      <section id="gestion-inventario" class="seccion" aria-labelledby="t14-titulo" hidden>
-        <h2 id="t14-titulo">Gestión docente del inventario</h2>
-        <p class="t14-intro">Da de alta materiales, modifica fichas y añade ejemplares. Los códigos físicos deben ser únicos; las categorías inactivas conservan sus recursos históricos.</p>
-        <p id="t14-estado" role="status" aria-live="polite"></p>
-
-        <section class="t14-panel" aria-labelledby="t14-titulo-formulario">
-          <h3 id="t14-titulo-formulario">Crear una ficha nueva</h3>
-          <form id="t14-ficha" class="t14-form">
-            <div class="t14-campos">
-              <div class="campo t14-ancho">
-                <label for="t14-recurso-editar">Ficha que quieres modificar</label>
-                <select id="t14-recurso-editar"><option value="">Nuevo recurso</option></select>
-                <span class="ayuda">Deja «Nuevo recurso» para crear una ficha; selecciona uno para editarlo.</span>
-              </div>
-              <div class="campo t14-ancho">
-                <label for="t14-titulo">Título</label>
-                <input id="t14-titulo" required maxlength="120" autocomplete="off">
-              </div>
-              <div class="campo">
-                <label for="t14-tipo">Tipo de recurso</label>
-                <select id="t14-tipo" required>
-                  <option value="fisico">Físico</option>
-                  <option value="digital">Digital</option>
-                  <option value="enlace">Enlace educativo</option>
-                </select>
-              </div>
-              <div class="campo">
-                <label for="t14-curso">Curso activo</label>
-                <select id="t14-curso" required><option value="">Selecciona un curso</option></select>
-              </div>
-              <div class="campo">
-                <label for="t14-categoria">Categoría activa</label>
-                <select id="t14-categoria" required><option value="">Selecciona una categoría</option></select>
-              </div>
-              <div class="campo">
-                <label for="t14-asignatura">Asignatura</label>
-                <input id="t14-asignatura" required maxlength="100">
-              </div>
-              <div class="campo">
-                <label for="t14-edicion">Edición</label>
-                <input id="t14-edicion" required maxlength="100" placeholder="2027">
-              </div>
-              <div class="campo">
-                <label for="t14-isbn">ISBN (opcional)</label>
-                <input id="t14-isbn" maxlength="25" autocomplete="off">
-              </div>
-              <div class="campo t14-ancho">
-                <label for="t14-descripcion">Descripción (URL HTTPS para enlaces)</label>
-                <textarea id="t14-descripcion" maxlength="2000" rows="3"></textarea>
-              </div>
+      <section class="t14-panel" aria-labelledby="t14-titulo-ejemplares">
+        <h3 id="t14-titulo-ejemplares">Añadir otro ejemplar a un recurso físico</h3>
+        <form id="t14-copia" class="t14-form">
+          <div class="t14-campos">
+            <div class="campo t14-ancho">
+              <label for="t14-recurso-ejemplar">Recurso existente</label>
+              <select id="t14-recurso-ejemplar" required><option value="">Selecciona un recurso físico</option></select>
             </div>
-            <fieldset id="t14-campos-ejemplar" class="t14-panel">
-              <legend><strong>Primer ejemplar físico</strong></legend>
-              <div class="t14-campos">
-                <div class="campo">
-                  <label for="t14-codigo">Código único de ejemplar</label>
-                  <input id="t14-codigo" maxlength="40" pattern="[A-Za-z0-9][A-Za-z0-9._-]{0,39}" placeholder="T14-CAL-003" required>
-                  <span class="ayuda">Letras, números, guiones, puntos o guion bajo; sin espacios.</span>
-                </div>
-                <div class="campo">
-                  <label for="t14-conservacion">Conservación</label>
-                  <input id="t14-conservacion" maxlength="500" required placeholder="Buen estado">
-                </div>
-              </div>
-            </fieldset>
-            <div class="acciones-form">
-              <button id="t14-guardar" type="submit">Crear recurso</button>
-              <button id="t14-reset" type="button" class="boton-sec">Nueva ficha / Limpiar</button>
+            <div class="campo">
+              <label for="t14-codigo-extra">Nuevo código único</label>
+              <input id="t14-codigo-extra" required maxlength="40" pattern="[A-Za-z0-9][A-Za-z0-9._-]{0,39}" placeholder="T14-CAL-004">
             </div>
-          </form>
-        </section>
-
-        <section class="t14-panel" aria-labelledby="t14-titulo-ejemplares">
-          <h3 id="t14-titulo-ejemplares">Añadir otro ejemplar a un recurso físico</h3>
-          <form id="t14-copia" class="t14-form">
-            <div class="t14-campos">
-              <div class="campo t14-ancho">
-                <label for="t14-recurso-ejemplar">Recurso existente</label>
-                <select id="t14-recurso-ejemplar" required><option value="">Selecciona un recurso físico</option></select>
-              </div>
-              <div class="campo">
-                <label for="t14-codigo-extra">Nuevo código único</label>
-                <input id="t14-codigo-extra" required maxlength="40" pattern="[A-Za-z0-9][A-Za-z0-9._-]{0,39}" placeholder="T14-CAL-004">
-              </div>
-              <div class="campo">
-                <label for="t14-conservacion-extra">Conservación</label>
-                <input id="t14-conservacion-extra" required maxlength="500" placeholder="Buen estado">
-              </div>
+            <div class="campo">
+              <label for="t14-conservacion-extra">Conservación</label>
+              <input id="t14-conservacion-extra" required maxlength="500" placeholder="Buen estado">
             </div>
-            <button id="t14-guardar-ejemplar" type="submit">Añadir ejemplar</button>
-          </form>
-        </section>
-
-        <section class="t14-panel" aria-labelledby="t14-titulo-categorias">
-          <h3 id="t14-titulo-categorias">Categorías de Biblioteca</h3>
-          <p class="t14-aviso">Desactivar una categoría no borra sus recursos; impide reutilizarla en nuevas altas. No desactives categorías reales durante una demostración sin preparar antes la restauración.</p>
-          <ul id="t14-categorias-lista" aria-label="Estados de categorías"></ul>
-        </section>
+          </div>
+          <button id="t14-guardar-ejemplar" type="submit">Añadir ejemplar</button>
+        </form>
       </section>
-    </main>
 
-    <footer class="pie">
-      <p>Aula Circular · Centro ficticio · Datos de ensayo</p>
-    </footer>
+      <section class="t14-panel" aria-labelledby="t14-titulo-categorias">
+        <h3 id="t14-titulo-categorias">Categorías de Biblioteca</h3>
+        <p class="t14-aviso">Desactivar una categoría no borra sus recursos; impide reutilizarla en nuevas altas. No desactives categorías reales durante una demostración sin preparar antes la restauración.</p>
+        <ul id="t14-categorias-lista" aria-label="Estados de categorías"></ul>
+      </section>
+    </section>
+  </main>
 
-    <script type="module" src="../mjs/shell.mjs"></script>
-    <script type="module" src="../mjs/biblioteca.mjs"></script>
-  </body>
+  <footer class="pie">
+    <p>Aula Circular · Centro ficticio · Datos de ensayo</p>
+  </footer>
+
+  <script type="module" src="../mjs/shell.mjs"></script>
+  <script type="module" src="../mjs/biblioteca.mjs"></script>
+</body>
 </html>

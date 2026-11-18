@@ -2,7 +2,7 @@
     Consulta las tres áreas en la API y mantiene los filtros de área,
     texto y disponibilidad. Sustituye al antiguo catálogo local. */
 import { listo, pedir, leerJson, irALogin } from './shell.mjs';
-import { filtrar, crearTarjeta, puedeConsultar, textoError } from './catalogo-comun.mjs';
+import { filtrar, crearTarjeta, normalizarLibro, puedeConsultar, textoError } from './catalogo-comun.mjs';
 
 const seccion = document.querySelector('#lab-seccion');
 const busqueda = document.querySelector('#lab-busqueda');
@@ -26,7 +26,7 @@ function dibujar() {
   lista.replaceChildren(...filtrados.map(crearTarjeta));
   mostrar(filtrados.length
     ? filtrados.length + (filtrados.length === 1 ? ' recurso encontrado' : ' recursos encontrados')
-    : 'No hay recursos que coincidan con los filtros.');
+    : 'No hay recursos que coincidan con los filtros. Cambia el área o el texto de búsqueda.');
 }
 
 async function leerArea(ruta, contexto) {
@@ -60,13 +60,7 @@ async function cargar() {
     ]);
     datos = [
       ...biblioteca.map((recurso) => ({ ...recurso, seccion: 'biblioteca' })),
-      ...libros.map((recurso) => ({
-        ...recurso,
-        seccion: 'libros',
-        tipo: 'fisico',
-        estado: 'publicado',
-        detalle: recurso.detalle ?? recurso.descripcion ?? ''
-      })),
+      ...libros.map(normalizarLibro),
       ...documentacion.map((recurso) => ({ ...recurso, seccion: 'documentacion' }))
     ];
     dibujar();

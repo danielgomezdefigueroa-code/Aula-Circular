@@ -42,17 +42,7 @@ Crear una base vacía aula\_circular\_sprint2\_ensayo, propiedad de aula\_app.
 
 
 
-Aplicar como aula\_app, una sola vez y en este orden:
-
-1\. sql/historico/002\_cuentas.sql
-
-2\. sql/historico/003\_sesiones.sql
-
-3\. sql/historico/004\_recursos\_ensayo.sql
-
-
-
-No ejecutar 001\_laboratorio.sql en esta base: 004 ya crea recurso\_demo.
+Histórico. Los tres scripts de esta lista estaban en `sql/historico/`, retirado el 2026-11-12. No seguir estos pasos: hoy el esquema vigente se aplica con `npm.cmd run migrar`.
 
 Si una migración ya se aplicó, no repetirla ni borrar tablas.
 

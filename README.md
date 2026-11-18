@@ -1,7 +1,6 @@
-# Aula-Circular
+# 📚 Aula Circular
 
 Instrucciones del desarrollo local: [cuentas y sesiones](docs/CUENTAS.md) y [anuncios propios](docs/ANUNCIOS.md).
-# 📚 Aula Circular
 
 > 🌱 Plataforma web para la **gestión y reutilización de recursos educativos**.
 
@@ -41,6 +40,7 @@ El proyecto utiliza **HTML, CSS y JavaScript sin frameworks de cliente**, junto 
 
 ---
 
+
 ### 👩‍💻 Autores
 
 **EQUIPO EQ-05**
@@ -53,6 +53,8 @@ El proyecto utiliza **HTML, CSS y JavaScript sin frameworks de cliente**, junto 
 
 ## Estado actual
 
-La rama integra cuentas y sesiones, validación docente, anuncios propios y el catálogo de Biblioteca, Libros y Documentación contra la API. Los préstamos, reservas, la descarga de documentos y la administración de roles del proyecto completo aún no están implementados. Consulta [la guía de instalación y código](docs/GUIA-LABORATORIO.md).
+Aula Circular integra la gestión de usuarios y sesiones, validación docente, catálogos de Biblioteca y Libros, documentación académica con versiones y descargas autorizadas, préstamos, cesiones, intercambios y Mi Espacio.
 
-Cesiones y moderación: [guía](docs/CESIONES.md). Pantalla: `/html/cesiones.html`.
+La aplicación incluye pruebas automatizadas de autenticación, permisos, seguridad, disponibilidad, inventario y gestión de documentos.
+
+Para preparar el entorno local, consulta el archivo **docs/pequenaGuia.md**.

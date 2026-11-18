@@ -2,7 +2,14 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { randomBytes } from 'node:crypto';
 const ruta = new URL('../.env', import.meta.url);
-let contenido = await readFile(ruta, 'utf8');
+const plantilla = new URL('../.env.example', import.meta.url);
+let contenido;
+try {
+  contenido = await readFile(ruta, 'utf8');
+} catch (error) {
+  if (error.code !== 'ENOENT') throw error;
+  contenido = await readFile(plantilla, 'utf8');
+}
 const marcador = /^SESSION_SECRET=GENERAR_UN_SECRETO_LOCAL_CON_EL_SCRIPT_PREPARAR\r?$/m;
 if (marcador.test(contenido)) contenido=contenido.replace(marcador,`SESSION_SECRET=${randomBytes(32).toString('hex')}`);
 const lineas = [];

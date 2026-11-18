@@ -40,9 +40,9 @@ try {
   abierta = true;
 
   const cursos = await cliente.query(
-    "SELECT id FROM curso WHERE codigo = 'DAW-1' AND activo = true"
+    "SELECT id FROM curso WHERE codigo = 'DAW1' AND activo = true"
   );
-  if (!cursos.rowCount) throw new Error('Falta el curso DAW-1 activo');
+  if (!cursos.rowCount) throw new Error('Falta el curso DAW1 activo');
   const cursoId = cursos.rows[0].id;
 
   for (const cuenta of cuentas) {

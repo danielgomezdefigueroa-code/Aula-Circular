@@ -2,9 +2,9 @@
   "name": "aula-circular-lab",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "src/app.mjs",
   "scripts": {
-    "test": "node --env-file=.env --test tests/cuentas.test.mjs tests/anuncios.test.mjs tests/cesiones.test.mjs tests/documentos.test.mjs tests/diagnosticoServidor.test.mjs",
+    "test": "node --env-file=.env --test --test-concurrency=1",
     "preparar": "node scripts/preparar.mjs",
     "migrar": "node --env-file=.env scripts/migrar.mjs",
     "docente:local": "node --env-file=.env scripts/docente-local.mjs",
@@ -15,6 +15,9 @@
   "author": "",
   "license": "ISC",
   "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
   "dependencies": {
     "connect-pg-simple": "10.0.0",
     "express": "5.2.1",

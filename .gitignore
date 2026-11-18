@@ -20,3 +20,6 @@ AGENTS.md
 cookies_docente.txt
 .alumno-t6-ensayo.json
 pruebas_t6/
+
+# Archivos locales de Playwright
+.playwright-mcp

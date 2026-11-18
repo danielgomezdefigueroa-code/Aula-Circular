@@ -139,6 +139,49 @@ header {
 
 /* Enlace de la página actual (lo marca el shell con aria-current). */
 .nav-link[aria-current="page"] { background: rgba(255,255,255,.25); font-weight: 700; }
+/* Desplegable de Mi espacio ---
+    <details> nativo: el <summary> se ve como un enlace del menú y el panel
+    cuelga debajo en escritorio. Cesiones e intercambios son subsecciones
+    de Mi espacio, no entradas de primer nivel. */
+.nav-sub { position: relative; }
+.nav-sub > summary {
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+}
+.nav-sub > summary::-webkit-details-marker { display: none; }
+.nav-sub > summary::marker { content: ''; }
+.nav-sub > summary::after { content: '▾'; font-size: .75rem; }
+.nav-sub > summary[aria-current="page"],
+.nav-sub[open] > summary { background: rgba(255,255,255,.25); }
+.nav-sub-panel {
+  position: absolute;
+  top: calc(100% + .35rem);
+  left: 0;
+  z-index: 20;
+  display: grid;
+  gap: .1rem;
+  min-width: 12rem;
+  padding: .35rem;
+  background: white;
+  border: 1px solid #d0dcd4;
+  border-radius: 10px;
+  box-shadow: 0 6px 18px rgba(0,0,0,.18);
+}
+.nav-sub-panel .nav-link { color: #17614d; width: 100%; }
+.nav-sub-panel .nav-link:hover,
+.nav-sub-panel .nav-link[aria-current="page"] { background: #e5f2ea; }
+@media(max-width:768px) {
+  /* El panel deja de flotar: se despliega dentro del menú hamburguesa. */
+  .nav-sub-panel {
+    position: static;
+    min-width: 0;
+    margin: .25rem 0 .25rem .75rem;
+    box-shadow: none;
+  }
+}
 
 /* --- MODOS RESPONSIVE ---
     Las media queries se aplican de fuera hacia dentro:
@@ -292,7 +335,7 @@ h2 { margin: 24px 0 12px; }
 
 .filtros-lab {
   display: grid;
-  grid-template-columns: 1fr 1.6fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr) minmax(0, 1fr);
   gap: 12px;
   align-items: end;
 }
@@ -308,19 +351,58 @@ h2 { margin: 24px 0 12px; }
   min-height: 44px;
   margin-bottom: 0;
   cursor: pointer;
-  white-space: nowrap;
+  white-space: normal;
 }
 .filtros-lab input[type=checkbox] {
   width: 18px;
   height: 18px;
-  flex-shrink: 0;
+  min-width: 0;
+  flex: 0 0 auto;
   margin: 0;
   cursor: pointer;
 }
 
+@media(max-width:700px) {
+  .filtros-lab { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Filtros de las páginas de área: una fila de campos y otra de acciones. */
+.filtros-catalogo {
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
+  margin: 1rem 0;
+}
+.filtros-catalogo .acciones-filtros {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.filtros-catalogo .acciones-filtros button {
+  min-width: 7rem;
+}
+
+@media(max-width:900px) {
+  .filtros-catalogo { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media(max-width:700px) {
+  .filtros-catalogo { grid-template-columns: minmax(0, 1fr); }
+  .filtros-catalogo .acciones-filtros button { flex: 1 1 auto; }
+}
+
 .tarjeta { overflow-wrap: anywhere; }
 .tarjeta .estado { font-size: .85rem; font-weight: 700; }
-#lab-cuenta { margin-top: 1rem; }
+.tarjeta h3 { margin: .25rem 0 .5rem; }
+.tarjeta .modalidad,
+.tarjeta .codigo,
+.tarjeta .metadatos,
+.tarjeta .detalle { margin-top: .35rem; }
+.tarjeta .codigo,
+.tarjeta .metadatos { font-size: .85rem; color: #3d5246; }
+.tarjeta .detalle { line-height: 1.45; }
+#lab-cuenta,
+#bib-cuenta { margin-top: 1rem; }
 
 /* --- Cuenta: registro, acceso y estados (tarea 2.2.3) ---
     Formularios con etiqueta visible, ayuda y error junto a cada campo.
@@ -354,6 +436,8 @@ h2 { margin: 24px 0 12px; }
 .form-datos h2, .form-datos h3 { margin-top: 0; }
 .form-datos fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
 .form-datos legend { font-size: 1.2rem; font-weight: 700; margin-bottom: 1rem; padding: 0; }
+/* El listado que sigue al formulario respira igual que un h2 de sección. */
+#seccion-anuncios > h3 { margin: 24px 0 12px; }
 
 .acciones-form, .acciones-tarjeta {
   display: flex;
@@ -371,18 +455,160 @@ h2 { margin: 24px 0 12px; }
   margin-top: 1rem;
 }
 
-.perfil-datos {
-  display: grid;
-  grid-template-columns: max-content 1fr;
-  gap: 6px 16px;
+/* --- Tarjeta de perfil ---
+    Tarjeta única que agrupa los datos del usuario visible en Mi espacio. */
+.perfil-card {
+  max-width: 36rem;
+  border: 1px solid #d0dcd4;
+  border-radius: 10px;
+  background: #f8faf9;
+  padding: 1rem 1.25rem;
   margin: 1rem 0;
+  font-size: .95rem;
+  display: block;
 }
-.perfil-datos dt { font-weight: 700; }
-.perfil-datos dd { margin: 0; overflow-wrap: anywhere; }
+.perfil-card[hidden] { display: none; }
+.perfil-card-cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: .75rem;
+  margin-bottom: .5rem;
+  padding-bottom: .25rem;
+  border-bottom: 2px solid #e2e8e2;
+}
+.perfil-card-titulo {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #216343;
+}
+/* Cerrar sesión: a la derecha de los datos, centrado entre sus filas. */
+.perfil-card-salir {
+  grid-column: 3;
+  grid-row: 1 / span 2;
+  align-self: center;
+  justify-self: end;
+}
+/* Pastilla de estado de la cuenta, junto al alias. El texto va dentro: el
+   color no es el único indicador. */
+.estado-badge {
+  display: inline-block;
+  padding: .15rem .6rem;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+  font-size: .8rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.estado-badge--activo { color: #17614d; background: #e5f2ea; }
+.estado-badge--pendiente { color: #9b1c1c; background: #fdeaea; }
+.estado-badge--suspendido { color: #9b1c1c; background: #fdeaea; }
+.perfil-card-contenido {
+  display: grid;
+  grid-template-columns: max-content 1fr max-content;
+  gap: 6px 16px;
+  margin-top: .5rem;
+}
+/* display:contents para que etiqueta y valor entren en la rejilla del bloque:
+   así cada dato ocupa una fila y las etiquetas quedan alineadas en columna. */
+.perfil-dato {
+  display: contents;
+}
+.perfil-dato-etiqueta {
+  font-weight: 700;
+  color: #3d5246;
+  font-size: .85rem;
+}
+.perfil-dato-valores {
+  font-size: 1rem;
+}
+.perfil-dato-valores strong { font-weight: 700; }
 
 .lista-anuncios .tarjeta { display: flex; flex-direction: column; }
 .lista-anuncios .tarjeta p { margin-top: 4px; }
 #mensaje { min-height: 1.5rem; white-space: pre-line; }
+
+/* --- Mi espacio: resumen por secciones ---
+   Cada sección muestra solo datos propios. El orden lo decide el servidor:
+   primero las acciones pendientes y después la fecha más reciente. */
+.panel-cabecera {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.panel-cabecera h2 { margin: 0 0 4px; }
+.panel-cabecera .ayuda { margin-bottom: 0; }
+#panel-mensaje { min-height: 1.5rem; white-space: pre-line; margin: 8px 0; }
+
+.panel-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+.panel-seccion {
+  background: white;
+  border: 1px solid #d0dcd4;
+  border-radius: 12px;
+  padding: 1rem;
+  min-width: 0;
+}
+.panel-seccion > h3 { margin: 0 0 6px; }
+.panel-resumen { color: #3d5246; font-size: .9rem; margin-bottom: .75rem; }
+.panel-enlace { margin-top: .75rem; font-size: .9rem; }
+.panel-enlace a { color: #164E4A; }
+
+.lista-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: .65rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.lista-panel li {
+  padding: .75rem;
+  border: 1px solid #d0dcd4;
+  border-left: 4px solid #9bb5a5;
+  border-radius: 8px;
+  overflow-wrap: anywhere;
+}
+.lista-panel li[data-pendiente="true"] { border-left-color: #DB7868; }
+.lista-panel .panel-item h4 { margin: 0 0 .25rem; font-size: 1rem; }
+.lista-panel .panel-item p { margin-top: .2rem; }
+.lista-panel .panel-fecha { color: #3d5246; font-size: .85rem; }
+.lista-panel .panel-vacio {
+  border-left-color: #d0dcd4;
+  background: #f7f9f8;
+  color: #3d5246;
+  font-style: italic;
+}
+.panel-etiqueta-accion {
+  display: inline-block;
+  margin-top: .35rem;
+  padding: .15rem .5rem;
+  border-radius: 999px;
+  background: #fbe9e5;
+  color: #7a2e24;
+  font-size: .8rem;
+  font-weight: 700;
+}
+.panel-acciones { display: flex; flex-wrap: wrap; gap: 8px; margin-top: .6rem; }
+.panel-acciones button, .panel-acciones a { font-size: .9rem; }
+.panel-acciones a {
+  display: inline-block;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #e8eee9;
+  color: #164E4A;
+  text-decoration: none;
+}
+
 
 .lista-historial {
   display: block;
@@ -447,6 +673,7 @@ h2 { margin: 24px 0 12px; }
 .boton-sec[aria-pressed="true"] { background: #216343; color: white; }
 button[type="submit"] { min-height: 44px; font-weight: 700; }
 button[aria-disabled="true"] { opacity: .65; cursor: progress; }
+button:disabled { opacity: .55; cursor: not-allowed; }
 
 .aviso-cuenta {
   max-width: 40rem;
@@ -457,14 +684,6 @@ button[aria-disabled="true"] { opacity: .65; cursor: progress; }
 }
 .aviso-cuenta h3 { font-size: 1.2rem; margin-bottom: 8px; }
 .aviso-cuenta p + p { margin-top: 8px; }
-
-.zona-sesion {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 12px;
-  margin-top: .5rem;
-}
 
 .area { min-height: 0; }
 
@@ -482,6 +701,7 @@ button[aria-disabled="true"] { opacity: .65; cursor: progress; }
 }
 
 
+
 /* Descarga de documentos publicados */
 .enlace-descarga {
   display: inline-flex;
@@ -495,4 +715,89 @@ button[aria-disabled="true"] { opacity: .65; cursor: progress; }
 .enlace-descarga:hover,
 .enlace-descarga:focus-visible {
   background: #e5f2ea;
+}
+/* --- Intercambios: propuesta, detalle y gestion ---
+   El di�logo nativo conserva el foco; las fichas se apilan en m�vil
+   para que los dos ejemplares sigan siendo legibles. */
+.dialogo-intercambio {
+  width: min(94vw, 64rem);
+  max-height: 90vh;
+  /* El reset universal pone margin: 0 y anula el centrado nativo del dialog. */
+  margin: auto;
+  padding: 0;
+  border: 1px solid #9bb5a5;
+  border-radius: 14px;
+  box-shadow: 0 18px 60px rgba(16, 40, 32, .28);
+  overflow: auto;
+}
+.dialogo-intercambio::backdrop { background: rgba(16, 40, 32, .58); }
+.dialogo-intercambio form { padding: 1.1rem 1.25rem 1.25rem; background: #fff; }
+.dialogo-cabecera,
+.detalle-cabecera {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.dialogo-cabecera h2,
+.detalle-cabecera h2 { margin: 0 0 .35rem; }
+.dialogo-cabecera button,
+.detalle-cabecera button { flex: none; }
+.intercambio-pareja {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 1rem 0;
+}
+.intercambio-tarjeta {
+  min-width: 0;
+  padding: .9rem;
+  border: 1px solid #d0dcd4;
+  border-radius: 10px;
+  background: #f8faf9;
+}
+.intercambio-tarjeta h3 { margin: 0 0 .6rem; font-size: 1.05rem; }
+.intercambio-tarjeta label { display: block; font-weight: 700; margin-bottom: .35rem; }
+.intercambio-tarjeta select {
+  width: 100%;
+  min-height: 44px;
+  padding: .55rem .7rem;
+  border: 1px solid #687a70;
+  border-radius: 8px;
+  background: #fff;
+  font: inherit;
+}
+.datos-intercambio {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: .35rem .75rem;
+  margin: .75rem 0 0;
+}
+.datos-intercambio dt { font-weight: 700; }
+.datos-intercambio dd { margin: 0; overflow-wrap: anywhere; }
+.casilla {
+  display: flex;
+  gap: .65rem;
+  align-items: flex-start;
+  margin: .75rem 0 1rem;
+  font-weight: 650;
+}
+.casilla input { width: 1.25rem; height: 1.25rem; min-width: 0; margin-top: .2rem; flex: 0 0 auto; }
+.estado-intercambio {
+  margin: .5rem 0 1rem;
+  padding: .55rem .8rem;
+  border-left: 4px solid #216343;
+  background: #e5f2ea;
+  font-weight: 700;
+}
+#detalle-mensaje { white-space: pre-line; }
+#resultado-intercambio { margin: 1rem 0; }
+#resultado-intercambio a { font-weight: 700; }
+.intercambio-pareja .datos-intercambio dd:empty::before { content: "�"; }
+
+@media (max-width: 640px) {
+  .intercambio-pareja { grid-template-columns: 1fr; }
+  .dialogo-intercambio form { padding: .9rem; }
+  .dialogo-cabecera h2 { font-size: 1.35rem; }
 }

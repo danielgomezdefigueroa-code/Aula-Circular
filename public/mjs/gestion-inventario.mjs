@@ -81,6 +81,30 @@ async function obtener(ruta) {
   return cuerpo?.datos ?? [];
 }
 
+// Recupera todas las páginas para los selectores de gestión docente.
+async function obtenerTodosLosRecursos() {
+  const recursos = [];
+  const limite = 20;
+
+  for (let pagina = 1; pagina <= 1000; pagina++) {
+    const lote = await obtener(
+      `/biblioteca?pagina=${pagina}&limite=${limite}`
+    );
+
+    if (!Array.isArray(lote)) {
+      throw new Error('Respuesta de Biblioteca no válida.');
+    }
+
+    recursos.push(...lote);
+
+    if (lote.length < limite) {
+      return recursos;
+    }
+  }
+
+  throw new Error('No se pudo completar la carga del inventario.');
+}
+
 function poblarCursos(datos) {
   const select = $('t14-curso');
   const anterior = select.value;
@@ -210,7 +234,7 @@ async function refrescar() {
     const [cursos, cats, lista] = await Promise.all([
       obtener('/cursos'),
       obtener('/gestion/biblioteca/categorias'),
-      obtener('/biblioteca')
+      obtenerTodosLosRecursos()
     ]);
     categorias = cats;
     recursos = lista;

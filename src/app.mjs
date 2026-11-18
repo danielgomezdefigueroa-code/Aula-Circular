@@ -11,6 +11,7 @@ import { rutasDocentes } from './docencia.mjs';
 import { rutasCesiones } from './cesiones.mjs';
 import { rutasIntercambios } from './intercambios/rutas.mjs';
 import { rutasAnuncios } from './anuncios.mjs';
+import { rutasMiEspacio } from './miespacio.mjs';
 import { rutasCatalogo } from './catalogo.mjs';
 import { crearRutasDocumentos } from './documentos/rutas.mjs';
 import { rutasPrestamos } from './prestamos/rutas.mjs';
@@ -25,11 +26,32 @@ const cuerpoValido = (cuerpo, campos) => cuerpo && typeof cuerpo === 'object' &&
   Object.keys(cuerpo).every(campo => campos.includes(campo));
 const cookie = { httpOnly:true, sameSite:'lax', secure:process.env.NODE_ENV==='production', path:'/' };
 
+const SECRETOS_DE_EJEMPLO = new Set([
+  'GENERAR_UN_SECRETO_LOCAL_CON_EL_SCRIPT_PREPARAR',
+  'RELLENAR_SOLO_EN_ENV_LOCAL'
+]);
+
 export async function crearAplicacion(pool, { origen, secreto, esquema='public', limitar=true } = {}) {
-  if (!secreto || secreto.length < 32) throw new Error('Prepara SESSION_SECRET antes de arrancar.');
+  if (
+    typeof secreto !== 'string' ||
+    secreto.length < 32 ||
+    SECRETOS_DE_EJEMPLO.has(secreto) ||
+    /^(GENERAR|RELLENAR|CAMBIA)(_|$)/i.test(secreto)
+  ) {
+    throw new Error('Prepara SESSION_SECRET antes de arrancar.');
+  }
   if (!origen || new URL(origen).origin !== origen) throw new Error('APP_ORIGIN debe contener el origen exacto.');
+
   const app = express();
   app.disable('x-powered-by');
+
+  app.use((_req, res, next) => {
+    res.set('X-Content-Type-Options', 'nosniff');
+    res.set('X-Frame-Options', 'DENY');
+    res.set('Referrer-Policy', 'no-referrer');
+    next();
+  });
+
   const Almacen = conectarPg(session);
   const almacen = new Almacen({ pool, schemaName:esquema, tableName:'sesion', createTableIfMissing:false });
   app.use('/api', (_req,res,next) => {res.set('Cache-Control','private, no-store');next();});
@@ -72,8 +94,20 @@ export async function crearAplicacion(pool, { origen, secreto, esquema='public',
   const sesionNecesaria = (req,res,next) => req.usuario ? next() : res.status(401).json({error:'SIN_SESION'});
   const activaNecesaria = (req,res,next) => req.usuario.estado==='activo' ? next() :
     res.status(403).json({error:req.usuario.estado==='pendiente' ? 'CUENTA_PENDIENTE':'CUENTA_SUSPENDIDA'});
-  app.get('/api/csrf', async (req,res) => {
-    req.session.csrf ??= token();await guardar(req.session);res.json({token:req.session.csrf});
+  const limiteCsrf = limitar
+    ? rateLimit({
+        windowMs: 15 * 60 * 1000,
+        limit: 300,
+        standardHeaders: 'draft-8',
+        legacyHeaders: false,
+        message: { error: 'DEMASIADOS_INTENTOS' }
+      })
+    : (_req, _res, next) => next();
+
+  app.get('/api/csrf', limiteCsrf, async (req, res) => {
+    req.session.csrf ??= token();
+    await guardar(req.session);
+    res.json({ token: req.session.csrf });
   });
   app.get('/api/cursos', async (_req,res) => {
     const r=await pool.query('SELECT id,codigo,nombre FROM curso WHERE activo ORDER BY codigo LIMIT 100');
@@ -87,15 +121,59 @@ export async function crearAplicacion(pool, { origen, secreto, esquema='public',
     keyGenerator:req => ipKeyGenerator(req.ip)+':'+createHash('sha256').update(correoNormalizado(req.body?.correo)).digest('hex'),
     message:{error:'DEMASIADOS_INTENTOS'}})] : [];
   app.post('/api/registro', ...limites, async (req,res) => {
-    const b=req.body;const correo=correoNormalizado(b?.correo);
-    if (!cuerpoValido(b,['alias','correo','clave','cursoId']) ||
-        typeof b.alias!=='string' || b.alias.trim().length<2 || b.alias.trim().length>60 ||
-        correo.length>254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo) ||
-        !claveValida(b.clave) || !Number.isSafeInteger(b.cursoId) || b.cursoId<1) {
-      return res.status(422).json({error:'DATOS_INVALIDOS',mensaje:'Revisa los campos. La contraseña debe tener de 15 a 128 caracteres.'});
+    const b = req.body;
+    const correo = correoNormalizado(b?.correo);
+    const campos = {};
+
+    if (!cuerpoValido(b, ['alias', 'correo', 'clave', 'cursoId'])) {
+      campos.formulario = 'Hay campos no admitidos.';
+    } else {
+      if (
+        typeof b.alias !== 'string' ||
+        b.alias.trim().length < 2 ||
+        b.alias.trim().length > 60
+      ) {
+        campos.alias = 'Introduce un alias de 2 a 60 caracteres.';
+      }
+
+      if (
+        correo.length > 254 ||
+        !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)
+      ) {
+        campos.correo = 'Introduce un correo válido.';
+      }
+
+      if (!claveValida(b.clave)) {
+        campos.clave = 'La contraseña debe tener de 15 a 128 caracteres.';
+      }
+
+      if (!Number.isSafeInteger(b.cursoId) || b.cursoId < 1) {
+        campos.cursoId = 'Selecciona un curso válido.';
+      }
     }
-    const curso=await pool.query('SELECT id FROM curso WHERE id=$1 AND activo',[b.cursoId]);
-    if (!curso.rowCount) return res.status(422).json({error:'CURSO_INVALIDO'});
+
+    if (Object.keys(campos).length) {
+      return res.status(422).json({
+        error: 'DATOS_INVALIDOS',
+        mensaje: 'Revisa los campos.',
+        campos
+      });
+    }
+
+    const curso = await pool.query(
+      'SELECT id FROM curso WHERE id=$1 AND activo',
+      [b.cursoId]
+    );
+
+    if (!curso.rowCount) {
+      return res.status(422).json({
+        error: 'CURSO_INVALIDO',
+        mensaje: 'Selecciona un curso válido.',
+        campos: {
+          cursoId: 'Selecciona un curso válido.'
+        }
+      });
+    }
     const hash=await crearHash(b.clave);
     const cliente=await pool.connect();
     try {
@@ -123,6 +201,7 @@ export async function crearAplicacion(pool, { origen, secreto, esquema='public',
   });
   app.get('/api/yo',sesionNecesaria,(req,res) => res.json({datos:req.usuario}));
   app.use('/api',rutasAnuncios(pool,sesionNecesaria,activaNecesaria));
+  app.use('/api',rutasMiEspacio(pool,sesionNecesaria,activaNecesaria));
   app.use('/api',rutasCesiones(pool,sesionNecesaria,activaNecesaria));
   app.use('/api',rutasIntercambios(pool,sesionNecesaria,activaNecesaria));
   app.use('/api', rutasPrestamos(pool, sesionNecesaria, activaNecesaria));

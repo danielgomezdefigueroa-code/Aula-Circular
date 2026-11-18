@@ -71,7 +71,7 @@ export function validarRegistro(cuerpo) {
   }
   const alias = typeof datos.alias === 'string' ? datos.alias.trim() : '';
   if (!alias) campos.alias = 'Escribe un alias.';
-  else if (longitud(alias) > 40) campos.alias = 'El alias admite 40 caracteres como máximo.';
+  else if (longitud(alias) > 60) campos.alias = 'El alias admite 60 caracteres como máximo.';
   const correo = normalizarCorreo(typeof datos.correo === 'string' ? datos.correo : '');
   if (!correo) campos.correo = 'Escribe un correo.';
   else if (correo.length > 254 || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(correo)) campos.correo = 'El correo no tiene un formato válido.';

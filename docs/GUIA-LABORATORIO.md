@@ -8,29 +8,31 @@ El navegador carga `public/index.html`, que redirige a `public/html/index.html`.
 | --- | --- |
 | src/app.mjs | Arranque de Express, pool de PostgreSQL y cierre ordenado |
 | src/aplicacion.mjs | Sesiones, CSRF, registro, acceso, perfil, demo y archivos públicos |
-| src/catalogo.mjs | Rutas de lectura `/api/biblioteca` y `/api/documentacion` |
-| src/anuncios.mjs | Rutas y reglas de anuncios propios y publicados |
+| src/catalogo.mjs | Rutas de lectura `/api/biblioteca` y `/api/documentacion`, con búsqueda, filtros y paginación |
+| src/anuncios.mjs | Rutas y reglas de anuncios propios y publicados, con filtros en `/api/libros` |
 | src/docencia.mjs | Validación docente de cuentas |
 | public/index.html | Puerta de entrada: redirige a `html/index.html` |
 | public/html/*.html | Páginas de producto: login, inicio, áreas y Mi espacio |
 | public/mjs/shell.mjs | Sesión, menú por permisos, CSRF y cierre de sesión |
 | public/mjs/login.mjs | Acceso, registro y estados de cuenta |
 | public/mjs/docencia.mjs | Validación de cuentas por docencia |
-| public/mjs/libros.mjs | Listado real de anuncios publicados |
+| public/mjs/libros.mjs | Listado real de anuncios publicados con búsqueda, curso, modalidad y disponibilidad |
 | public/mjs/mi-espacio.mjs | Perfil y gestión de anuncios propios |
 | public/mjs/inicio.mjs | Catálogo de Inicio contra las APIs de las tres áreas |
-| public/mjs/biblioteca.mjs | Catálogo de Biblioteca contra `/api/biblioteca` |
+| public/mjs/biblioteca.mjs | Catálogo de Biblioteca con búsqueda, tipo, curso y disponibilidad |
 | public/mjs/documentacion.mjs | Documentos contra `/api/documentacion` |
 | public/mjs/catalogo-comun.mjs | Tarjetas y filtros compartidos del catálogo |
+| public/mjs/filtros-catalogo.mjs | Carga los cursos activos en los filtros de área |
 | public/laboratorio/index.html | Demo del catálogo conectado a `/api/recursos-demo` |
 | public/laboratorio/catalogo.mjs | Búsqueda, peticiones y presentación de la demo |
 | sql/001_laboratorio.sql | Datos de demo, inventario y documentos; ejecutar después de migrar |
-| sql/migraciones/005_documentos.sql | Documentos, archivos y versiones; listado en `/api/documentacion` y descarga pendiente |
-| sql/historico/ | SQL antiguo conservado como referencia; no ejecutar |
-| .env.example | Plantilla; revisar `PGDATABASE` y no usar el marcador de `SESSION_SECRET` sin preparar |
-| .gitignore | Excluye `.env`, dependencias y archivos privados; no incluye `.docente-local.json` |
+| sql/005_documentos.sql | Documentos, archivos y versiones; listado en `/api/documentacion` y descarga pendiente |
+| .env.example | Plantilla; deja `SESSION_SECRET` vacío y ejecuta `npm.cmd run preparar` |
+| .gitignore | Excluye `.env`, dependencias, archivos privados y `.docente-local.json` |
 | package.json | Dependencias y comandos npm |
 | package-lock.json | Versiones resueltas para npm ci; no editar a mano |
+
+> **Código histórico.** `src/biblioteca/`, `src/auth.mjs`, `src/seguridad.mjs`, `src/cuentas/`, `src/ejercicioRaisa.mjs` y `src/pruebaSesionesRaisa.mjs` no se montan en `src/app.mjs`. Se conservan como referencia y pueden usar tablas o rutas anteriores: no los tomes como guía del estado actual.
 
 ## Entorno
 
@@ -42,7 +44,7 @@ Los siguientes comandos son para Windows PowerShell. Usar `npm.cmd` evita proble
 
 ## Configuración y base de datos
 
-Esta guía crea `aula_circular`; `.env.example` propone `aula_circular_sprint2_ensayo`; en el equipo revisado el `.env` apunta a `aula_prueba_catalogo`. No hay un nombre canónico decidido. Antes de ejecutar:
+Esta guía y `.env.example` usan `aula_circular`. Si tu `.env` local apunta a otra base, mantén el mismo nombre en `CREATE DATABASE`, `PGDATABASE` y `psql -d`. Antes de ejecutar:
 
 1. Elige un nombre de base y anótalo.
 2. Usa el mismo nombre en `CREATE DATABASE`, `PGDATABASE` y `psql -d`.
@@ -50,7 +52,7 @@ Esta guía crea `aula_circular`; `.env.example` propone `aula_circular_sprint2_e
 
 El detalle y las decisiones pendientes están en [REVISION-2026-10-22.md](REVISION-2026-10-22.md).
 
-Para seguir los ejemplos de esta guía, usa `aula_circular` y cambia `PGDATABASE` en `.env`; si prefieres otro nombre, cámbialo en los tres sitios.
+Los ejemplos usan `aula_circular`; si prefieres otro nombre, cámbialo en los tres sitios.
 
 ## Preparación en un ordenador nuevo
 
@@ -144,6 +146,9 @@ El servidor escucha solo en 127.0.0.1: no publica la aplicación para otros orde
 | GET /api/salud | 200; estado listo, baseDatos true si puede conectar |
 | GET /api/recursos-demo | 200; datos con todos los recursos |
 | GET /api/recursos-demo?q=calculadora | Recursos cuyo título coincide |
+| GET /api/biblioteca?q=guia&tipo=fisico&curso=1&disponible=1&pagina=1&limite=20 | 200; datos filtrados, pagina, limite y total |
+| GET /api/libros?q=programacion&curso=2&modalidad=prestamo&disponible=1&pagina=1&limite=20 | 200; datos publicados filtrados, total, pagina y limite |
+| GET /api/mi-espacio/panel | 200; publicaciones, solicitudes, préstamos e avisos de la cuenta de la sesión |
 | GET /ruta-inexistente | 404; error NO_ENCONTRADO |
 
 ```powershell
@@ -154,7 +159,7 @@ curl.exe -i http://127.0.0.1:3000/ruta-inexistente
 
 La salud ejecuta SELECT 1: comprueba conexión, pero no que recurso_demo exista. Una migración ausente puede dar salud 200 y catálogo 500.
 
-`/api/biblioteca`, `/api/documentacion` y `/api/libros` exigen una sesión activa con rol alumno o docente. `/api/recursos-demo` es pública y solo contiene datos sintéticos.
+`/api/biblioteca`, `/api/documentacion`, `/api/libros` y `/api/mi-espacio/panel` exigen una sesión activa. Los catálogos comprueban además el rol alumno o docente; el panel usa únicamente el usuario de la sesión y no acepta un identificador de propietario en la consulta. `/api/recursos-demo` es pública y solo contiene datos sintéticos.
 
 Rutas de la aplicación organizada:
 
@@ -165,18 +170,44 @@ Rutas de la aplicación organizada:
 | /html/biblioteca.html | Catálogo de recursos de Biblioteca |
 | /html/libros.html | Anuncios publicados |
 | /html/documentacion.html | Documentos y versiones |
-| /html/mi-espacio.html | Perfil, cierre de sesión y anuncios propios |
+| /html/mi-espacio.html | Perfil, cierre de sesión, resumen de publicaciones, solicitudes, préstamos y avisos propios, y gestión de anuncios |
 | /html/docencia.html | Validación de cuentas (solo docencia activa) |
 | /laboratorio/ | Demo del catálogo de `/api/recursos-demo` |
 
 Buscar calculadora debe mostrar una tarjeta; zzzz debe mostrar cero; vacío, cuatro en el conjunto inicial. Cambiar un título en PostgreSQL y recargar demuestra que los datos vienen de la base. La demo se abre en `/laboratorio/`; la portada y las áreas usan `/api/biblioteca`, `/api/libros` y `/api/documentacion`.
 
+### Búsqueda, filtros y fichas
+
+Las páginas `/html/biblioteca.html` y `/html/libros.html` tienen formulario de búsqueda y filtros. La consulta se hace en la API, no solo sobre las tarjetas ya cargadas:
+
+- `q`: hasta 80 caracteres. Busca en título, descripción, curso, asignatura, edición, ISBN y código de ejemplar. No distingue mayúsculas ni acentos.
+- `tipo` (Biblioteca): `fisico`, `digital` o `enlace`.
+- `curso`: identificador del curso; en Biblioteca también se admite `general` para recursos sin curso.
+- `disponible=1` (Biblioteca y Libros): en Biblioteca excluye los recursos físicos sin ningún ejemplar habilitado; los digitales y enlaces se consideran consultables. En Libros excluye los ejemplares con reserva activa o con un préstamo en curso.
+- `modalidad` (Libros): `cesion`, `prestamo` o `intercambio`.
+- `pagina` y `limite`: 1-20 registros por página. La respuesta incluye `total` para calcular las páginas.
+
+Las fichas muestran área, procedencia, curso, tipo, modalidad, estado, código o códigos de ejemplar, asignatura, edición, ISBN, conservación cuando existe y descripción. En Biblioteca, un recurso físico sin ejemplar habilitado aparece como «No disponible»; uno con dos ejemplares muestra ambos códigos. La base de demostración solo tiene recursos físicos, así que el filtro «Digital» puede devolver cero: no es un error. Las pruebas automáticas crean recursos digitales y de enlace ficticios para cubrir esos casos.
+
+Prueba manual recomendada:
+
+1. Entra con una cuenta activa de alumnado o docencia.
+2. En Biblioteca, busca `guia` y comprueba que aparece «Guía práctica de desarrollo web». Prueba tipo, curso, «General (sin curso)» y «Solo disponibles».
+3. En Libros, busca `javascript`, filtra por curso y por modalidad y prueba «Solo disponibles». Comprueba que el contador y la paginación cambian.
+4. Revisa una ficha con dos ejemplares y otra sin ejemplar para confirmar estado y códigos.
+5. Con la ventana estrecha (320 px), comprueba que los filtros y las tarjetas no provocan desplazamiento horizontal.
+
 Para probar puerto ocupado, mantener el primer servidor y lanzar `npm.cmd run start` en otra terminal desde la misma carpeta. Esperado: EADDRINUSE. No detener procesos de otras personas.
 
 Para copia limpia, clonar en una carpeta nueva, ejecutar npm.cmd ci, preparar .env, migrar y cargar `sql/001_laboratorio.sql` tras parar el servidor anterior. Documentar si se reutilizó la base existente o se preparó otra. El `001` es idempotente, pero no sustituye a las migraciones.
 
-`npm.cmd test` ejecuta `tests/cuentas.test.mjs` y `tests/anuncios.test.mjs` contra PostgreSQL y HTTP reales. Crea esquemas temporales `aula_test_...`, necesita permiso para crear esquemas y no vacía las tablas de trabajo. Si PostgreSQL no está levantado, falla con `ECONNREFUSED 127.0.0.1:5432`; las pruebas manuales de esta guía siguen siendo necesarias para la interfaz. Los resultados esperados no acreditan por sí solos su ejecución. En la revisión local del 2026-10-22 pasaron 17 de 17. `tests/` es legado y no forma parte de esta suite.
+Las pruebas automáticas del proyecto utilizan PostgreSQL y peticiones HTTP reales. Crean esquemas temporales `aula_test_...`, necesitan permisos para crear esquemas y no deben vaciar las tablas de trabajo. Si PostgreSQL no está disponible, pueden fallar con `ECONNREFUSED 127.0.0.1:5432`.
 
+Durante la integración se están consolidando las pruebas procedentes de los directorios `tests/` y `pruebas/`, conservando las comprobaciones de cuentas, anuncios, cesiones, documentos y las funcionalidades añadidas por los distintos equipos. El comando `npm.cmd test` deberá revisarse para que ejecute la suite consolidada desde las rutas definitivas.
+
+Como antecedentes, en la rama original se documentaron 17 pruebas superadas el 22 de octubre de 2026 y, en la rama de Interfaz, 23 pruebas superadas el 4 de noviembre de 2026. Estos resultados corresponden a ejecuciones anteriores y no acreditan todavía el funcionamiento de la versión integrada.
+
+Una vez completada la fusión, será necesario ejecutar las pruebas automáticas y las comprobaciones manuales de la interfaz, documentando los resultados reales de la integración.
 ## Decisiones del código
 
 - Pool reutiliza hasta cinco conexiones y limita la espera de conexión a tres segundos.
