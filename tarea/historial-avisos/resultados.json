@@ -1,0 +1,403 @@
+{
+  "version": "HIST-370-2026-11-18-v1",
+  "base": "7e7f5d93e80990f05def3082203030f90d0989df",
+  "fecha": "2026-11-18T08:07:54.558Z",
+  "node": "v24.22.0",
+  "postgres": "17.11",
+  "plan": 370,
+  "evidencia": [
+    {
+      "caso": "Semilla conocida",
+      "esperado": "2 cesiones completadas; 1 prestamo activo; 1 intercambio cancelado",
+      "observado": {
+        "estados": [
+          {
+            "tipo": "cesion",
+            "estado": "completada",
+            "total": 2
+          },
+          {
+            "tipo": "intercambio",
+            "estado": "cancelada",
+            "total": 1
+          },
+          {
+            "tipo": "prestamo",
+            "estado": "prestada",
+            "total": 1
+          }
+        ],
+        "ids": {
+          "cesiones": [
+            1,
+            2
+          ],
+          "prestamo": 3,
+          "intercambio": 4
+        },
+        "origenIntercambio": "semilla SQL"
+      }
+    },
+    {
+      "caso": "Actores y permisos",
+      "esperado": "A=3, B=4, C=0; docente=4; admin sin docente no autorizado",
+      "observado": [
+        {
+          "actor": "a",
+          "total": 3,
+          "sql": [
+            {
+              "tipo": "cesion",
+              "estado": "completada",
+              "total": 2
+            },
+            {
+              "tipo": "intercambio",
+              "estado": "cancelada",
+              "total": 1
+            }
+          ],
+          "http": [
+            {
+              "id": 4,
+              "tipo": "intercambio",
+              "estado": "cancelada",
+              "creada_en": "2026-11-18T08:07:53.141Z",
+              "entregada_en": null,
+              "cerrada_en": "2026-11-18T08:07:53.141Z",
+              "vencimiento": null,
+              "items": [
+                {
+                  "codigo": "HIS-INT-A",
+                  "titulo": "Libro HIS-INT-A",
+                  "origen_usuario_id": 1,
+                  "destino_usuario_id": 2
+                },
+                {
+                  "codigo": "HIS-INT-B",
+                  "titulo": "Libro HIS-INT-B",
+                  "origen_usuario_id": 2,
+                  "destino_usuario_id": 1
+                }
+              ],
+              "eventos": [
+                {
+                  "id": 7,
+                  "actor_id": 3,
+                  "actor": "Cuenta d",
+                  "accion": "cancelar_intercambio",
+                  "fecha": "2026-11-18T09:07:53.144475+01:00",
+                  "motivo": "Cancelacion historica de ensayo"
+                }
+              ],
+              "siguiente_accion": "Operación cerrada; consultar historial"
+            },
+            {
+              "id": 2,
+              "tipo": "cesion",
+              "estado": "completada",
+              "creada_en": "2026-11-18T08:07:53.114Z",
+              "entregada_en": "2026-11-18T08:07:53.120Z",
+              "cerrada_en": "2026-11-18T08:07:53.120Z",
+              "vencimiento": null,
+              "items": [
+                {
+                  "codigo": "LIB-54430e15-2ccb-4efb-a25c-4e8979ff356f",
+                  "titulo": "Cesión EJ05",
+                  "origen_usuario_id": 1,
+                  "destino_usuario_id": 2
+                }
+              ],
+              "eventos": [
+                {
+                  "id": 3,
+                  "actor_id": 3,
+                  "actor": "Cuenta d",
+                  "accion": "asignar",
+                  "fecha": "2026-11-18T09:07:53.114662+01:00",
+                  "motivo": "Prioridad acordada en el ensayo"
+                },
+                {
+                  "id": 4,
+                  "actor_id": 3,
+                  "actor": "Cuenta d",
+                  "accion": "entregar",
+                  "fecha": "2026-11-18T09:07:53.120482+01:00",
+                  "motivo": ""
+                }
+              ],
+              "siguiente_accion": "Operación cerrada; consultar historial"
+            },
+            {
+              "id": 1,
+              "tipo": "cesion",
+              "estado": "completada",
+              "creada_en": "2026-11-18T08:07:53.078Z",
+              "entregada_en": "2026-11-18T08:07:53.088Z",
+              "cerrada_en": "2026-11-18T08:07:53.088Z",
+              "vencimiento": null,
+              "items": [
+                {
+                  "codigo": "LIB-1cdda95c-58d5-4c87-a875-744e2c4c71e0",
+                  "titulo": "Cesión EJ05",
+                  "origen_usuario_id": 1,
+                  "destino_usuario_id": 2
+                }
+              ],
+              "eventos": [
+                {
+                  "id": 1,
+                  "actor_id": 3,
+                  "actor": "Cuenta d",
+                  "accion": "asignar",
+                  "fecha": "2026-11-18T09:07:53.0782+01:00",
+                  "motivo": "Prioridad acordada en el ensayo"
+                },
+                {
+                  "id": 2,
+                  "actor_id": 3,
+                  "actor": "Cuenta d",
+                  "accion": "entregar",
+                  "fecha": "2026-11-18T09:07:53.088504+01:00",
+                  "motivo": ""
+                }
+              ],
+              "siguiente_accion": "Operación cerrada; consultar historial"
+            }
+          ]
+        },
+        {
+          "actor": "b",
+          "total": 4,
+          "sql": [
+            {
+              "tipo": "cesion",
+              "estado": "completada",
+              "total": 2
+            },
+            {
+              "tipo": "intercambio",
+              "estado": "cancelada",
+              "total": 1
+            },
+            {
+              "tipo": "prestamo",
+              "estado": "prestada",
+              "total": 1
+            }
+          ],
+          "http": [
+            {
+              "id": 4,
+              "tipo": "intercambio",
+              "estado": "cancelada",
+              "creada_en": "2026-11-18T08:07:53.141Z",
+              "entregada_en": null,
+              "cerrada_en": "2026-11-18T08:07:53.141Z",
+              "vencimiento": null,
+              "items": [
+                {
+                  "codigo": "HIS-INT-A",
+                  "titulo": "Libro HIS-INT-A",
+                  "origen_usuario_id": 1,
+                  "destino_usuario_id": 2
+                },
+                {
+                  "codigo": "HIS-INT-B",
+                  "titulo": "Libro HIS-INT-B",
+                  "origen_usuario_id": 2,
+                  "destino_usuario_id": 1
+                }
+              ],
+              "eventos": [
+                {
+                  "id": 7,
+                  "actor_id": 3,
+                  "actor": "Cuenta d",
+                  "accion": "cancelar_intercambio",
+                  "fecha": "2026-11-18T09:07:53.144475+01:00",
+                  "motivo": "Cancelacion historica de ensayo"
+                }
+              ],
+              "siguiente_accion": "Operación cerrada; consultar historial"
+            },
+            {
+              "id": 3,
+              "tipo": "prestamo",
+              "estado": "prestada",
+              "creada_en": "2026-11-18T08:07:53.132Z",
+              "entregada_en": "2026-11-18T08:07:53.138Z",
+              "cerrada_en": null,
+              "vencimiento": "2026-12-02T08:07:53.129Z",
+              "items": [
+                {
+                  "codigo": "HIS-CAL-01",
+                  "titulo": "Calculadora historial",
+                  "origen_usuario_id": null,
+                  "destino_usuario_id": 2
+                }
+              ],
+              "eventos": [
+                {
+                  "id": 5,
+                  "actor_id": 3,
+                  "actor": "Cuenta d",
+                  "accion": "adjudicar_prestamo",
+                  "fecha": "2026-11-18T09:07:53.1322+01:00",
+                  "motivo": "Prestamo ficticio para historial"
+                },
+                {
+                  "id": 6,
+                  "actor_id": 3,
+                  "actor": "Cuenta d",
+                  "accion": "entregar_prestamo",
+                  "fecha": "2026-11-18T09:07:53.138605+01:00",
+                  "motivo": ""
+                }
+              ],
+              "siguiente_accion": "Devolución o incidencia por el profesorado"
+            },
+            {
+              "id": 2,
+              "tipo": "cesion",
+              "estado": "completada",
+              "creada_en": "2026-11-18T08:07:53.114Z",
+              "entregada_en": "2026-11-18T08:07:53.120Z",
+              "cerrada_en": "2026-11-18T08:07:53.120Z",
+              "vencimiento": null,
+              "items": [
+                {
+                  "codigo": "LIB-54430e15-2ccb-4efb-a25c-4e8979ff356f",
+                  "titulo": "Cesión EJ05",
+                  "origen_usuario_id": 1,
+                  "destino_usuario_id": 2
+                }
+              ],
+              "eventos": [
+                {
+                  "id": 3,
+                  "actor_id": 3,
+                  "actor": "Cuenta d",
+                  "accion": "asignar",
+                  "fecha": "2026-11-18T09:07:53.114662+01:00",
+                  "motivo": "Prioridad acordada en el ensayo"
+                },
+                {
+                  "id": 4,
+                  "actor_id": 3,
+                  "actor": "Cuenta d",
+                  "accion": "entregar",
+                  "fecha": "2026-11-18T09:07:53.120482+01:00",
+                  "motivo": ""
+                }
+              ],
+              "siguiente_accion": "Operación cerrada; consultar historial"
+            },
+            {
+              "id": 1,
+              "tipo": "cesion",
+              "estado": "completada",
+              "creada_en": "2026-11-18T08:07:53.078Z",
+              "entregada_en": "2026-11-18T08:07:53.088Z",
+              "cerrada_en": "2026-11-18T08:07:53.088Z",
+              "vencimiento": null,
+              "items": [
+                {
+                  "codigo": "LIB-1cdda95c-58d5-4c87-a875-744e2c4c71e0",
+                  "titulo": "Cesión EJ05",
+                  "origen_usuario_id": 1,
+                  "destino_usuario_id": 2
+                }
+              ],
+              "eventos": [
+                {
+                  "id": 1,
+                  "actor_id": 3,
+                  "actor": "Cuenta d",
+                  "accion": "asignar",
+                  "fecha": "2026-11-18T09:07:53.0782+01:00",
+                  "motivo": "Prioridad acordada en el ensayo"
+                },
+                {
+                  "id": 2,
+                  "actor_id": 3,
+                  "actor": "Cuenta d",
+                  "accion": "entregar",
+                  "fecha": "2026-11-18T09:07:53.088504+01:00",
+                  "motivo": ""
+                }
+              ],
+              "siguiente_accion": "Operación cerrada; consultar historial"
+            }
+          ]
+        },
+        {
+          "actor": "c",
+          "total": 0,
+          "sql": [],
+          "http": []
+        }
+      ]
+    },
+    {
+      "caso": "Leer aviso propio y ajeno",
+      "esperado": "200 repetido sin alterar operaciones; ajeno 404; sin CSRF 403",
+      "observado": {
+        "id": 12,
+        "leido": "2026-11-18T08:07:53.177Z",
+        "tablasIntactas": true,
+        "reservas": [
+          {
+            "ejemplar_id": 3,
+            "operacion_id": 3
+          }
+        ]
+      }
+    },
+    {
+      "caso": "Entrega repetida",
+      "esperado": "200; sin eventos ni avisos nuevos",
+      "observado": {
+        "correcto": true
+      }
+    },
+    {
+      "caso": "Cambio de curso y categoria inactiva",
+      "esperado": "mismos ID, fechas, actores, eventos y reserva; perfil actual curso 2",
+      "observado": {
+        "historialConservado": true,
+        "perfilCurso": 2,
+        "operaciones": [
+          4,
+          3,
+          2,
+          1
+        ]
+      }
+    },
+    {
+      "caso": "Filtros y paginas",
+      "esperado": "4 operaciones distintas al reunir dos paginas; quitar filtro restaura 4",
+      "observado": {
+        "paginas": [
+          [
+            4,
+            3
+          ],
+          [
+            2,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "caso": "Pantalla automatizada Edge",
+      "esperado": "4 filas; filtro prestamo 1 y quitar 4; aviso sin efectos; movil 390 sin desbordamiento",
+      "observado": {
+        "correcto": true,
+        "revisionManual": false
+      }
+    }
+  ]
+}

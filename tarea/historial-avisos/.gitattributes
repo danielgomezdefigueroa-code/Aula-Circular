@@ -1,0 +1,4 @@
+*.pdf binary
+*.png binary
+*.mjs text eol=lf
+*.sql text eol=lf

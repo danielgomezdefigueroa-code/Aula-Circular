@@ -1,0 +1,15 @@
+{
+  "version": "HIST-370-2026-11-18-v1",
+  "base": "7e7f5d93e80990f05def3082203030f90d0989df",
+  "archivos": {
+    "src/historial.mjs": "9117b78e482193e13618c919866b96f9469c39914cb9154698fafa82e829fd5a",
+    "src/app.mjs": "03c44e85eef12d707b0841b0a62efbcec01f228a962f945571852deb4d83b278",
+    "src/cesiones.mjs": "ab1a8741b9da906ebee7e5fa26aab8816b75b60b313d50f148ce8811c46ab9d1",
+    "public/html/mi-espacio.html": "f37afbe01759a39261e040c781a77dda35f1d9a35b3d269e8ccb0244c31ed987",
+    "public/mjs/historial.mjs": "dcb8baa02e4cb44d63b836e5c3fa992df07879763162e3a7722360285dca52c1",
+    "sql/migraciones/014_avisos_leidos.sql": "0ff07df2e1127cd3aeeb69bd1f8dafc7785a0b50e9c6956e722d9406a5e0a20d",
+    "tarea/historial-avisos/prueba.mjs": "aad911c762ba099a8af0cafa0fa50cbd077c7b5388e2b48dec0bfbc903450cae",
+    "tarea/historial-avisos/control.sql": "0ce67dc9edb6219e83ca7c09a842031424eb2bb84fa1394ae2d3cb77f90252a7"
+  },
+  "normalizacion": "Archivos de texto UTF-8 sin BOM y saltos LF antes de calcular SHA-256"
+}

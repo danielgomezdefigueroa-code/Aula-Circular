@@ -15,6 +15,7 @@ import { rutasCatalogo } from './catalogo.mjs';
 import { crearRutasDocumentos } from './documentos/rutas.mjs';
 import { rutasPrestamos } from './prestamos/rutas.mjs';
 import { rutasInventario } from './biblioteca/inventario.mjs';
+import { rutasHistorial } from './historial.mjs';
 
 const token = () => randomBytes(32).toString('hex');
 const guardar = sesion => new Promise((ok,fallo) => sesion.save(e => e ? fallo(e) : ok()));
@@ -123,6 +124,7 @@ export async function crearAplicacion(pool, { origen, secreto, esquema='public',
   });
   app.get('/api/yo',sesionNecesaria,(req,res) => res.json({datos:req.usuario}));
   app.use('/api',rutasAnuncios(pool,sesionNecesaria,activaNecesaria));
+  app.use('/api',rutasHistorial(pool,sesionNecesaria,activaNecesaria));
   app.use('/api',rutasCesiones(pool,sesionNecesaria,activaNecesaria));
   app.use('/api',rutasIntercambios(pool,sesionNecesaria,activaNecesaria));
   app.use('/api', rutasPrestamos(pool, sesionNecesaria, activaNecesaria));

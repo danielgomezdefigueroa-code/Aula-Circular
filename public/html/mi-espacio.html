@@ -55,6 +55,19 @@
         </p>
       </section>
 
+      <section id="seccion-operaciones" class="seccion area" aria-labelledby="titulo-operaciones" hidden>
+        <h2 id="titulo-operaciones">Mis solicitudes y operaciones</h2>
+        <p>Los estados y fechas reflejan el historial guardado. Leer un aviso no modifica una operación.</p>
+        <label for="filtro-operacion">Tipo de operación</label>
+        <select id="filtro-operacion"><option value="">Todas</option><option value="cesion">Cesiones</option><option value="prestamo">Préstamos</option><option value="intercambio">Intercambios</option></select>
+        <button id="actualizar-operaciones" type="button" class="boton-sec">Actualizar historial</button>
+        <p id="estado-historial" role="status" aria-live="polite"></p>
+        <h3>Operaciones</h3><ul id="mis-operaciones" class="lista-historial"></ul>
+        <h3>Solicitudes</h3><ul id="mis-solicitudes" class="lista-historial"></ul>
+        <h3>Mis avisos</h3><ul id="mis-avisos" class="lista-historial"></ul>
+        <div class="paginacion"><button id="historial-anterior" class="boton-sec" type="button">Anterior</button><span id="historial-pagina"></span><button id="historial-siguiente" class="boton-sec" type="button">Siguiente</button></div>
+      </section>
+
       <section id="seccion-anuncios" class="seccion area" aria-labelledby="titulo-anuncios" hidden>
         <h2 id="titulo-anuncios">Mis anuncios</h2>
 
@@ -133,5 +146,6 @@
 
     <script type="module" src="../mjs/shell.mjs"></script>
     <script type="module" src="../mjs/mi-espacio.mjs"></script>
+    <script type="module" src="../mjs/historial.mjs"></script>
   </body>
 </html>
