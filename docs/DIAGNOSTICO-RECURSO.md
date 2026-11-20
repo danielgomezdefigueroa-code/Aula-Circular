@@ -119,4 +119,3 @@ proponer la corrección y organizar la documentación.
 
 
 No compartir cookies, tokens, contraseñas ni archivos .env.
-

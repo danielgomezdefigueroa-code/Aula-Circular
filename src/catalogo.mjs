@@ -85,7 +85,7 @@ export function rutasCatalogo(pool, sesionNecesaria, activaNecesaria) {
       res.json({ datos: resultado.rows });
     }
   );
-	  // Ejercicio preparado: contiene un fallo intencionado.
+	    // Ejercicio didáctico: consulta por ID con validación y ausencia controlada.
   // Solo se habilita en desarrollo y mantiene los controles de acceso.
   if (process.env.NODE_ENV === 'development') {
     rutas.get(
@@ -113,8 +113,7 @@ export function rutasCatalogo(pool, sesionNecesaria, activaNecesaria) {
            WHERE id = $1 AND origen = 'centro'`,
           [id]
         );
-
-            // Una consulta sin filas es una ausencia esperada, no un fallo interno.
+		// Una consulta sin filas es una ausencia esperada, no un fallo interno.
         if (resultado.rowCount === 0) {
           return res.status(404).json({
             error: 'RECURSO_NO_DISPONIBLE'
