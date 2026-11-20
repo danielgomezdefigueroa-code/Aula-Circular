@@ -85,6 +85,53 @@ export function rutasCatalogo(pool, sesionNecesaria, activaNecesaria) {
       res.json({ datos: resultado.rows });
     }
   );
+	  // Ejercicio preparado: contiene un fallo intencionado.
+  // Solo se habilita en desarrollo y mantiene los controles de acceso.
+  if (process.env.NODE_ENV === 'development') {
+    rutas.get(
+      '/ensayo/recursos/:id',
+      sesionNecesaria,
+      activaNecesaria,
+      puedeConsultar,
+      async (req, res) => {
+        const texto = req.params.id;
+        const id = Number(texto);
 
+        if (
+          !/^[1-9]\d*$/.test(texto) ||
+          !Number.isSafeInteger(id) ||
+          id > 2147483647
+        ) {
+          return res.status(422).json({
+            error: 'DATOS_INVALIDOS'
+          });
+        }
+
+        const resultado = await pool.query(
+          `SELECT id, titulo, tipo
+           FROM recurso
+           WHERE id = $1 AND origen = 'centro'`,
+          [id]
+        );
+
+            // Una consulta sin filas es una ausencia esperada, no un fallo interno.
+        if (resultado.rowCount === 0) {
+          return res.status(404).json({
+            error: 'RECURSO_NO_DISPONIBLE'
+          });
+        }
+
+        const recurso = resultado.rows[0];
+
+        res.json({
+          datos: {
+            id: recurso.id,
+            titulo: recurso.titulo,
+            tipo: recurso.tipo
+          }
+        });
+      }
+    );
+  }
   return rutas;
 }
