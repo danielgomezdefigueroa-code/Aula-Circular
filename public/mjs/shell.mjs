@@ -169,27 +169,18 @@ function insertarEnlaceDocencia() {
   menu.append(enlace);
 }
 
-/* --- Desplegable de Mi espacio ---
-    Cesiones e intercambios son subsecciones de Mi espacio (AC-09), no
-    áreas del menú principal. Se usa <details> nativo: teclado, lector de
-    pantalla y sin estados que mantener a mano. */
-function insertarSubmenuMiEspacio() {
-  const menu = $('menu-principal');
-  const enlace = menu && menu.querySelector('a[data-area="mi-espacio"]');
-  if (!enlace || menu.querySelector('.nav-sub')) return;
+/* --- Desplegables del menú ---
+    Se usa <details> nativo: teclado, lector de pantalla y sin estados que
+    mantener a mano. */
+function crearSubmenu(titulo, enlaces) {
   const detalle = document.createElement('details');
   detalle.className = 'nav-sub';
-  detalle.dataset.area = 'mi-espacio'; // pintarMenu oculta todo el bloque sin sesión.
   const resumen = document.createElement('summary');
   resumen.className = 'nav-link';
-  resumen.textContent = 'Mi espacio';
+  resumen.textContent = titulo;
   const panel = document.createElement('div');
   panel.className = 'nav-sub-panel';
-  for (const [texto, pagina] of [
-    ['Perfil', 'mi-espacio.html'],
-    ['Cesiones', 'cesiones.html'],
-    ['Intercambios', 'intercambios.html'],
-  ]) {
+  for (const [texto, pagina] of enlaces) {
     const a = document.createElement('a');
     a.className = 'nav-link';
     a.href = pagina;
@@ -197,7 +188,6 @@ function insertarSubmenuMiEspacio() {
     panel.append(a);
   }
   detalle.append(resumen, panel);
-  enlace.replaceWith(detalle);
   // details no cierra con Escape por sí solo; el resto del teclado es nativo.
   // stopPropagation evita que el menú móvil se cierre a la vez.
   detalle.addEventListener('keydown', (e) => {
@@ -208,6 +198,44 @@ function insertarSubmenuMiEspacio() {
     }
   });
   panel.addEventListener('click', () => { detalle.open = false; });
+  return detalle;
+}
+
+/* --- Desplegable de recursos ---
+    Biblioteca, Libros y Documentación son las tres áreas protegidas y
+    comparten permiso, así que van juntas en un bloque. */
+function insertarSubmenuRecursos() {
+  const menu = $('menu-principal');
+  const biblioteca = menu && menu.querySelector('a[data-area="biblioteca"]');
+  if (!biblioteca) return; // Ya montado.
+  const detalle = crearSubmenu('Recursos', [
+    ['Biblioteca', 'biblioteca.html'],
+    ['Libros', 'libros.html'],
+    ['Documentación', 'documentacion.html'],
+  ]);
+  // pintarMenu oculta el bloque entero sin sesión activa.
+  detalle.dataset.area = 'biblioteca';
+  for (const area of ['libros', 'documentacion']) {
+    const enlace = menu.querySelector(`a[data-area="${area}"]`);
+    if (enlace) enlace.remove();
+  }
+  biblioteca.replaceWith(detalle);
+}
+
+/* --- Desplegable de Mi espacio ---
+    Cesiones e intercambios son subsecciones de Mi espacio (AC-09), no
+    áreas del menú principal. */
+function insertarSubmenuMiEspacio() {
+  const menu = $('menu-principal');
+  const enlace = menu && menu.querySelector('a[data-area="mi-espacio"]');
+  if (!enlace) return; // Ya montado.
+  const detalle = crearSubmenu('Mi espacio', [
+    ['Perfil', 'mi-espacio.html'],
+    ['Cesiones', 'cesiones.html'],
+    ['Intercambios', 'intercambios.html'],
+  ]);
+  detalle.dataset.area = 'mi-espacio'; // pintarMenu oculta todo el bloque sin sesión.
+  enlace.replaceWith(detalle);
 }
 
 /* --- Página actual --- */
@@ -218,12 +246,11 @@ function marcarActual() {
     else enlace.removeAttribute('aria-current');
   });
   // Con el desplegable cerrado, marca la rama para no perder la orientación.
-  const sub = document.querySelector('#menu-principal .nav-sub');
-  const resumen = sub && sub.querySelector('summary');
-  if (resumen) {
+  document.querySelectorAll('#menu-principal .nav-sub').forEach((sub) => {
+    const resumen = sub.querySelector('summary');
     if (sub.querySelector('[aria-current="page"]')) resumen.setAttribute('aria-current', 'page');
     else resumen.removeAttribute('aria-current');
-  }
+  });
 }
 
 /* --- Limpieza y comprobación de sesión --- */
@@ -301,6 +328,7 @@ window.addEventListener('popstate', () => recomprobar());
 
 /* --- Arranque --- */
 document.documentElement.classList.add('js');
+insertarSubmenuRecursos();
 insertarSubmenuMiEspacio();
 insertarEnlaceDocencia();
 marcarActual();
