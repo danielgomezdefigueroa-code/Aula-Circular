@@ -1,4 +1,6 @@
 // Reserva docente: una operación, dos ejemplares y una sola transacción.
+import { comprobarRecepcionMaterial } from '../cursos.mjs';
+
 const fallo = (codigo, mensaje) =>
   Object.assign(new Error(mensaje), { codigo });
 
@@ -159,6 +161,9 @@ export async function reservarIntercambio(pool, identidad, id) {
                                 r.origen !== 'alumno')) {
       throw fallo(422, 'EJEMPLAR_NO_APTO');
     }
+
+    await comprobarRecepcionMaterial(c, ref.receptor_id, ofrecido.recurso_id);
+    await comprobarRecepcionMaterial(c, ref.proponente_id, solicitado.recurso_id);
 
     const aceptaciones = await c.query(
       `SELECT usuario_id

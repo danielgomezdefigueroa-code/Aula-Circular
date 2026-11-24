@@ -2,6 +2,7 @@
  * La API sigue siendo la autoridad sobre permisos, códigos y referencias.
  */
 import { listo, pedir, enviar, leerJson, irALogin } from './shell.mjs';
+import { crearLineaEjemplar } from './catalogo-comun.mjs';
 
 const $ = id => document.getElementById(id);
 const texto = valor => String(valor ?? '').trim();
@@ -23,6 +24,12 @@ function anunciar(mensaje, error = false) {
   aviso.textContent = mensaje;
   aviso.classList.toggle('t14-error', error);
   aviso.setAttribute('role', error ? 'alert' : 'status');
+}
+
+function mostrarEstadoCatalogo(mensaje) {
+  const cuenta = $('bib-cuenta');
+  if (cuenta) cuenta.textContent = mensaje;
+  else anunciar(mensaje);
 }
 
 // T14: cada formulario informa de sus propios errores, cerca del campo afectado.
@@ -363,9 +370,9 @@ export async function iniciarGestionInventario() {
       const ul = document.createElement('ul');
       ul.className = 't14-ejemplares';
       for (const e of recurso.ejemplares ?? []) {
-        const li = document.createElement('li');
-        li.textContent = `${e.codigo} · ${e.disponible ? 'Disponible' : e.estado_servicio === 'retirado' ? 'Retirado' : 'No disponible'}`;
-        ul.append(li);
+        const fila = document.createElement('li');
+        fila.append(crearLineaEjemplar(e, identidad, mostrarEstadoCatalogo));
+        ul.append(fila);
       }
       if (!ul.children.length) zona.textContent = 'No hay ejemplares asociados.';
       else zona.append(ul);

@@ -25,7 +25,7 @@ El navegador carga `public/index.html`, que redirige a `public/html/index.html`.
 | public/mjs/filtros-catalogo.mjs | Carga los cursos activos en los filtros de área |
 | public/laboratorio/index.html | Demo del catálogo conectado a `/api/recursos-demo` |
 | public/laboratorio/catalogo.mjs | Búsqueda, peticiones y presentación de la demo |
-| sql/001_laboratorio.sql | Datos de demo, inventario y documentos; ejecutar después de migrar |
+| sql/001_laboratorio.sql | Datos de demo, inventario, anuncios y metadatos documentales en borrador; ejecutar después de migrar |
 | sql/005_documentos.sql | Documentos, archivos y versiones; listado en `/api/documentacion` y descarga pendiente |
 | .env.example | Plantilla; deja `SESSION_SECRET` vacío y ejecuta `npm.cmd run preparar` |
 | .gitignore | Excluye `.env`, dependencias, archivos privados y `.docente-local.json` |
@@ -120,14 +120,14 @@ npm.cmd run migrar
 
 Esperado: se aplican `002_cuentas.sql`, `003_validacion_docente.sql`, `004_anuncios.sql` y `005_documentos.sql`.
 
-Después, cargar los datos ficticios de demo, inventario, anuncios y documentos:
+Después, cargar los datos ficticios de demo, inventario, anuncios y metadatos documentales en borrador:
 
 ```powershell
 $env:PGCLIENTENCODING = 'UTF8'
 & 'C:\Program Files\PostgreSQL\17\bin\psql.exe' -h 127.0.0.1 -U aula_app -d aula_circular -W -v ON_ERROR_STOP=1 -f sql/001_laboratorio.sql
 ```
 
-Esperado: `CREATE TABLE`, `INSERT 0 4` y los datos del inventario y los documentos. El archivo se guarda en UTF-8 sin BOM. Es idempotente: se puede repetir sin duplicar los datos. Si se ejecuta antes de las migraciones, se detiene con un error controlado.
+Esperado: `CREATE TABLE`, `INSERT 0 4` y los datos del inventario y anuncios. El archivo se guarda en UTF-8 sin BOM. Es idempotente: se puede repetir sin duplicar los datos. Los metadatos de documentos quedan en borrador: publicar y servir archivos requiere la ruta protegida de la aplicación; no marques estas versiones como vigentes directamente en SQL. Si se ejecuta antes de las migraciones, se detiene con un error controlado.
 
 ## Arranque y parada
 
@@ -187,12 +187,12 @@ Las páginas `/html/biblioteca.html` y `/html/libros.html` tienen formulario de 
 - `modalidad` (Libros): `cesion`, `prestamo` o `intercambio`.
 - `pagina` y `limite`: 1-20 registros por página. La respuesta incluye `total` para calcular las páginas.
 
-Las fichas muestran área, procedencia, curso, tipo, modalidad, estado, código o códigos de ejemplar, asignatura, edición, ISBN, conservación cuando existe y descripción. En Biblioteca, un recurso físico sin ejemplar habilitado aparece como «No disponible»; uno con dos ejemplares muestra ambos códigos. La base de demostración solo tiene recursos físicos, así que el filtro «Digital» puede devolver cero: no es un error. Las pruebas automáticas crean recursos digitales y de enlace ficticios para cubrir esos casos.
+Las fichas muestran área, procedencia, curso, tipo, modalidad, estado, código o códigos de ejemplar, asignatura, edición, ISBN, conservación cuando existe y descripción. En Biblioteca, al desplegar los ejemplares físicos, cada unidad disponible ofrece «Solicitar préstamo» al alumnado activo; después de solicitarla, ese alumno ve «Préstamo pendiente». Las unidades reservadas o retiradas muestran «No disponible» o «Retirado» y no permiten solicitarse. Un recurso físico sin ejemplar habilitado aparece como «No disponible»; uno con dos ejemplares muestra ambos códigos. La base de demostración solo tiene recursos físicos, así que el filtro «Digital» puede devolver cero: no es un error. Las pruebas automáticas crean recursos digitales y de enlace ficticios para cubrir esos casos.
 
 Prueba manual recomendada:
 
 1. Entra con una cuenta activa de alumnado o docencia.
-2. En Biblioteca, busca `guia` y comprueba que aparece «Guía práctica de desarrollo web». Prueba tipo, curso, «General (sin curso)» y «Solo disponibles».
+2. En Biblioteca, busca `guia` y comprueba que aparece «Guía práctica de desarrollo web». Abre «Ver ejemplares» y confirma que cada unidad disponible permite solicitar el préstamo; prueba también una unidad reservada o retirada.
 3. En Libros, busca `javascript`, filtra por curso y por modalidad y prueba «Solo disponibles». Comprueba que el contador y la paginación cambian.
 4. Revisa una ficha con dos ejemplares y otra sin ejemplar para confirmar estado y códigos.
 5. Con la ventana estrecha (320 px), comprueba que los filtros y las tarjetas no provocan desplazamiento horizontal.

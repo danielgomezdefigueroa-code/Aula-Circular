@@ -801,3 +801,550 @@ button:disabled { opacity: .55; cursor: not-allowed; }
   .dialogo-intercambio form { padding: .9rem; }
   .dialogo-cabecera h2 { font-size: 1.35rem; }
 }
+
+
+/* ==========================================
+   Identidad visual de Aula Circular
+   ========================================== */
+
+:root {
+  --ac-verde-principal: #164b35;
+  --ac-verde-oscuro: #103b29;
+  --ac-verde-natural: #77945c;
+  --ac-verde-suave: #e7ede2;
+
+  --ac-terracota: #c5744e;
+  --ac-terracota-oscuro: #a15032;
+  --ac-terracota-suave: #f7e9e0;
+
+  --ac-fondo: #f6f7f2;
+  --ac-superficie: #ffffff;
+  --ac-texto: #26382f;
+  --ac-texto-secundario: #465e50;
+  --ac-borde: #d0dcd4;
+}
+
+/* Identidad de marca en la cabecera */
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.brand-logo {
+  display: block;
+  width: 52px;
+  height: 52px;
+  padding: 3px;
+  object-fit: contain;
+  background: var(--ac-superficie);
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.brand-text {
+  font-size: 1.35rem;
+  font-weight: 750;
+  letter-spacing: -0.03em;
+}
+
+/* Adaptación de la marca a dispositivos móviles */
+
+@media (max-width: 600px) {
+  .brand {
+    gap: 8px;
+  }
+
+  .brand-logo {
+    width: 42px;
+    height: 42px;
+  }
+
+  .brand-text {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .brand-logo {
+    width: 36px;
+    height: 36px;
+  }
+
+  .brand-text {
+    font-size: 1rem;
+  }
+}
+
+/* ==========================================
+   Aplicación de la identidad visual
+   ========================================== */
+
+:root {
+  --crema: var(--ac-fondo);
+  --verde-petróleo: var(--ac-verde-principal);
+  --carbón: var(--ac-texto);
+}
+
+/* Fondo y tipografía */
+
+body {
+  background: var(--ac-fondo);
+  color: var(--ac-texto);
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+main h1,
+main h2,
+main h3 {
+  color: var(--ac-verde-principal);
+}
+
+main h1 {
+  margin-bottom: 1rem;
+}
+
+/* Cabecera */
+
+header {
+  background: var(--ac-verde-principal);
+  border-bottom: 4px solid var(--ac-terracota);
+  box-shadow: 0 3px 12px rgba(22, 75, 53, .15);
+}
+
+.brand {
+  color: white;
+}
+
+.brand-logo {
+  width: 64px;
+  height: 64px;
+  padding: 3px;
+}
+
+.brand-text {
+  font-size: 1.65rem;
+  letter-spacing: -.025em;
+}
+
+/* Navegación */
+
+.nav-link:hover {
+  background: rgba(255, 255, 255, .14);
+}
+
+.nav-link[aria-current="page"],
+.nav-sub > summary[aria-current="page"],
+.nav-sub[open] > summary {
+  background: var(--ac-verde-suave);
+  color: var(--ac-verde-principal);
+  font-weight: 700;
+}
+
+.nav-sub-panel {
+  background: var(--ac-superficie);
+  border-color: var(--ac-borde);
+}
+
+.nav-sub-panel .nav-link {
+  color: var(--ac-verde-principal);
+}
+
+.nav-sub-panel .nav-link:hover,
+.nav-sub-panel .nav-link[aria-current="page"] {
+  background: var(--ac-verde-suave);
+}
+
+/* Botones principales */
+
+button {
+  background: var(--ac-verde-principal);
+  color: white;
+}
+
+button:not(:disabled):not([aria-disabled="true"]):hover {
+  background: var(--ac-verde-oscuro);
+}
+
+/* Botones secundarios */
+
+.boton-sec {
+  background: transparent;
+  color: var(--ac-verde-principal);
+  border: 2px solid var(--ac-verde-principal);
+}
+
+.boton-sec:not(:disabled):not([aria-disabled="true"]):hover {
+  background: var(--ac-verde-suave);
+  color: var(--ac-verde-principal);
+}
+
+.boton-sec[aria-pressed="true"] {
+  background: var(--ac-verde-principal);
+  color: white;
+}
+
+/* Tarjetas y superficies */
+
+.tarjeta,
+.form-auth,
+.form-datos,
+.panel-seccion,
+.perfil-card,
+.intercambio-tarjeta,
+#gestion-inventario .t14-panel {
+  background: var(--ac-superficie);
+  border-color: var(--ac-borde);
+  box-shadow: 0 3px 12px rgba(22, 75, 53, .06);
+}
+
+.tarjeta {
+  border-top: 3px solid var(--ac-verde-natural);
+}
+
+.tarjeta h3,
+.perfil-card-titulo {
+  color: var(--ac-verde-principal);
+}
+
+/* Textos secundarios */
+
+.ayuda,
+.tarjeta .codigo,
+.tarjeta .metadatos,
+.panel-resumen,
+.perfil-dato-etiqueta,
+.t14-metadatos {
+  color: var(--ac-texto-secundario);
+}
+
+/* Enlaces */
+
+main a {
+  color: var(--ac-verde-principal);
+}
+
+main a:hover {
+  color: var(--ac-terracota-oscuro);
+}
+
+/* Accesibilidad: foco visible */
+
+:focus-visible {
+  outline: 3px solid var(--ac-terracota-oscuro);
+  outline-offset: 3px;
+}
+
+header :focus-visible {
+  outline-color: #fff;
+}
+
+.nav-sub-panel :focus-visible {
+  outline-color: var(--ac-terracota-oscuro);
+}
+
+/* Pie de página */
+
+.pie {
+  border-top: 2px solid var(--ac-verde-natural);
+  color: var(--ac-texto-secundario);
+}
+
+/* Adaptación a móviles */
+
+@media (max-width: 600px) {
+  header {
+    padding: .75rem;
+  }
+
+  .brand-logo {
+    width: 44px;
+    height: 44px;
+  }
+
+  .brand-text {
+    font-size: 1.15rem;
+  }
+
+  .brand {
+    gap: 8px;
+  }
+}
+
+@media (max-width: 360px) {
+  .brand-logo {
+    width: 36px;
+    height: 36px;
+  }
+
+  .brand-text {
+    font-size: 1rem;
+  }
+}
+
+/* ==========================================
+   Aula Circular - Refinamiento visual
+   ========================================== */
+
+/* Ancho general de la aplicación */
+
+main,
+.max-w,
+.pie {
+  max-width: 1200px;
+}
+
+main {
+  margin: 36px auto;
+  padding-inline: 1.25rem;
+}
+
+/* Cabecera y navegación */
+
+header > .max-w {
+  padding: 0;
+}
+
+header .brand {
+  gap: 12px;
+}
+
+header .nav {
+  gap: 12px;
+}
+
+header .nav-link {
+  font-size: .95rem;
+  padding: .65rem .9rem;
+}
+
+@media (min-width: 769px) {
+  header > .max-w {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+  }
+
+  header .nav {
+    margin-top: 0;
+    justify-content: flex-end;
+  }
+}
+
+/* Jerarquía de títulos */
+
+main h1 {
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  letter-spacing: -.035em;
+  line-height: 1.2;
+}
+
+main h2 {
+  letter-spacing: -.02em;
+  line-height: 1.3;
+}
+
+/* Tarjetas del catálogo */
+
+.tarjeta-grid {
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(min(100%, 280px), 1fr)
+  );
+  gap: 1.25rem;
+  padding: 0;
+  margin-top: 1.5rem;
+}
+
+.tarjeta {
+  padding: 1.25rem;
+  border-radius: 14px;
+  border-top: 4px solid var(--ac-verde-natural);
+  line-height: 1.5;
+  transition: box-shadow .2s, border-color .2s;
+}
+
+.tarjeta:hover {
+  border-top-color: var(--ac-terracota);
+  box-shadow: 0 6px 20px rgba(22, 75, 53, .10);
+}
+
+.tarjeta h3 {
+  font-size: 1.15rem;
+  margin: .6rem 0;
+}
+
+.tarjeta p {
+  margin-bottom: .35rem;
+}
+
+/* Filtros de búsqueda */
+
+.filtros-lab,
+.filtros-catalogo {
+  background: var(--ac-superficie);
+  border: 1px solid var(--ac-borde);
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin-block: 1.25rem;
+}
+
+input[type="checkbox"] {
+  accent-color: var(--ac-verde-principal);
+}
+
+/* Pantalla de inicio de sesión */
+
+.pagina-login main {
+  max-width: 600px;
+  margin: 36px auto;
+}
+
+.pagina-login .login-presentacion {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.pagina-login .login-logo {
+  width: 110px;
+  height: 110px;
+  object-fit: contain;
+  margin-bottom: 1rem;
+}
+
+.pagina-login h1 {
+  font-size: clamp(1.7rem, 4vw, 2.2rem);
+  margin-bottom: .5rem;
+}
+
+.login-lema {
+  color: var(--ac-texto-secundario);
+  font-size: 1rem;
+}
+
+.pagina-login .cuenta {
+  max-width: 480px;
+  margin-inline: auto;
+}
+
+.pagina-login .cuenta-cambio {
+  display: flex;
+  gap: 10px;
+}
+
+.pagina-login .cuenta-cambio > button {
+  flex: 1;
+}
+
+.pagina-login .form-auth {
+  width: 100%;
+  max-width: none;
+  padding: 1.75rem;
+  border-radius: 16px;
+  box-shadow: 0 8px 30px rgba(22, 75, 53, .08);
+}
+
+.pagina-login .form-auth h3 {
+  font-size: 1.3rem;
+}
+
+.pagina-login button[type="submit"] {
+  width: 100%;
+  margin-top: .5rem;
+}
+
+.pagina-login .fila-clave input {
+  min-width: 0;
+}
+
+.pagina-login .pie {
+  max-width: 600px;
+}
+
+/* Mi espacio */
+
+.perfil-card-titulo {
+  font-size: clamp(1.35rem, 4vw, 2rem);
+  overflow-wrap: anywhere;
+}
+
+/* Responsive */
+
+@media (max-width: 768px) {
+  main {
+    margin: 24px auto;
+    padding-inline: 1rem;
+  }
+
+  header > .max-w {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  header .nav {
+    flex-basis: 100%;
+    min-width: 0;
+  }
+
+  header .brand {
+    gap: 8px;
+  }
+
+  header .menu-boton {
+    margin: 0;
+  }
+
+  .tarjeta-grid {
+    gap: 1rem;
+  }
+
+  .filtros-lab,
+  .filtros-catalogo {
+    padding: 1rem;
+  }
+
+  .pagina-login .form-auth {
+    padding: 1.25rem;
+  }
+}
+
+@media (max-width: 390px) {
+  .brand-text {
+    font-size: 1rem;
+  }
+
+  .brand-logo {
+    width: 38px;
+    height: 38px;
+  }
+
+  header .menu-boton {
+    font-size: .85rem;
+    padding: .6rem;
+  }
+
+  .tarjeta {
+    padding: 1rem;
+  }
+
+  .pagina-login .login-logo {
+    width: 90px;
+    height: 90px;
+  }
+}
+
+/* Respetar las preferencias de movimiento */
+
+@media (prefers-reduced-motion: reduce) {
+  .tarjeta,
+  .nav-link {
+    transition: none;
+  }
+}

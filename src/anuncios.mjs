@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { randomUUID } from 'node:crypto';
+import { cursoMaterialPermitido } from './cursos.mjs';
 
 const campos=['titulo','descripcion','cursoId','asignatura','edicion','isbn','conservacion','modalidad'];
 const esId = id => Number.isSafeInteger(id) && id>0;
@@ -252,6 +253,22 @@ export function rutasAnuncios(pool,sesionNecesaria,activaNecesaria){
     }catch(e){await cliente.query('ROLLBACK');throw e;}finally{cliente.release();}
   }
   async function cursoValido(cliente,id){return (await cliente.query('SELECT id FROM curso WHERE id=$1 AND activo FOR SHARE',[id])).rowCount;}
+  async function cursoPermitido(cliente,usuarioId,cursoId){
+    const resultado=await cliente.query(`SELECT curso_alumno.codigo AS curso_alumno,
+        curso_material.codigo AS curso_material
+      FROM usuario u
+      LEFT JOIN curso curso_alumno ON curso_alumno.id=u.curso_confirmado_id
+      JOIN curso curso_material ON curso_material.id=$2
+      WHERE u.id=$1`,[usuarioId,cursoId]);
+    if(!resultado.rowCount) return false;
+    const {curso_alumno,curso_material}=resultado.rows[0];
+    return cursoMaterialPermitido(curso_alumno,curso_material);
+  }
+  const errorCursoNoPermitido={
+    codigo:403,
+    error:'MATERIAL_DE_OTRO_CURSO',
+    mensaje:'Los alumnos de DAW1 no pueden añadir material de DAW2.'
+  };
   async function evento(cliente,id,actor,accion,antes,despues,motivo=''){
     await cliente.query(`INSERT INTO evento_anuncio(anuncio_id,actor_id,accion,estado_anterior,estado_nuevo,motivo)
       VALUES($1,$2,$3,$4,$5,$6)`,[id,actor,accion,antes,despues,motivo]);
@@ -261,6 +278,7 @@ export function rutasAnuncios(pool,sesionNecesaria,activaNecesaria){
     if(Object.keys(errores).length) return res.status(422).json({error:'DATOS_INVALIDOS',campos:errores});
     await transaccion(req,res,async cliente=>{
       if(!await cursoValido(cliente,d.cursoId)) return {codigo:422,error:'CURSO_INVALIDO'};
+      if(!await cursoPermitido(cliente,req.usuario.id,d.cursoId)) return errorCursoNoPermitido;
       const recurso=await cliente.query(`INSERT INTO recurso(origen,tipo,titulo,descripcion,curso_id,asignatura,edicion,isbn)
         VALUES('alumno','fisico',$1,$2,$3,$4,$5,$6) RETURNING id`,[d.titulo,d.descripcion,d.cursoId,d.asignatura,d.edicion,d.isbn]);
       const ejemplar=await cliente.query(`INSERT INTO ejemplar(recurso_id,codigo,propietario_usuario_id,conservacion)
@@ -292,6 +310,7 @@ export function rutasAnuncios(pool,sesionNecesaria,activaNecesaria){
       const a=x.anuncio;
       if(a.version!==req.body.version) return {codigo:409,error:'VERSION_DESACTUALIZADA',mensaje:'Hay una versión más reciente. Recarga el anuncio; tus cambios no se han guardado.'};
       if(!await cursoValido(cliente,d.cursoId)) return {codigo:422,error:'CURSO_INVALIDO'};
+      if(!await cursoPermitido(cliente,req.usuario.id,d.cursoId)) return errorCursoNoPermitido;
       if(a.estado_revision==='pendiente') return {codigo:409,error:'ANUNCIO_EN_REVISION',mensaje:'El anuncio está en revisión. Espera a la respuesta docente.'};
       const actual=(await cliente.query('SELECT * FROM recurso WHERE id=$1',[x.ejemplar.recurso_id])).rows[0];
       const cambio=['titulo','descripcion','asignatura','edicion','isbn'].some(c=>actual[c]!==d[c])||actual.curso_id!==d.cursoId||
@@ -328,6 +347,7 @@ export function rutasAnuncios(pool,sesionNecesaria,activaNecesaria){
       const {errores}=validar(Object.fromEntries(campos.map(c=>[c,actual[c]])));
       if(Object.keys(errores).length) return {codigo:422,error:'DATOS_INVALIDOS',campos:errores};
       if(!await cursoValido(cliente,actual.cursoId)) return {codigo:422,error:'CURSO_INVALIDO'};
+      if(!await cursoPermitido(cliente,req.usuario.id,actual.cursoId)) return errorCursoNoPermitido;
       const r=await cliente.query(`UPDATE anuncio SET estado_revision='pendiente',version=version+1,actualizada_en=now()
         WHERE id=$1 RETURNING id,version,estado_revision`,[id]);
       await evento(cliente,id,req.usuario.id,'enviar',a.estado_revision,'pendiente');

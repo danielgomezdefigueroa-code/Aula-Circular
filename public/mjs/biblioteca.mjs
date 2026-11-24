@@ -2,7 +2,12 @@
  * La API aplica filtros y devuelve una página de fichas individuales.
  */
 import { listo, pedir, leerJson, irALogin } from './shell.mjs';
-import { crearTarjeta, puedeConsultar, textoError } from './catalogo-comun.mjs';
+import {
+  crearLineaEjemplar,
+  crearTarjeta,
+  puedeConsultar,
+  textoError
+} from './catalogo-comun.mjs';
 import { cargarCursos } from './filtros-catalogo.mjs';
 import { iniciarGestionInventario } from './gestion-inventario.mjs';
 
@@ -171,11 +176,7 @@ function crearTarjetaConEdiciones(fichas) {
         fila.append(cantidad);
 
         for (const copia of copias) {
-          const codigo = document.createElement('p');
-          codigo.className = 't14-edicion-codigo';
-          codigo.textContent = copia.codigo + ' · ' +
-            (copia.disponible ? 'Disponible' : copia.estado_servicio === 'retirado' ? 'Retirado' : 'No disponible');
-          fila.append(codigo);
+          fila.append(crearLineaEjemplar(copia, identidad, mostrar));
         }
         if (copias.length === 0) {
           const vacio = document.createElement('p');

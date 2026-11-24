@@ -19,6 +19,9 @@ Campos del anuncio: título, descripción opcional, curso del libro, asignatura,
 | PATCH /api/anuncios/:id | Guardar todos los campos editables y la versión leída |
 | POST /api/anuncios/:id/enviar | Cuerpo `{version}`; pasa borrador/rechazado a pendiente |
 | GET /api/libros?q=&curso=&modalidad=&disponible=&pagina=1&limite=20 | Listado publicado para alumno/docente activos, con búsqueda, filtros y total |
+| POST /api/prestamos/solicitudes | Un alumno activo solicita un ejemplar disponible del Centro o un anuncio publicado de préstamo de otro alumno |
+
+En las tarjetas de Libros, una cuenta de alumno activo puede solicitar los anuncios publicados de modalidad préstamo que estén disponibles y no sean propios. El docente adjudica la solicitud con fecha de vencimiento; la operación conserva al propietario como participante de origen y al solicitante como destino. La devolución libera el ejemplar y mantiene su propietario.
 
 Todas las escrituras exigen sesión, estado activo, rol alumno, token CSRF y Origin válido. Los listados admiten 1-20 registros por página. Los ISBN no vacíos se validan con su dígito de control (ISBN-10/ISBN-13). Una edición antigua devuelve 409 sin escribir cambios. Ese control también cubre la ampliación de versiones del itinerario de 500 h.
 

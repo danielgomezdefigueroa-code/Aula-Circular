@@ -5,11 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Aula Circular · Entrar</title>
   <link rel="stylesheet" href="../css/estilo.css">
+  <link rel="icon" type="image/x-icon" href="../img/favicon.ico">
+  <link rel="icon" type="image/png" sizes="64x64" href="../img/favicon.png">
 </head>
-<body>
+<body class="pagina-login">
     <header>
       <div class="max-w">
-        <span class="brand">Aula Circular</span>
+        <span class="brand"><img class="brand-logo" src="../img/logo-aula-circular.png" alt="" width="52" height="52"><span class="brand-text">Aula Circular</span></span>
       </div>
     </header>
     <main id="contenido">
@@ -17,7 +19,23 @@
            Al entrar o al registrarse se pasa a index.html; allí se ve el
            estado de las cuentas pendientes o suspendidas. -->
       <section class="seccion" aria-labelledby="titulo-login">
-        <h1 id="titulo-login" tabindex="-1">Tu cuenta de Aula Circular.</h1>
+        <div class="login-presentacion">
+          <img
+            class="login-logo"
+            src="../img/logo-aula-circular.png"
+            alt=""
+            width="110"
+            height="110"
+          >
+
+          <h1 id="titulo-login" tabindex="-1">
+            Bienvenido a Aula Circular
+          </h1>
+
+          <p class="login-lema">
+            Compartir, aprender y reutilizar.
+          </p>
+        </div>
 
         <div id="cuenta" class="cuenta" aria-labelledby="titulo-login">
           <p id="aviso-carga" class="resumen-errores" role="alert">Los formularios no están activos. Abre esta página desde el servidor (por ejemplo http://127.0.0.1:3000), no como archivo, y con JavaScript activado.</p>

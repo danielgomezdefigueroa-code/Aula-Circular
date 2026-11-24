@@ -306,6 +306,37 @@ assert.equal(
       assert.equal((await pedir(a,'/api/mi-espacio?propietario=2')).status,422);
       assert.equal((await pedir(a,'/api/libros')).datos.some(x=>'correo' in x||'propietario_usuario_id' in x),false);
     });
+    await t.test('Cada alumno solo crea material permitido y el propietario viene de la sesión',async()=>{
+      await pool.query(
+        'UPDATE usuario SET curso_confirmado_id=$1 WHERE id=$2',
+        [1,ids.a]
+      );
+      await pool.query(
+        'UPDATE usuario SET curso_confirmado_id=$1 WHERE id=$2',
+        [2,ids.b]
+      );
+
+      const antes=(await pool.query('SELECT count(*)::integer AS total FROM anuncio')).rows[0].total;
+      const prohibido=await pedir(a,'/api/anuncios','POST',{
+        ...datos,titulo:'DAW1 no debe crear material DAW2'
+      });
+      assert.equal(prohibido.status,403);
+      assert.equal(prohibido.error,'MATERIAL_DE_OTRO_CURSO');
+      assert.equal((await pool.query('SELECT count(*)::integer AS total FROM anuncio')).rows[0].total,antes);
+
+      for(const [sesion,usuario,cursoId,titulo] of [
+        [a,ids.a,1,'Material permitido de DAW1'],
+        [b,ids.b,1,'DAW2 puede crear material DAW1'],
+        [b,ids.b,2,'DAW2 puede crear material DAW2']
+      ]){
+        const creado=await pedir(sesion,'/api/anuncios','POST',{
+          ...datos,titulo,cursoId
+        });
+        assert.equal(creado.status,201);
+        const detalle=await pedir(sesion,'/api/anuncios/'+creado.datos.id);
+        assert.equal(detalle.datos.propietario_usuario_id,usuario);
+      }
+    });
   }finally{
     if(servidor)await new Promise((ok,fallo)=>servidor.close(e=>e ? fallo(e):ok()));
     if(almacen)await almacen.close();if(pool)await pool.end();

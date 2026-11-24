@@ -239,11 +239,24 @@ export function rutasCatalogo(pool, sesionNecesaria, activaNecesaria) {
           `SELECT e.id, e.codigo, e.estado_servicio,
                   (e.estado_servicio = 'habilitado' AND NOT EXISTS (
                     SELECT 1 FROM reserva_activa ra WHERE ra.ejemplar_id = e.id
-                  )) AS disponible
+                  ) AND NOT EXISTS (
+                    SELECT 1
+                    FROM operacion_item oi
+                    JOIN operacion o ON o.id = oi.operacion_id
+                    WHERE oi.ejemplar_id = e.id
+                      AND o.estado IN ('reservada','prestada')
+                  )) AS disponible,
+                  EXISTS (
+                    SELECT 1
+                    FROM solicitud s
+                    WHERE s.ejemplar_id = e.id
+                      AND s.solicitante_id = $2
+                      AND s.estado = 'pendiente'
+                  ) AS solicitud_pendiente
            FROM ejemplar e
            WHERE e.recurso_id = $1
            ORDER BY e.codigo, e.id`,
-          [id]
+          [id, req.usuario.id]
         )).rows
         : [];
 

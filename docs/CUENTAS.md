@@ -12,7 +12,7 @@ Usa Node 24. Si `node --version` muestra Node 6 de Brackets, abre una terminal n
 2. Copia `.env.example` a `.env` solo si no existe. Comprueba que `PGDATABASE` coincide con la base creada y completa tu contraseña local de PostgreSQL.
 3. `npm.cmd run preparar`: genera un secreto local si no existe y añade el origen local.
 4. `npm.cmd run migrar`: aplica las migraciones pendientes en una transacción. Conserva su hash y no vuelve a aplicarlas. No cambia el SQL inicial ya utilizado.
-5. `psql -f sql/001_laboratorio.sql`: carga los datos ficticios de demo, inventario, anuncios y documentos. Es idempotente y debe ejecutarse después de migrar.
+5. `psql -f sql/001_laboratorio.sql`: carga los datos ficticios de demo, inventario, anuncios y metadatos documentales en borrador. Es idempotente y debe ejecutarse después de migrar. Para que los documentos sean visibles y descargables, hay que cargarlos y publicarlos mediante la ruta protegida de la aplicación.
 6. `npm.cmd run dev`
 7. Abre `http://127.0.0.1:3000/html/login.html`.
 

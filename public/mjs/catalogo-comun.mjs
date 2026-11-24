@@ -3,6 +3,12 @@
  * La API determina permisos, disponibilidad y versiones autorizadas.
  */
 
+import {
+  enviar,
+  irALogin,
+  leerJson
+} from './shell.mjs';
+
 export const modalidades = {
   prestamo: 'Préstamo físico',
   cesion: 'Cesión',
@@ -69,6 +75,7 @@ export function puedeConsultar(identidad) {
 
 export function textoError(respuesta, cuerpo, contexto = 'el catálogo') {
   if (respuesta.status === 401) return 'Tu sesión ha caducado. Vuelve a iniciar sesión.';
+  if (cuerpo?.error === 'MATERIAL_DE_OTRO_CURSO') return 'MATERIAL_DE_OTRO_CURSO';
   if (respuesta.status === 403) return 'Necesitas una cuenta activa de alumnado o docencia para consultar ' + contexto + '.';
   return cuerpo?.mensaje ?? cuerpo?.error ?? 'No se pudo cargar ' + contexto + '.';
 }
@@ -108,6 +115,92 @@ function parrafo(clase, texto) {
   elemento.className = clase;
   elemento.textContent = texto;
   return elemento;
+}
+
+export function crearLineaEjemplar(ejemplar, identidad, mostrar) {
+  const fila = document.createElement('p');
+  fila.className = 't14-edicion-codigo';
+  const codigo = document.createElement('span');
+  codigo.textContent = ejemplar.codigo;
+  const estado = document.createElement('span');
+  fila.append(codigo, document.createTextNode(' · '), estado);
+
+  if (ejemplar.solicitud_pendiente) {
+    estado.textContent = 'Préstamo pendiente';
+    return fila;
+  }
+  if (!ejemplar.disponible) {
+    estado.textContent = ejemplar.estado_servicio === 'retirado'
+      ? 'Retirado'
+      : 'No disponible';
+    return fila;
+  }
+  if (
+    identidad?.estado !== 'activo' ||
+    !Array.isArray(identidad.roles) ||
+    !identidad.roles.includes('alumno')
+  ) {
+    estado.textContent = 'Disponible';
+    return fila;
+  }
+
+  const boton = document.createElement('button');
+  boton.type = 'button';
+  boton.className = 't14-enlace-prestamo';
+  let punteroSobre = false;
+  let enfocado = false;
+  const actualizarEtiqueta = () => {
+    boton.textContent = boton.disabled
+      ? 'Enviando…'
+      : (punteroSobre || enfocado ? 'Solicitar préstamo' : 'Disponible');
+  };
+  boton.textContent = 'Disponible';
+  boton.addEventListener('pointerenter', () => {
+    punteroSobre = true;
+    actualizarEtiqueta();
+  });
+  boton.addEventListener('pointerleave', () => {
+    punteroSobre = false;
+    actualizarEtiqueta();
+  });
+  boton.addEventListener('focus', () => {
+    enfocado = true;
+    actualizarEtiqueta();
+  });
+  boton.addEventListener('blur', () => {
+    enfocado = false;
+    actualizarEtiqueta();
+  });
+  boton.addEventListener('click', async () => {
+    boton.disabled = true;
+    actualizarEtiqueta();
+    try {
+      const respuesta = await enviar('/prestamos/solicitudes', {
+        ejemplarId: ejemplar.id
+      });
+      const cuerpo = await leerJson(respuesta);
+      if (respuesta.status === 401) {
+        irALogin();
+        return;
+      }
+      if (!respuesta.ok) {
+        boton.disabled = false;
+        actualizarEtiqueta();
+        mostrar(textoError(respuesta, cuerpo, 'el préstamo'), true);
+        return;
+      }
+      const pendiente = document.createElement('span');
+      pendiente.textContent = 'Préstamo pendiente';
+      boton.replaceWith(pendiente);
+      mostrar('Solicitud de préstamo enviada. Un docente la revisará.');
+    } catch {
+      boton.disabled = false;
+      actualizarEtiqueta();
+      mostrar('No se pudo contactar con el servidor. Inténtalo de nuevo.', true);
+    }
+  });
+  estado.replaceWith(boton);
+  return fila;
 }
 
 export function crearTarjeta(recurso) {

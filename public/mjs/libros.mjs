@@ -83,6 +83,14 @@ function puedeSolicitar(anuncio) {
     && identidad.roles.includes('alumno');
 }
 
+function puedeSolicitarPrestamo(anuncio) {
+  return anuncio.modalidad === 'prestamo'
+    && anuncio.disponible === true
+    && anuncio.es_propio !== true
+    && Array.isArray(identidad?.roles)
+    && identidad.roles.includes('alumno');
+}
+
 function puedeProponer(anuncio) {
   return anuncio.modalidad === 'intercambio'
     && anuncio.disponible === true
@@ -112,6 +120,33 @@ async function solicitarCesion(anuncio, boton) {
   } catch {
     boton.disabled = false;
     boton.textContent = 'Solicitar cesión';
+    mostrar('No se pudo contactar con el servidor. Inténtalo de nuevo.', true);
+  }
+}
+
+async function solicitarPrestamo(anuncio, boton) {
+  boton.disabled = true;
+  boton.textContent = 'Enviando…';
+  try {
+    const respuesta = await enviar('/prestamos/solicitudes', {
+      ejemplarId: anuncio.ejemplar_id
+    });
+    const cuerpo = await leerJson(respuesta);
+    if (respuesta.status === 401) {
+      irALogin();
+      return;
+    }
+    if (!respuesta.ok) {
+      boton.disabled = false;
+      boton.textContent = 'Solicitar préstamo';
+      mostrar(textoError(respuesta, cuerpo, 'la solicitud de préstamo'), true);
+      return;
+    }
+    boton.textContent = 'Solicitud enviada';
+    mostrar('Solicitud de préstamo enviada. Un docente la revisará.', true);
+  } catch {
+    boton.disabled = false;
+    boton.textContent = 'Solicitar préstamo';
     mostrar('No se pudo contactar con el servidor. Inténtalo de nuevo.', true);
   }
 }
@@ -224,12 +259,11 @@ async function cargarOpcionesIntercambio(anuncio) {
     if (!ofrecidos.length) {
       const vacio = document.createElement('option');
       vacio.value = '';
-      vacio.textContent = 'No tienes publicaciones de intercambio disponibles';
+      vacio.textContent = 'No tienes material para ofrecer';
       ofrecidoSelect.append(vacio);
       ofrecidoSelect.disabled = true;
       pintarFicha(ofrecidoDatos, null);
-      dialogoMensaje.textContent =
-        'Necesitas un anuncio propio de intercambio, publicado y disponible, para proponer este par.';
+      dialogoMensaje.textContent = 'No tienes material para ofrecer.';
       dialogoMensaje.focus();
       return;
     }
@@ -341,6 +375,17 @@ function crearAnuncio(anuncio) {
     boton.type = 'button';
     boton.textContent = 'Solicitar cesión';
     boton.addEventListener('click', () => solicitarCesion(anuncio, boton));
+    acciones.append(boton);
+    tarjeta.append(acciones);
+  }
+
+  if (puedeSolicitarPrestamo(anuncio)) {
+    const acciones = document.createElement('div');
+    acciones.className = 'acciones-tarjeta';
+    const boton = document.createElement('button');
+    boton.type = 'button';
+    boton.textContent = 'Solicitar préstamo';
+    boton.addEventListener('click', () => solicitarPrestamo(anuncio, boton));
     acciones.append(boton);
     tarjeta.append(acciones);
   }

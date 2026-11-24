@@ -231,6 +231,46 @@ test('Intercambios: propuesta, aceptación, rechazo y estado obsoleto', async t 
       );
       assert.equal(reservas.rows[0].n, 0);
     });
+
+    await t.test('El proponente cancela y el receptor no puede aceptar después', async () => {
+      const A3 = await crearAnuncio(a, 'Intercambio A3');
+      const B3 = await crearAnuncio(b, 'Intercambio B3');
+      const propuesta = await post(a, '/api/intercambios', {
+        ejemplarOfrecidoId: A3.ejemplar,
+        ejemplarSolicitadoId: B3.ejemplar,
+        confirmoPropuesta: true
+      });
+      assert.equal(propuesta.status, 201);
+
+      const cancelacionAjena = await post(
+        b, `/api/intercambios/${propuesta.datos.id}/cancelar`, {});
+      assert.equal(cancelacionAjena.status, 403);
+      assert.equal(cancelacionAjena.error, 'SOLO_PROPONENTE_PUEDE_CANCELAR');
+
+      const cancelacion = await post(a, `/api/intercambios/${propuesta.datos.id}/cancelar`, {});
+      assert.equal(cancelacion.status, 200);
+      assert.equal(cancelacion.datos.estado, 'cancelada');
+
+      const entrada = {
+        ejemplarOfrecidoId: A3.ejemplar,
+        ejemplarSolicitadoId: B3.ejemplar,
+        versionOfrecida: A3.version,
+        versionSolicitada: B3.version,
+        confirmoAceptacion: true
+      };
+      const aceptacion = await post(
+        b, `/api/intercambios/${propuesta.datos.id}/aceptar`, entrada);
+      assert.equal(aceptacion.status, 409);
+      assert.equal(aceptacion.error, 'PROPUESTA_NO_VIGENTE');
+
+      const detalle = await pedir(b, `/api/intercambios/${propuesta.datos.id}`);
+      assert.equal(detalle.datos.canceladoPor, 'Cuenta a');
+      const panel = await pedir(b, '/api/mi-espacio/panel');
+      assert.ok(panel.datos.avisos.some(aviso =>
+        aviso.mensaje === 'Intercambio cancelado por Cuenta a'));
+      const historial = panel.datos.prestamos.find(x => x.id === propuesta.datos.id);
+      assert.equal(historial.cancelado_por, 'Cuenta a');
+    });
   } finally {
     if (servidor) await new Promise((ok, fallo) => servidor.close(e => e ? fallo(e) : ok()));
     if (almacen) await almacen.close();

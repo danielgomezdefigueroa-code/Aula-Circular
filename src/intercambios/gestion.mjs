@@ -1,3 +1,5 @@
+import { comprobarRecepcionMaterial } from '../cursos.mjs';
+
 const fallo = (codigo, mensaje) =>
   Object.assign(new Error(mensaje), { codigo });
 
@@ -180,6 +182,15 @@ export async function gestionarIntercambio(
         r.tipo !== 'fisico' || r.origen !== 'alumno')) {
         throw fallo(409, 'EJEMPLAR_NO_APTO');
       }
+
+      const ofrecido = ejemplares.rows.find(
+        e => e.id === ref.ejemplar_ofrecido_id
+      );
+      const solicitado = ejemplares.rows.find(
+        e => e.id === ref.ejemplar_solicitado_id
+      );
+      await comprobarRecepcionMaterial(c, ref.receptor_id, ofrecido.recurso_id);
+      await comprobarRecepcionMaterial(c, ref.proponente_id, solicitado.recurso_id);
 
       const aceptaciones = await c.query(
         `SELECT usuario_id FROM aceptacion_intercambio

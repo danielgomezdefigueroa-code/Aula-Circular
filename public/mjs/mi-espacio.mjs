@@ -89,6 +89,9 @@ function mostrar(texto, enfocar = false) {
 
 function textoError(respuesta, cuerpo) {
   if (respuesta.status === 401) return 'Tu sesión ha caducado. Vuelve a iniciar sesión.';
+  if (cuerpo?.error === 'MATERIAL_DE_OTRO_CURSO') {
+    return cuerpo.mensaje ?? 'MATERIAL_DE_OTRO_CURSO';
+  }
   if (respuesta.status === 403) return cuerpo?.mensaje ?? 'No tienes permiso para realizar esta acción.';
   if (cuerpo?.campos) {
     return Object.entries(cuerpo.campos)
@@ -129,6 +132,9 @@ function textoResumen(total, pendientes, acciones, singular, plural) {
 
 function estadoOperacionTexto(prestamo) {
   if (prestamo.tipo === 'intercambio') {
+    if (prestamo.estado === 'cancelada' && prestamo.cancelado_por) {
+      return 'Intercambio cancelado por ' + prestamo.cancelado_por;
+    }
     if (prestamo.estado === 'propuesta') {
       return Number(prestamo.aceptaciones) >= 2
         ? 'Esperando confirmación docente'
@@ -297,10 +303,14 @@ function renderPanel(cuerpo) {
     const aceptaciones = prestamo.tipo === 'intercambio' && prestamo.estado === 'propuesta'
       ? ' · ' + (Number(prestamo.aceptaciones) || 0) + ' de 2 aceptaciones'
       : '';
-    estado.textContent = [
-      tiposOperacion[prestamo.tipo] ?? prestamo.tipo,
-      estadoTexto + aceptaciones
-    ].filter(Boolean).join(': ') + (prestamo.requiere_accion ? ' · requiere tu acción' : '');
+    const textoCancelacion = prestamo.tipo === 'intercambio' &&
+      prestamo.estado === 'cancelada' && prestamo.cancelado_por;
+    estado.textContent = (textoCancelacion
+      ? estadoTexto
+      : [
+        tiposOperacion[prestamo.tipo] ?? prestamo.tipo,
+        estadoTexto + aceptaciones
+      ].filter(Boolean).join(': ')) + (prestamo.requiere_accion ? ' · requiere tu acción' : '');
     const meta = document.createElement('p');
     meta.className = 'metadatos';
     meta.textContent = [
@@ -501,8 +511,12 @@ async function cargarCursos() {
   inicial.textContent = 'Selecciona un curso';
   select.append(inicial);
   let validos = 0;
+  const cursoAlumno = cursos.find(
+    (curso) => curso.id === identidad?.curso_confirmado_id
+  );
   for (const curso of cursos) {
     if (!Number.isSafeInteger(curso.id) || typeof curso.nombre !== 'string') continue;
+    if (cursoAlumno?.codigo === 'DAW1' && curso.codigo === 'DAW2') continue;
     const opcion = document.createElement('option');
     opcion.value = String(curso.id);
     opcion.textContent = curso.nombre;
