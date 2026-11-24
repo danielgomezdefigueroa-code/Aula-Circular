@@ -81,6 +81,11 @@ export function rutasMiEspacio(pool, sesionNecesaria, activaNecesaria) {
             (o.estado IN ('propuesta', 'reservada', 'prestada')) AS pendiente,
             (SELECT count(*)::int FROM aceptacion_intercambio a
              WHERE a.operacion_id = o.id) AS aceptaciones,
+            (SELECT u.alias FROM evento_operacion ev
+             JOIN usuario u ON u.id = ev.actor_id
+             WHERE ev.operacion_id = o.id
+               AND ev.accion = 'cancelar_intercambio_solicitante'
+             ORDER BY ev.id DESC LIMIT 1) AS cancelado_por,
             CASE
               WHEN o.tipo = 'intercambio' THEN 'intercambio'
               WHEN EXISTS (

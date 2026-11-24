@@ -16,6 +16,18 @@
 .t14-metadatos { margin-top: .6rem; color: #3d5246; font-size: .92rem; }
 .t14-ejemplares { display: block; list-style: none; padding: 0; margin: .75rem 0 0; }
 .t14-ejemplares li { padding: .5rem .65rem; margin-top: .3rem; border-radius: 6px; background: #f3f6f4; border: 1px solid #d0dcd4; }
+.t14-enlace-prestamo {
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #17614d;
+  font: inherit;
+  text-decoration: underline;
+}
+.t14-enlace-prestamo:hover { background: #e5f2ea; }
+.t14-enlace-prestamo:disabled { color: #465e50; cursor: wait; }
 .t14-detalle-ejemplares { margin-top: .4rem; }
 #gestion-inventario .t14-aviso { font-size: .9rem; color: #465e50; margin-bottom: .8rem; }
 @media (max-width: 600px) {

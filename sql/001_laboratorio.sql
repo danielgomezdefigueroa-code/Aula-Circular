@@ -4,7 +4,8 @@
 --
 -- Archivo único de datos de demostración. Sustituye al antiguo
 -- sql/historico/inventario_raisa_historico.sql y conserva su inventario,
--- sus anuncios estudiantiles y sus documentos.
+-- sus anuncios estudiantiles y metadatos de documentos en borrador.
+-- La publicación de documentos requiere cargar los archivos por la ruta protegida.
 --
 -- El esquema lo crean las migraciones. Ejecutar antes:
 --
@@ -202,7 +203,7 @@ JOIN ejemplar e ON e.codigo = d.codigo_ejemplar
 ON CONFLICT (ejemplar_id) DO NOTHING;
 
 -- ============================================================
--- 5. DOCUMENTOS Y VERSIONES
+-- 5. METADATOS DE DOCUMENTOS Y VERSIONES EN BORRADOR
 -- ============================================================
 
 INSERT INTO documento
@@ -234,43 +235,30 @@ VALUES
    'documentos/DOC-003_Solicitud_material_v1.pdf')
 ON CONFLICT (ruta) DO NOTHING;
 
--- DOC-001 conserva la versión 1, pero la vigente es la 2.
+-- Las versiones creadas por este SQL quedan en borrador y no vigentes.
+-- La carga y publicación de archivos se realiza mediante la ruta protegida.
 INSERT INTO documento_version
-  (documento_id, numero_version, fecha, archivo_id, actual)
-SELECT d.id, 1, DATE '2026-10-07', a.id, false
+  (documento_id, numero_version, fecha, archivo_id, actual, estado_version)
+SELECT d.id, 1, DATE '2026-10-07', a.id, false, 'borrador'
 FROM documento d
 JOIN archivo a
   ON a.ruta = 'documentos/DOC-001_Guia_inicio_curso_v1.pdf'
 WHERE d.codigo = 'DOC-001'
 ON CONFLICT (documento_id, numero_version) DO NOTHING;
 
-UPDATE documento_version v
-SET actual = false
-WHERE v.documento_id = (SELECT id FROM documento WHERE codigo = 'DOC-001')
-  AND v.numero_version = 1;
-
 INSERT INTO documento_version
-  (documento_id, numero_version, fecha, archivo_id, actual)
-SELECT d.id, 2, DATE '2026-10-07', a.id, true
+  (documento_id, numero_version, fecha, archivo_id, actual, estado_version)
+SELECT d.id, 2, DATE '2026-10-07', a.id, false, 'borrador'
 FROM documento d
 JOIN archivo a
   ON a.ruta = 'documentos/DOC-001_Guia_inicio_curso_v2.pdf'
 WHERE d.codigo = 'DOC-001'
 ON CONFLICT (documento_id, numero_version) DO NOTHING;
 
-UPDATE documento_version v
-SET actual = true
-WHERE v.documento_id = (SELECT id FROM documento WHERE codigo = 'DOC-001')
-  AND v.numero_version = 2
-  AND NOT EXISTS (
-    SELECT 1 FROM documento_version x
-    WHERE x.documento_id = v.documento_id AND x.actual
-  );
-
--- DOC-002 y DOC-003 tienen una única versión vigente.
+-- DOC-002 y DOC-003 también quedan pendientes de carga y publicación.
 INSERT INTO documento_version
-  (documento_id, numero_version, fecha, archivo_id, actual)
-SELECT d.id, 1, DATE '2026-10-07', a.id, true
+  (documento_id, numero_version, fecha, archivo_id, actual, estado_version)
+SELECT d.id, 1, DATE '2026-10-07', a.id, false, 'borrador'
 FROM documento d
 JOIN archivo a
   ON a.ruta = 'documentos/DOC-002_Listado_material_v1.pdf'
@@ -278,8 +266,8 @@ WHERE d.codigo = 'DOC-002'
 ON CONFLICT (documento_id, numero_version) DO NOTHING;
 
 INSERT INTO documento_version
-  (documento_id, numero_version, fecha, archivo_id, actual)
-SELECT d.id, 1, DATE '2026-10-07', a.id, true
+  (documento_id, numero_version, fecha, archivo_id, actual, estado_version)
+SELECT d.id, 1, DATE '2026-10-07', a.id, false, 'borrador'
 FROM documento d
 JOIN archivo a
   ON a.ruta = 'documentos/DOC-003_Solicitud_material_v1.pdf'

@@ -48,6 +48,7 @@ function mensajeError(cuerpo) {
     PROPUESTA_NO_VIGENTE: 'La propuesta ya no está vigente. Actualiza el detalle.',
     PROPUESTA_YA_ACEPTADA: 'Ya has aceptado esta propuesta. No puedes rechazarla después.',
     PROPUESTA_YA_EXISTENTE: 'Ya existe una propuesta igual pendiente.',
+    SOLO_PROPONENTE_PUEDE_CANCELAR: 'Solo quien inició la propuesta puede cancelarla.',
     EJEMPLAR_OCUPADO: 'Uno de los ejemplares ya está ocupado. Actualiza el detalle.',
     PARTICIPANTES_NO_ACTIVOS: 'Una de las cuentas ya no está activa. La operación no se puede completar.',
     PERMISO_INSUFICIENTE: 'No tienes permiso para realizar esta acción.',
@@ -59,6 +60,9 @@ function mensajeError(cuerpo) {
 
 function estadoTexto(datos) {
   const aceptaciones = Number(datos.aceptaciones) || 0;
+  if (datos.estado === 'cancelada' && datos.canceladoPor) {
+    return 'Intercambio cancelado por ' + datos.canceladoPor;
+  }
   if (datos.estado === 'propuesta') {
     return aceptaciones >= 2
       ? 'Esperando confirmación docente · 2 de 2 aceptaciones'
@@ -218,6 +222,15 @@ function crearAcciones(datos) {
     espera.className = 'ayuda';
     espera.textContent = 'Esperando la aceptación del receptor.';
     acciones.append(espera);
+    acciones.append(crearBoton('Cancelar Intercambio', 'boton-sec', async (boton) => {
+      if (!confirm('¿Cancelar esta propuesta de intercambio? El receptor ya no podrá aceptarla.')) return;
+      const cuerpo = await ejecutar(
+        () => enviar('/intercambios/' + id + '/cancelar', {}),
+        boton, 'Cancelando…'
+      );
+      if (!cuerpo) return;
+      await abrirDetalle(id, ultimoDisparador, 'Intercambio cancelado.');
+    }));
   }
 }
 
@@ -325,7 +338,7 @@ async function cargar() {
   tituloLista.textContent = docente ? 'Todos los intercambios' : 'Mis intercambios';
   ayudaLista.textContent = docente
     ? 'El docente puede reservar cuando hay dos aceptaciones, confirmar la entrega o cancelar una reserva.'
-    : 'Propuestas en las que participas. La disponibilidad y las reservas las decide el servidor.';
+  : 'Propuestas en las que participas. Puedes cancelar las que iniciaste. La disponibilidad y las reservas las decide el servidor.';
   lista.setAttribute('aria-busy', 'true');
   anterior.disabled = true;
   siguiente.disabled = true;

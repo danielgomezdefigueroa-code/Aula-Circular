@@ -217,6 +217,130 @@ async function pedir(
 
     const ejemplarId = ejemplar.rows[0].id;
 
+    const recursoAlumno = await pool.query(
+      `INSERT INTO recurso
+         (origen,tipo,titulo,descripcion,curso_id,asignatura,edicion)
+       VALUES
+         ('alumno','fisico','Manual prestable del alumnado',
+          'Anuncio ficticio para probar préstamos',1,'Programación','2026')
+       RETURNING id`
+    );
+    const ejemplarAlumno = await pool.query(
+      `INSERT INTO ejemplar
+         (recurso_id,codigo,propietario_usuario_id,conservacion)
+       VALUES ($1,'PRESTAMO-ALUMNO-001',$2,'Buen estado')
+       RETURNING id`,
+      [recursoAlumno.rows[0].id, usuarios.AlumnoPrueba2.id]
+    );
+    const ejemplarAlumnoId = ejemplarAlumno.rows[0].id;
+    await pool.query(
+      `INSERT INTO anuncio(ejemplar_id,modalidad,estado_revision)
+       VALUES ($1,'prestamo','publicado')`,
+      [ejemplarAlumnoId]
+    );
+
+    await t.test(
+      'Préstamo de material anunciado por otro alumno',
+      async () => {
+        const propietario = sesiones.AlumnoPrueba2;
+        const solicitante = sesiones.AlumnoPrueba1;
+        const docente = sesiones.DocentePrueba;
+
+        await pool.query(
+          `UPDATE anuncio
+           SET estado_revision='pendiente'
+           WHERE ejemplar_id=$1`,
+          [ejemplarAlumnoId]
+        );
+        const noPublicado = await pedir(
+          solicitante,
+          '/api/prestamos/solicitudes',
+          'POST',
+          { ejemplarId: ejemplarAlumnoId }
+        );
+        assert.equal(noPublicado.status, 409);
+
+        await pool.query(
+          `UPDATE anuncio
+           SET estado_revision='publicado'
+           WHERE ejemplar_id=$1`,
+          [ejemplarAlumnoId]
+        );
+
+        const propia = await pedir(
+          propietario,
+          '/api/prestamos/solicitudes',
+          'POST',
+          { ejemplarId: ejemplarAlumnoId }
+        );
+        assert.equal(propia.status, 422);
+        assert.equal(propia.error, 'SOLICITUD_PROPIA');
+
+        const solicitud = await pedir(
+          solicitante,
+          '/api/prestamos/solicitudes',
+          'POST',
+          { ejemplarId: ejemplarAlumnoId }
+        );
+        assert.equal(solicitud.status, 201, JSON.stringify(solicitud));
+
+        const vencimiento = new Date(
+          Date.now() + 7 * 24 * 60 * 60 * 1000
+        ).toISOString();
+        const adjudicacion = await pedir(
+          docente,
+          `/api/gestion/prestamos/solicitudes/${solicitud.datos.id}/adjudicar`,
+          'POST',
+          { motivo: 'Préstamo de ensayo', vencimiento }
+        );
+        assert.equal(adjudicacion.status, 201, JSON.stringify(adjudicacion));
+
+        const operacionId = adjudicacion.datos.id;
+        const participantes = await pool.query(
+          `SELECT origen_usuario_id,destino_usuario_id
+           FROM operacion_item
+           WHERE operacion_id=$1`,
+          [operacionId]
+        );
+        assert.deepEqual(participantes.rows[0], {
+          origen_usuario_id: usuarios.AlumnoPrueba2.id,
+          destino_usuario_id: usuarios.AlumnoPrueba1.id
+        });
+
+        const avisoPropietario = await pool.query(
+          `SELECT 1 FROM aviso
+           WHERE destinatario_id=$1 AND operacion_id=$2`,
+          [usuarios.AlumnoPrueba2.id, operacionId]
+        );
+        assert.equal(avisoPropietario.rowCount, 1);
+
+        const entrega = await pedir(
+          docente,
+          `/api/gestion/prestamos/${operacionId}/entregar`,
+          'POST',
+          {}
+        );
+        assert.equal(entrega.status, 200, JSON.stringify(entrega));
+
+        const devolucion = await pedir(
+          docente,
+          `/api/gestion/prestamos/${operacionId}/devolver`,
+          'POST',
+          { conservacion: 'Buen estado', confirmoBuenEstado: true }
+        );
+        assert.equal(devolucion.status, 200, JSON.stringify(devolucion));
+
+        const propietarioFinal = await pool.query(
+          'SELECT propietario_usuario_id FROM ejemplar WHERE id=$1',
+          [ejemplarAlumnoId]
+        );
+        assert.equal(
+          propietarioFinal.rows[0].propietario_usuario_id,
+          usuarios.AlumnoPrueba2.id
+        );
+      }
+    );
+
     await t.test(
       'Solicitud pendiente sin reserva activa',
       async () => {

@@ -190,6 +190,17 @@ test('T11 - permisos de Biblioteca y disponibilidad por ejemplar', async t => {
           [ejemplares[0]]
         )).rows[0].total, 0
       );
+
+      const detalleSolicitante = await pedir(alumno, `/api/biblioteca/${recursoId}`);
+      const copiaSolicitada = detalleSolicitante.datos.datos.ejemplares
+        .find(e => e.id === ejemplares[0]);
+      assert.equal(copiaSolicitada.disponible, true);
+      assert.equal(copiaSolicitada.solicitud_pendiente, true);
+
+      const detalleOtroAlumno = await pedir(otro, `/api/biblioteca/${recursoId}`);
+      const copiaParaOtro = detalleOtroAlumno.datos.datos.ejemplares
+        .find(e => e.id === ejemplares[0]);
+      assert.equal(copiaParaOtro.solicitud_pendiente, false);
     });
 
     await t.test('5. Docente adjudica y reserva una sola unidad', async () => {
@@ -216,6 +227,14 @@ test('T11 - permisos de Biblioteca y disponibilidad por ejemplar', async t => {
       assert.equal(catalogo.status, 200);
       const ficha = catalogo.datos.datos.find(r => r.id === recursoId);
       assert.equal(ficha.estado, 'disponible');
+
+      const detalle = await pedir(alumno, `/api/biblioteca/${recursoId}`);
+      const copiaReservada = detalle.datos.datos.ejemplares
+        .find(e => e.id === ejemplares[0]);
+      const copiaLibre = detalle.datos.datos.ejemplares
+        .find(e => e.id === ejemplares[1]);
+      assert.equal(copiaReservada.disponible, false);
+      assert.equal(copiaLibre.disponible, true);
     });
 
     await t.test('6. La unidad reservada no admite otra solicitud', async () => {

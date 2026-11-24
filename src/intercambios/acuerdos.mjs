@@ -1,5 +1,7 @@
 // Propuestas, consulta, aceptacion y rechazo. Las reservas y el cierre
 // de la operacion los resuelve src/intercambios/gestion.mjs.
+import { comprobarRecepcionMaterial } from '../cursos.mjs';
+
 const fallo = (codigo, mensaje) => Object.assign(new Error(mensaje), { codigo });
 
 async function transaccion(pool, identidad, accion) {
@@ -83,6 +85,10 @@ const seleccionResumen = `
     es.conservacion AS "conservacionSolicitada",
     us.alias AS "propietarioSolicitado",
     (SELECT count(*)::int FROM aceptacion_intercambio a WHERE a.operacion_id=o.id) AS aceptaciones,
+    (SELECT u.alias FROM evento_operacion ev
+      JOIN usuario u ON u.id=ev.actor_id
+      WHERE ev.operacion_id=o.id AND ev.accion='cancelar_intercambio_solicitante'
+      ORDER BY ev.id DESC LIMIT 1) AS "canceladoPor",
     (i.proponente_id = $2) AS "esProponente",
     (i.receptor_id = $2) AS "esReceptor",
     (i.receptor_id = $2 AND o.estado='propuesta' AND NOT EXISTS (
@@ -108,13 +114,17 @@ async function resumen(c, id, usuarioId = 0) {
 
 export async function opcionesIntercambio(pool, usuarioId, ejemplarSolicitadoId) {
   const solicitado = (await pool.query(`SELECT e.id AS "ejemplarId",
+      e.recurso_id AS "recursoId",
       e.propietario_usuario_id, e.estado_servicio, e.conservacion, e.codigo,
       r.titulo, r.edicion, r.asignatura,
+      curso_propietario.codigo AS "cursoPropietario",
       u.alias AS "propietarioAlias", a.modalidad, a.estado_revision
     FROM ejemplar e
     JOIN anuncio a ON a.ejemplar_id=e.id
     JOIN recurso r ON r.id=e.recurso_id
     JOIN usuario u ON u.id=e.propietario_usuario_id
+    LEFT JOIN curso curso_propietario
+      ON curso_propietario.id=u.curso_confirmado_id
     WHERE e.id=$1`, [ejemplarSolicitadoId])).rows[0];
   if (!solicitado) throw fallo(404, 'EJEMPLAR_NO_DISPONIBLE');
   if (solicitado.propietario_usuario_id === usuarioId) throw fallo(422, 'INTERCAMBIO_PROPIO');
@@ -122,6 +132,7 @@ export async function opcionesIntercambio(pool, usuarioId, ejemplarSolicitadoId)
   if (solicitado.estado_revision !== 'publicado' || solicitado.estado_servicio !== 'habilitado') {
     throw fallo(409, 'ANUNCIO_NO_DISPONIBLE');
   }
+  await comprobarRecepcionMaterial(pool, usuarioId, solicitado.recursoId);
 
   const dueno = (await pool.query(`SELECT estado,
       EXISTS(SELECT 1 FROM usuario_rol r WHERE r.usuario_id=u.id AND rol='alumno') AS alumno
@@ -142,20 +153,24 @@ export async function opcionesIntercambio(pool, usuarioId, ejemplarSolicitadoId)
     FROM ejemplar e
     JOIN anuncio a ON a.ejemplar_id=e.id
     JOIN recurso r ON r.id=e.recurso_id
+    LEFT JOIN curso curso_material ON curso_material.id=r.curso_id
     JOIN usuario u ON u.id=e.propietario_usuario_id
     WHERE e.propietario_usuario_id=$1
       AND a.modalidad='intercambio' AND a.estado_revision='publicado'
       AND e.estado_servicio='habilitado' AND e.id<>$2
+      AND NOT ($3::boolean AND curso_material.codigo='DAW2')
       AND NOT EXISTS (SELECT 1 FROM reserva_activa ra WHERE ra.ejemplar_id=e.id)
       AND NOT EXISTS (
         SELECT 1 FROM operacion_item oi JOIN operacion o ON o.id=oi.operacion_id
         WHERE oi.ejemplar_id=e.id AND o.estado IN ('reservada','prestada')
       )
     ORDER BY a.actualizada_en DESC, e.id DESC
-    LIMIT 20`, [usuarioId, ejemplarSolicitadoId])).rows;
+    LIMIT 20`, [usuarioId, ejemplarSolicitadoId,
+    solicitado.cursoPropietario === 'DAW1'])).rows;
 
   const limpiar = ({ propietario_usuario_id: _propietario, modalidad: _modalidad,
-    estado_revision: _estado, estado_servicio: _servicio, ...fila }) => fila;
+    estado_revision: _estado, estado_servicio: _servicio,
+    recursoId: _recursoId, cursoPropietario: _cursoPropietario, ...fila }) => fila;
   return {
     solicitado: limpiar(solicitado),
     ofrecidos: ofrecidos.map(limpiar)
@@ -204,6 +219,8 @@ export function proponerIntercambio(pool, identidad, entrada) {
       throw fallo(409, 'PROPIEDAD_DESACTUALIZADA');
     }
     await comprobarDisponibilidad(c, [a, b]);
+    await comprobarRecepcionMaterial(c, identidad.id, b.recurso_id);
+    await comprobarRecepcionMaterial(c, b.propietario_usuario_id, a.recurso_id);
     if ((await c.query(`SELECT 1 FROM intercambio i JOIN operacion o ON o.id=i.operacion_id
       WHERE i.proponente_id=$1 AND i.ejemplar_ofrecido_id=$2 AND i.ejemplar_solicitado_id=$3
       AND o.estado='propuesta'`, [identidad.id, a.id, b.id])).rowCount) {
@@ -249,6 +266,22 @@ export function aceptarIntercambio(pool, identidad, id, entrada) {
       throw fallo(409, 'ACUERDO_DESACTUALIZADO');
     }
     await comprobarDisponibilidad(c, [a, b]);
+    await comprobarRecepcionMaterial(c, ref.proponente_id, b.recurso_id);
+    await comprobarRecepcionMaterial(c, ref.receptor_id, a.recurso_id);
+    const acuerdoAceptado = await c.query(`SELECT 1
+      FROM intercambio otra
+      JOIN operacion op ON op.id=otra.operacion_id
+      JOIN aceptacion_intercambio aceptacion
+        ON aceptacion.operacion_id=otra.operacion_id
+       AND aceptacion.usuario_id=otra.receptor_id
+      WHERE otra.operacion_id<>$1
+        AND op.estado IN ('propuesta','reservada')
+        AND (
+          otra.ejemplar_ofrecido_id=ANY($2::integer[]) OR
+          otra.ejemplar_solicitado_id=ANY($2::integer[])
+        )
+      LIMIT 1`, [id, [a.id, b.id]]);
+    if (acuerdoAceptado.rowCount) throw fallo(409, 'EJEMPLAR_OCUPADO');
     const alta = await c.query(`INSERT INTO aceptacion_intercambio(operacion_id,usuario_id)
       VALUES($1,$2) ON CONFLICT DO NOTHING RETURNING usuario_id`, [id, identidad.id]);
     if (alta.rowCount) {
@@ -257,6 +290,44 @@ export function aceptarIntercambio(pool, identidad, id, entrada) {
       await c.query('INSERT INTO aviso(destinatario_id,mensaje,operacion_id) VALUES($1,$2,$3)',
         [ref.proponente_id, 'El receptor ha aceptado. Pendiente de confirmacion docente.', id]);
     }
+    return resumen(c, id, identidad.id);
+  });
+}
+
+export function cancelarIntercambio(pool, identidad, id) {
+  return transaccion(pool, identidad, async c => {
+    const ref = (await c.query(
+      'SELECT proponente_id, receptor_id FROM intercambio WHERE operacion_id=$1',
+      [id]
+    )).rows[0];
+    if (!ref) throw fallo(404, 'INTERCAMBIO_NO_DISPONIBLE');
+    if (ref.proponente_id !== identidad.id) throw fallo(403, 'SOLO_PROPONENTE_PUEDE_CANCELAR');
+
+    const operacion = (await c.query(
+      'SELECT estado FROM operacion WHERE id=$1 FOR UPDATE',
+      [id]
+    )).rows[0];
+    if (!operacion || operacion.estado !== 'propuesta') {
+      throw fallo(409, 'PROPUESTA_NO_VIGENTE');
+    }
+
+    const usuario = (await c.query(
+      'SELECT alias FROM usuario WHERE id=$1',
+      [identidad.id]
+    )).rows[0];
+    await c.query(
+      "UPDATE operacion SET estado='cancelada', cerrada_en=now() WHERE id=$1",
+      [id]
+    );
+    await c.query(
+      `INSERT INTO evento_operacion(operacion_id,actor_id,accion,motivo)
+       VALUES($1,$2,'cancelar_intercambio_solicitante','')`,
+      [id, identidad.id]
+    );
+    await c.query(
+      'INSERT INTO aviso(destinatario_id,mensaje,operacion_id) VALUES($1,$2,$3)',
+      [ref.receptor_id, `Intercambio cancelado por ${usuario.alias}`, id]
+    );
     return resumen(c, id, identidad.id);
   });
 }

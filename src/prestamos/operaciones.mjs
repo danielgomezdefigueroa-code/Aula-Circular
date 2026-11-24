@@ -1,4 +1,6 @@
 
+import { comprobarRecepcionMaterial } from '../cursos.mjs';
+
 const fallo = (codigo, mensaje) =>
   Object.assign(new Error(mensaje), { codigo });
 
@@ -46,7 +48,7 @@ async function comprobarDocente(cliente, identidad) {
 
 async function bloquearOperacion(cliente, operacionId) {
   const referencia = await cliente.query(
-    `SELECT ejemplar_id
+    `SELECT ejemplar_id, destino_usuario_id
      FROM operacion_item
      WHERE operacion_id = $1`,
     [operacionId]
@@ -56,11 +58,12 @@ async function bloquearOperacion(cliente, operacionId) {
     throw fallo(409, 'OPERACION_INCOHERENTE');
   }
 
-  const ejemplarId = referencia.rows[0].ejemplar_id;
+  const { ejemplar_id: ejemplarId, destino_usuario_id: destinoUsuarioId } =
+    referencia.rows[0];
 
   // Mantener el orden de bloqueos utilizado por otros módulos.
-  await cliente.query(
-    'SELECT id FROM ejemplar WHERE id = $1 FOR UPDATE',
+  const ejemplar = await cliente.query(
+    'SELECT id, recurso_id FROM ejemplar WHERE id = $1 FOR UPDATE',
     [ejemplarId]
   );
 
@@ -73,7 +76,12 @@ async function bloquearOperacion(cliente, operacionId) {
     throw fallo(404, 'PRESTAMO_NO_DISPONIBLE');
   }
 
-  return { operacion: resultado.rows[0], ejemplarId };
+  return {
+    operacion: resultado.rows[0],
+    ejemplarId,
+    destinoUsuarioId,
+    recursoId: ejemplar.rows[0]?.recurso_id
+  };
 }
 
 async function comprobarReserva(cliente, operacionId, ejemplarId) {
@@ -104,7 +112,12 @@ async function avisarParticipante(cliente, operacionId, mensaje) {
   const participantes = await cliente.query(
     `SELECT DISTINCT destino_usuario_id AS usuario_id
      FROM operacion_item
-     WHERE operacion_id = $1`,
+     WHERE operacion_id = $1
+     UNION
+     SELECT DISTINCT origen_usuario_id AS usuario_id
+     FROM operacion_item
+     WHERE operacion_id = $1
+       AND origen_usuario_id IS NOT NULL`,
     [operacionId]
   );
 
@@ -173,14 +186,15 @@ export async function entregarPrestamo(pool, identidad, operacionId) {
   return transaccion(pool, async cliente => {
     await comprobarDocente(cliente, identidad);
 
-    const { operacion, ejemplarId } =
+    const { operacion, ejemplarId, destinoUsuarioId, recursoId } =
       await bloquearOperacion(cliente, operacionId);
 
     if (operacion.estado !== 'reservada') {
       throw fallo(409, 'OPERACION_NO_RESERVADA');
     }
 
-    
+    await comprobarRecepcionMaterial(cliente, destinoUsuarioId, recursoId);
+
 if (!operacion.vencimiento) {
   throw fallo(409, 'VENCIMIENTO_NECESARIO');
 }
@@ -431,20 +445,55 @@ export async function solicitarPrestamo(pool, identidad, ejemplarId) {
     }
 
     const resultado = await cliente.query(
-      `SELECT e.id
+      `SELECT e.id, e.recurso_id, e.estado_servicio, e.propietario_usuario_id,
+              r.origen, r.tipo, a.modalidad, a.estado_revision
        FROM ejemplar e
        JOIN recurso r ON r.id = e.recurso_id
+       LEFT JOIN anuncio a ON a.ejemplar_id = e.id
        WHERE e.id = $1
-         AND e.estado_servicio = 'habilitado'
-         AND e.propietario_usuario_id IS NULL
-         AND r.origen = 'centro'
-         AND r.tipo = 'fisico'
        FOR UPDATE OF e`,
       [ejemplarId]
     );
 
     if (!resultado.rowCount) {
       throw fallo(409, 'EJEMPLAR_NO_DISPONIBLE');
+    }
+
+    const ejemplar = resultado.rows[0];
+    const esCentro = ejemplar.origen === 'centro' &&
+      ejemplar.propietario_usuario_id === null;
+    const esAnuncioAlumno = ejemplar.origen === 'alumno' &&
+      ejemplar.propietario_usuario_id !== null &&
+      ejemplar.modalidad === 'prestamo' &&
+      ejemplar.estado_revision === 'publicado';
+    if (
+      ejemplar.estado_servicio !== 'habilitado' ||
+      ejemplar.tipo !== 'fisico' ||
+      (!esCentro && !esAnuncioAlumno)
+    ) {
+      throw fallo(409, 'EJEMPLAR_NO_DISPONIBLE');
+    }
+
+    await comprobarRecepcionMaterial(cliente, identidad.id, ejemplar.recurso_id);
+
+    if (ejemplar.propietario_usuario_id !== null) {
+      if (ejemplar.propietario_usuario_id === identidad.id) {
+        throw fallo(422, 'SOLICITUD_PROPIA');
+      }
+
+      const propietario = await cliente.query(
+        `SELECT u.id
+         FROM usuario u
+         JOIN usuario_rol ur ON ur.usuario_id = u.id
+         WHERE u.id = $1
+           AND u.estado = 'activo'
+           AND ur.rol = 'alumno'
+         FOR SHARE OF u`,
+        [ejemplar.propietario_usuario_id]
+      );
+      if (!propietario.rowCount) {
+        throw fallo(409, 'PARTICIPANTE_NO_ACTIVO');
+      }
     }
 
     const ocupado = await cliente.query(
@@ -506,19 +555,29 @@ export async function adjudicarPrestamo(
     const ejemplarId = referencia.rows[0].ejemplar_id;
 
     const ejemplar = await cliente.query(
-      `SELECT e.id
+      `SELECT e.id, e.recurso_id, e.estado_servicio, e.propietario_usuario_id,
+              r.origen, r.tipo, a.modalidad, a.estado_revision
        FROM ejemplar e
        JOIN recurso r ON r.id=e.recurso_id
+       LEFT JOIN anuncio a ON a.ejemplar_id=e.id
        WHERE e.id=$1
-         AND e.estado_servicio='habilitado'
-         AND e.propietario_usuario_id IS NULL
-         AND r.origen='centro'
-         AND r.tipo='fisico'
        FOR UPDATE OF e`,
       [ejemplarId]
     );
 
-    if (!ejemplar.rowCount) {
+    const ficha = ejemplar.rows[0];
+    const esCentro = ficha?.origen === 'centro' &&
+      ficha.propietario_usuario_id === null;
+    const esAnuncioAlumno = ficha?.origen === 'alumno' &&
+      ficha.propietario_usuario_id !== null &&
+      ficha.modalidad === 'prestamo' &&
+      ficha.estado_revision === 'publicado';
+    if (
+      !ficha ||
+      ficha.estado_servicio !== 'habilitado' ||
+      ficha.tipo !== 'fisico' ||
+      (!esCentro && !esAnuncioAlumno)
+    ) {
       throw fallo(409, 'EJEMPLAR_NO_DISPONIBLE');
     }
 
@@ -545,6 +604,26 @@ export async function adjudicarPrestamo(
 
     if (!alumno.rowCount) {
       throw fallo(409, 'PARTICIPANTE_NO_ACTIVO');
+    }
+
+    await comprobarRecepcionMaterial(cliente, s.solicitante_id, ficha.recurso_id);
+
+    if (ficha.propietario_usuario_id !== null) {
+      if (ficha.propietario_usuario_id === s.solicitante_id) {
+        throw fallo(409, 'SOLICITUD_NO_ASIGNABLE');
+      }
+      const propietario = await cliente.query(
+        `SELECT u.id
+         FROM usuario u
+         JOIN usuario_rol ur ON ur.usuario_id=u.id
+         WHERE u.id=$1 AND u.estado='activo'
+           AND ur.rol='alumno'
+         FOR SHARE OF u`,
+        [ficha.propietario_usuario_id]
+      );
+      if (!propietario.rowCount) {
+        throw fallo(409, 'PARTICIPANTE_NO_ACTIVO');
+      }
     }
 
     const ocupado = await cliente.query(
@@ -583,8 +662,8 @@ export async function adjudicarPrestamo(
     await cliente.query(
       `INSERT INTO operacion_item
          (operacion_id,ejemplar_id,origen_usuario_id,destino_usuario_id)
-       VALUES ($1,$2,NULL,$3)`,
-      [op.id, ejemplarId, s.solicitante_id]
+       VALUES ($1,$2,$3,$4)`,
+      [op.id, ejemplarId, ficha.propietario_usuario_id, s.solicitante_id]
     );
 
     await cliente.query(
@@ -617,6 +696,15 @@ export async function adjudicarPrestamo(
         [s.solicitante_id,
          'Solicitud de préstamo ' + s.estado,
          op.id]
+      );
+    }
+
+    if (ficha.propietario_usuario_id !== null) {
+      await cliente.query(
+        `INSERT INTO aviso
+           (destinatario_id,mensaje,operacion_id)
+         VALUES ($1,'Préstamo adjudicado para tu ejemplar',$2)`,
+        [ficha.propietario_usuario_id, op.id]
       );
     }
 

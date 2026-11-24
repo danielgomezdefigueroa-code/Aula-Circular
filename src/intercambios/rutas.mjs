@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import {
-  proponerIntercambio, aceptarIntercambio, rechazarIntercambio,
+  proponerIntercambio, aceptarIntercambio, cancelarIntercambio, rechazarIntercambio,
   consultarIntercambio, opcionesIntercambio, listarIntercambios
 } from './acuerdos.mjs';
 import { reservarIntercambio } from './reservas.mjs';
@@ -91,6 +91,18 @@ export function rutasIntercambios(pool, sesionNecesaria, activaNecesaria) {
           !['ejemplarOfrecidoId', 'ejemplarSolicitadoId', 'versionOfrecida', 'versionSolicitada'].every(c => idValido(b[c])) ||
           b.confirmoAceptacion !== true) return res.status(422).json({ error: 'DATOS_INVALIDOS' });
       res.json({ datos: await aceptarIntercambio(pool, identidad(req), id, b) });
+    }));
+
+  rutas.post('/intercambios/:id/cancelar', sesionNecesaria, activaNecesaria, alumno,
+    manejar(async (req, res) => {
+      const id = Number(req.params.id);
+      if (!/^[1-9]\d*$/.test(req.params.id) || !idValido(id)) {
+        return res.status(422).json({ error: 'ID_INVALIDO' });
+      }
+      if (!camposExactos(req.body, [])) {
+        return res.status(422).json({ error: 'DATOS_INVALIDOS' });
+      }
+      res.json({ datos: await cancelarIntercambio(pool, identidad(req), id) });
     }));
 
   rutas.post('/intercambios/:id/rechazar', sesionNecesaria, activaNecesaria, alumno,

@@ -49,8 +49,8 @@ export function leerIdentidad(cuerpo) {
     roles: Array.isArray(d.roles) ? d.roles : [],
     curso_solicitado: d.curso_solicitado ?? null,
     curso_confirmado: d.curso_confirmado ?? null,
-    curso_solicitado_id: d.curso_solicitado_id ?? null,
-    curso_confirmado_id: d.curso_confirmado_id ?? null
+    curso_solicitado_id: d.curso_solicitado_id ?? d.cursoSolicitadoId ?? null,
+    curso_confirmado_id: d.curso_confirmado_id ?? d.cursoConfirmadoId ?? null
   };
 }
 
