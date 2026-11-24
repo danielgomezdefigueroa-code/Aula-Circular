@@ -1,7 +1,7 @@
 /* T14 · Formularios del inventario. Complementa estilo.css sin cambiar otras áreas. */
-#gestion-inventario { border-top: 2px solid #d0dcd4; padding-top: 1rem; }
+#gestion-inventario { border-top: 2px solid var(--ac-borde); padding-top: 1rem; }
 #gestion-inventario .t14-intro { margin-bottom: 1rem; line-height: 1.5; }
-#gestion-inventario .t14-panel { padding: 1rem; background: #fff; border: 1px solid #d0dcd4; border-radius: 12px; margin-top: 1rem; }
+#gestion-inventario .t14-panel { padding: 1rem; background: #fff; border: 1px solid var(--ac-borde); border-radius: 12px; margin-top: 1rem; }
 #gestion-inventario .t14-panel h3 { margin-bottom: .75rem; }
 #gestion-inventario .t14-form { display: block; max-width: 100%; }
 #gestion-inventario .t14-campos { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 0 1rem; }
@@ -13,23 +13,23 @@
 #gestion-inventario .t14-categoria-fila button { padding: .45rem .8rem; }
 #t14-estado { margin: .75rem 0; min-height: 1.4rem; font-weight: 650; }
 #t14-estado.t14-error { color: #9b1c1c; }
-.t14-metadatos { margin-top: .6rem; color: #3d5246; font-size: .92rem; }
+.t14-metadatos { margin-top: .6rem; color: var(--ac-texto-secundario); font-size: .92rem; }
 .t14-ejemplares { display: block; list-style: none; padding: 0; margin: .75rem 0 0; }
-.t14-ejemplares li { padding: .5rem .65rem; margin-top: .3rem; border-radius: 6px; background: #f3f6f4; border: 1px solid #d0dcd4; }
+.t14-ejemplares li { padding: .5rem .65rem; margin-top: .3rem; border-radius: 6px; background: var(--ac-fondo); border: 1px solid var(--ac-borde); }
 .t14-enlace-prestamo {
   min-height: 0;
   padding: 0;
   border: 0;
   border-radius: 0;
   background: transparent;
-  color: #17614d;
+  color: var(--ac-verde-principal);
   font: inherit;
   text-decoration: underline;
 }
-.t14-enlace-prestamo:hover { background: #e5f2ea; }
-.t14-enlace-prestamo:disabled { color: #465e50; cursor: wait; }
+.t14-enlace-prestamo:hover { background: var(--ac-verde-suave); }
+.t14-enlace-prestamo:disabled { color: var(--ac-texto-secundario); cursor: wait; }
 .t14-detalle-ejemplares { margin-top: .4rem; }
-#gestion-inventario .t14-aviso { font-size: .9rem; color: #465e50; margin-bottom: .8rem; }
+#gestion-inventario .t14-aviso { font-size: .9rem; color: var(--ac-texto-secundario); margin-bottom: .8rem; }
 @media (max-width: 600px) {
   #gestion-inventario .t14-campos { grid-template-columns: 1fr; }
   #gestion-inventario .t14-panel { padding: .75rem; }
@@ -37,7 +37,7 @@
 }
 
 /* T14: mensajes accesibles en el propio formulario de inventario. */
-#gestion-inventario .t14-form-feedback { margin-top: .75rem; font-weight: 700; color: #216343; }
+#gestion-inventario .t14-form-feedback { margin-top: .75rem; font-weight: 700; color: var(--ac-verde-principal); }
 #gestion-inventario .t14-form-feedback:empty { display: none; }
 #gestion-inventario .t14-form-feedback.t14-form-error { color: #9b1c1c; }
 #gestion-inventario .campo [aria-invalid="true"] { border: 2px solid #9b1c1c; }
@@ -56,8 +56,8 @@
 }
 .t14-tarjeta-varias-ediciones .t14-edicion {
   padding: .6rem .65rem;
-  background: #f3f6f4;
-  border: 1px solid #d0dcd4;
+  background: var(--ac-fondo);
+  border: 1px solid var(--ac-borde);
   border-radius: 6px;
   margin-top: .4rem;
 }
@@ -65,7 +65,7 @@
   padding: .45rem .55rem;
   margin-top: .3rem;
   background: white;
-  border: 1px solid #d0dcd4;
+  border: 1px solid var(--ac-borde);
   border-radius: 6px;
   overflow-wrap: anywhere;
 }
