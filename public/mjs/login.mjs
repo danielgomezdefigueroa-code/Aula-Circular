@@ -126,7 +126,7 @@ function limpiarErrores() {
 function mostrarErrores(errores) {
   limpiarErrores();
   const resumen = $('resumen-errores');
-  const titulo = document.createElement('h3');
+  const titulo = document.createElement('h2');
   titulo.textContent = errores.length === 1 ? 'Hay un error' : 'Hay ' + errores.length + ' errores';
   resumen.append(titulo);
   for (const { id, texto } of errores) {

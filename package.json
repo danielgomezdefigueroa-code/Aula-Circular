@@ -8,6 +8,7 @@
     "preparar": "node scripts/preparar.mjs",
     "migrar": "node --env-file=.env scripts/migrar.mjs",
     "docente:local": "node --env-file=.env scripts/docente-local.mjs",
+    "datos:demo": "node --env-file=.env scripts/datos-demo.mjs",
     "dev": "node --env-file=.env --watch src/app.mjs",
     "start": "node --env-file=.env src/app.mjs"
   },
