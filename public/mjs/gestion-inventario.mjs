@@ -373,7 +373,7 @@ export async function iniciarGestionInventario() {
       ul.className = 't14-ejemplares';
       for (const e of recurso.ejemplares ?? []) {
         const fila = document.createElement('li');
-        fila.append(crearLineaEjemplar(e, identidad, mostrarEstadoCatalogo));
+        fila.append(crearLineaEjemplar(e, identidad, mostrarEstadoCatalogo, recargarCatalogo));
         ul.append(fila);
       }
       if (!ul.children.length) zona.textContent = 'No hay ejemplares asociados.';

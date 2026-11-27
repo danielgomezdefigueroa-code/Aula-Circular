@@ -169,6 +169,10 @@ export function rutasAnuncios(pool,sesionNecesaria,activaNecesaria){
     const p=paginacion(req,res,['q','curso','modalidad','disponible']);if(!p) return;
     const filtros=leerFiltrosLibros(req);
     if(!filtros) return res.status(422).json({error:'PARAMETROS_INVALIDOS'});
+    if(filtros.cursoId!==null &&
+      !(await pool.query('SELECT 1 FROM curso WHERE id=$1 AND activo',[filtros.cursoId])).rowCount){
+      return res.status(422).json({error:'CURSO_NO_DISPONIBLE'});
+    }
 
     const titulo=sinAcentos('r.titulo');
     const descripcion=sinAcentos('r.descripcion');

@@ -87,6 +87,19 @@ function mostrar(texto, enfocar = false) {
   if (enfocar) mensaje.focus();
 }
 
+const etiquetasCampos = {
+  titulo: 'Título',
+  cursoId: 'Curso',
+  asignatura: 'Asignatura',
+  edicion: 'Edición',
+  isbn: 'ISBN',
+  conservacion: 'Conservación',
+  modalidad: 'Modalidad',
+  descripcion: 'Descripción',
+  version: 'Versión',
+  formulario: 'Formulario'
+};
+
 function textoError(respuesta, cuerpo) {
   if (respuesta.status === 401) return 'Tu sesión ha caducado. Vuelve a iniciar sesión.';
   if (cuerpo?.error === 'MATERIAL_DE_OTRO_CURSO') {
@@ -95,7 +108,7 @@ function textoError(respuesta, cuerpo) {
   if (respuesta.status === 403) return cuerpo?.mensaje ?? 'No tienes permiso para realizar esta acción.';
   if (cuerpo?.campos) {
     return Object.entries(cuerpo.campos)
-      .map(([campo, texto]) => campo + ': ' + texto)
+      .map(([campo, texto]) => (etiquetasCampos[campo] ?? campo) + ': ' + texto)
       .join('\n');
   }
   return cuerpo?.mensaje ?? cuerpo?.error ?? 'No se pudo completar la acción.';
@@ -107,7 +120,11 @@ async function leerRespuesta(respuesta) {
     irALogin();
     throw new Error('Tu sesión ha caducado. Vuelve a iniciar sesión.');
   }
-  if (!respuesta.ok) throw new Error(textoError(respuesta, cuerpo));
+  if (!respuesta.ok) {
+    const error = new Error(textoError(respuesta, cuerpo));
+    error.campos = cuerpo?.campos ?? null;
+    throw error;
+  }
   return cuerpo ?? {};
 }
 
@@ -115,6 +132,45 @@ function fecha(valor) {
   const d = new Date(valor);
   return Number.isNaN(d.getTime()) ? String(valor ?? '') : d.toLocaleString('es-ES');
 }
+
+/* Errores por campo: el servidor responde 422 con `campos` y cada mensaje se
+   coloca junto a su control, enlazado por aria-describedby. */
+function avisoCampo(campo) {
+  return campo?.id ? document.getElementById(campo.id + '-error') : null;
+}
+
+function limpiarErroresCampos() {
+  for (const campo of form.elements) {
+    if (!campo.id) continue;
+    campo.removeAttribute('aria-invalid');
+    const aviso = avisoCampo(campo);
+    if (aviso) aviso.textContent = '';
+  }
+}
+
+function marcarErroresCampos(camposServidor) {
+  limpiarErroresCampos();
+  if (!camposServidor || typeof camposServidor !== 'object') return null;
+  let primero = null;
+  for (const [nombre, texto] of Object.entries(camposServidor)) {
+    const campo = form.elements.namedItem(nombre);
+    if (!campo || typeof texto !== 'string' || !texto) continue;
+    const aviso = avisoCampo(campo);
+    campo.setAttribute('aria-invalid', 'true');
+    if (aviso) aviso.textContent = texto;
+    if (!primero) primero = campo;
+  }
+  if (primero) primero.focus();
+  return primero;
+}
+
+form.addEventListener('input', (evento) => {
+  const campo = evento.target;
+  if (!campo?.id) return;
+  campo.removeAttribute('aria-invalid');
+  const aviso = avisoCampo(campo);
+  if (aviso) aviso.textContent = '';
+});
 
 function limpiarPanel() {
   for (const lista of Object.values(listasPanel)) lista.replaceChildren();
@@ -675,6 +731,7 @@ async function abrir(id, enEdicion) {
 form.addEventListener('submit', async (evento) => {
   evento.preventDefault();
   guardar.disabled = true;
+  limpiarErroresCampos();
   const datos = Object.fromEntries(new FormData(form));
   datos.cursoId = Number(datos.cursoId);
   try {
@@ -691,7 +748,8 @@ form.addEventListener('submit', async (evento) => {
     await cargarPanel();
     mostrar(cuerpo.mensaje ?? 'Anuncio guardado.');
   } catch (error) {
-    mostrar(error.message, true);
+    const enfocado = marcarErroresCampos(error.campos);
+    mostrar(error.message, !enfocado);
   } finally {
     guardar.disabled = false;
   }

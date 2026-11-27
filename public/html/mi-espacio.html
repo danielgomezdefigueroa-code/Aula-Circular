@@ -106,41 +106,57 @@
 
             <div class="campo">
               <label for="titulo">Título</label>
-              <input id="titulo" name="titulo" required maxlength="120">
+              <span class="ayuda" id="titulo-ayuda">Obligatorio. Entre 1 y 120 caracteres.</span>
+              <input id="titulo" name="titulo" required maxlength="120" aria-describedby="titulo-ayuda titulo-error">
+              <p class="campo-error" id="titulo-error"></p>
             </div>
             <div class="campo">
               <label for="curso">Curso del libro</label>
-              <select id="curso" name="cursoId" required>
+              <span class="ayuda" id="curso-ayuda">Curso al que pertenece el libro.</span>
+              <select id="curso" name="cursoId" required aria-describedby="curso-ayuda curso-error">
                 <option value="">Selecciona un curso</option>
               </select>
+              <p class="campo-error" id="curso-error"></p>
             </div>
             <div class="campo">
               <label for="asignatura">Asignatura</label>
-              <input id="asignatura" name="asignatura" required maxlength="100">
+              <span class="ayuda" id="asignatura-ayuda">Obligatorio. Hasta 100 caracteres.</span>
+              <input id="asignatura" name="asignatura" required maxlength="100" aria-describedby="asignatura-ayuda asignatura-error">
+              <p class="campo-error" id="asignatura-error"></p>
             </div>
             <div class="campo">
               <label for="edicion">Edición</label>
-              <input id="edicion" name="edicion" required maxlength="100" placeholder="Por ejemplo: edición 2024">
+              <span class="ayuda" id="edicion-ayuda">Obligatorio. Hasta 100 caracteres.</span>
+              <input id="edicion" name="edicion" required maxlength="100" placeholder="Por ejemplo: edición 2024" aria-describedby="edicion-ayuda edicion-error">
+              <p class="campo-error" id="edicion-error"></p>
             </div>
             <div class="campo">
               <label for="isbn">ISBN (opcional)</label>
-              <input id="isbn" name="isbn" maxlength="25">
+              <span class="ayuda" id="isbn-ayuda">ISBN-10 o ISBN-13 válido. Puedes dejarlo vacío.</span>
+              <input id="isbn" name="isbn" maxlength="25" aria-describedby="isbn-ayuda isbn-error">
+              <p class="campo-error" id="isbn-error"></p>
             </div>
             <div class="campo">
               <label for="conservacion">Estado de conservación</label>
-              <textarea id="conservacion" name="conservacion" required maxlength="500" rows="4" placeholder="Explica si tiene marcas, desgaste o páginas dañadas"></textarea>
+              <span class="ayuda" id="conservacion-ayuda">Obligatorio. Hasta 500 caracteres.</span>
+              <textarea id="conservacion" name="conservacion" required maxlength="500" rows="4" placeholder="Explica si tiene marcas, desgaste o páginas dañadas" aria-describedby="conservacion-ayuda conservacion-error"></textarea>
+              <p class="campo-error" id="conservacion-error"></p>
             </div>
             <div class="campo">
               <label for="modalidad">Modalidad</label>
-              <select id="modalidad" name="modalidad" required>
+              <span class="ayuda" id="modalidad-ayuda">Cómo se ofrece el ejemplar.</span>
+              <select id="modalidad" name="modalidad" required aria-describedby="modalidad-ayuda modalidad-error">
                 <option value="cesion">Cesión</option>
                 <option value="prestamo">Préstamo</option>
                 <option value="intercambio">Intercambio</option>
               </select>
+              <p class="campo-error" id="modalidad-error"></p>
             </div>
             <div class="campo">
               <label for="descripcion">Descripción (opcional)</label>
-              <textarea id="descripcion" name="descripcion" maxlength="2000" rows="4"></textarea>
+              <span class="ayuda" id="descripcion-ayuda">Hasta 2000 caracteres. No incluyas datos personales.</span>
+              <textarea id="descripcion" name="descripcion" maxlength="2000" rows="4" aria-describedby="descripcion-ayuda descripcion-error"></textarea>
+              <p class="campo-error" id="descripcion-error"></p>
             </div>
 
             <p>Se creará un ejemplar propio con un código único. No incluyas teléfonos ni direcciones.</p>

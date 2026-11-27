@@ -100,6 +100,7 @@ function puedeProponer(anuncio) {
 }
 
 async function solicitarCesion(anuncio, boton) {
+  if (boton.disabled) return;
   boton.disabled = true;
   boton.textContent = 'Enviando…';
   try {
@@ -113,9 +114,13 @@ async function solicitarCesion(anuncio, boton) {
       boton.disabled = false;
       boton.textContent = 'Solicitar cesión';
       mostrar(textoError(respuesta, cuerpo, 'la solicitud'), true);
+      if (cuerpo?.error === 'EJEMPLAR_NO_DISPONIBLE' || respuesta.status === 409) cargar();
       return;
     }
-    boton.textContent = 'Solicitud enviada';
+    // Confirmada: queda pendiente de revisión docente, no reservada.
+    boton.textContent = cuerpo?.datos?.estado === 'pendiente'
+      ? 'Solicitud pendiente'
+      : 'Solicitud enviada';
     mostrar('Solicitud de cesión enviada. Un docente la revisará.', true);
   } catch {
     boton.disabled = false;
@@ -125,6 +130,7 @@ async function solicitarCesion(anuncio, boton) {
 }
 
 async function solicitarPrestamo(anuncio, boton) {
+  if (boton.disabled) return;
   boton.disabled = true;
   boton.textContent = 'Enviando…';
   try {
@@ -140,9 +146,13 @@ async function solicitarPrestamo(anuncio, boton) {
       boton.disabled = false;
       boton.textContent = 'Solicitar préstamo';
       mostrar(textoError(respuesta, cuerpo, 'la solicitud de préstamo'), true);
+      if (cuerpo?.error === 'EJEMPLAR_NO_DISPONIBLE' || respuesta.status === 409) cargar();
       return;
     }
-    boton.textContent = 'Solicitud enviada';
+    // Confirmada: queda pendiente de revisión docente, no reservada.
+    boton.textContent = cuerpo?.datos?.estado === 'pendiente'
+      ? 'Préstamo pendiente'
+      : 'Solicitud enviada';
     mostrar('Solicitud de préstamo enviada. Un docente la revisará.', true);
   } catch {
     boton.disabled = false;
@@ -405,7 +415,7 @@ function crearAnuncio(anuncio) {
   return tarjeta;
 }
 
-async function cargar() {
+async function cargar(aviso = null) {
   if (!puedeConsultar(identidad)) {
     lista.replaceChildren();
     paginacion.hidden = true;
@@ -416,7 +426,6 @@ async function cargar() {
   }
 
   const solicitud = ++ultimaSolicitud;
-  lista.replaceChildren();
   lista.setAttribute('aria-busy', 'true');
   anterior.disabled = true;
   siguiente.disabled = true;
@@ -432,28 +441,42 @@ async function cargar() {
       return;
     }
     if (!respuesta.ok) {
-      total = 0;
-      paginacion.hidden = true;
-      mostrar(textoError(respuesta, cuerpo, 'Libros'), true);
+      // Un rechazo no debe borrar lo que ya se estaba viendo. Si el curso ya
+      // no vale, se quita del filtro y se repite la consulta para que los
+      // controles y los resultados sigan diciendo lo mismo.
+      if (cuerpo?.error === 'CURSO_NO_DISPONIBLE') {
+        curso.value = '';
+        await cargar(textoError(respuesta, cuerpo, 'Libros'));
+        return;
+      }
+      actualizarPaginacion();
+      // Un 422 de filtros apunta al buscador: se marca el campo y se lleva allí.
+      const filtroInvalido = respuesta.status === 422 && cuerpo?.error === 'PARAMETROS_INVALIDOS';
+      if (filtroInvalido) {
+        busqueda.setAttribute('aria-invalid', 'true');
+        busqueda.focus();
+      }
+      mostrar(textoError(respuesta, cuerpo, 'Libros'), !filtroInvalido);
       return;
     }
+
+    busqueda.removeAttribute('aria-invalid');
 
     const datos = Array.isArray(cuerpo?.datos) ? cuerpo.datos : [];
     total = Number.isSafeInteger(cuerpo?.total) ? cuerpo.total : datos.length;
     lista.replaceChildren(...datos.map(crearAnuncio));
 
     if (total === 0) {
-      mostrar(hayFiltros()
+      mostrar(aviso ?? (hayFiltros()
         ? 'No hay anuncios publicados que coincidan con los filtros. Cambia o limpia los filtros para ver más resultados.'
-        : 'No hay anuncios publicados todavía. Publica un libro desde Mi espacio o vuelve más tarde.');
+        : 'No hay anuncios publicados todavía. Publica un libro desde Mi espacio o vuelve más tarde.'));
     } else {
-      mostrar(total === 1 ? '1 anuncio encontrado.' : total + ' anuncios encontrados.');
+      mostrar(aviso ?? (total === 1 ? '1 anuncio encontrado.' : total + ' anuncios encontrados.'));
     }
     actualizarPaginacion();
   } catch {
     if (solicitud !== ultimaSolicitud) return;
-    total = 0;
-    paginacion.hidden = true;
+    actualizarPaginacion();
     mostrar('No se pudo contactar con el servidor. Inténtalo de nuevo.', true);
   } finally {
     if (solicitud === ultimaSolicitud) lista.setAttribute('aria-busy', 'false');

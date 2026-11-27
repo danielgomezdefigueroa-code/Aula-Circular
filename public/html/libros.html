@@ -33,7 +33,8 @@
         <form id="filtros-libros" class="filtros-lab filtros-catalogo" role="search" aria-label="Filtros de Libros">
           <div>
             <label for="lib-q">Buscar</label>
-            <input id="lib-q" name="q" type="search" maxlength="80" placeholder="Título, descripción, curso, ISBN o código">
+            <span class="ayuda" id="lib-q-ayuda">Hasta 80 caracteres. No distingue acentos.</span>
+            <input id="lib-q" name="q" type="search" maxlength="80" placeholder="Título, descripción, curso, ISBN o código" aria-describedby="lib-q-ayuda">
           </div>
           <div>
             <label for="lib-curso">Curso</label>

@@ -34,7 +34,8 @@
       <form id="filtros-biblioteca" class="filtros-lab filtros-catalogo" role="search" aria-label="Filtros de Biblioteca">
         <div>
           <label for="bib-q">Buscar</label>
-          <input id="bib-q" name="q" type="search" maxlength="80" placeholder="Título, descripción, curso, ISBN o código">
+          <span class="ayuda" id="bib-q-ayuda">Hasta 80 caracteres. No distingue acentos.</span>
+          <input id="bib-q" name="q" type="search" maxlength="80" placeholder="Título, descripción, curso, ISBN o código" aria-describedby="bib-q-ayuda">
         </div>
         <div>
           <label for="bib-tipo">Tipo</label>

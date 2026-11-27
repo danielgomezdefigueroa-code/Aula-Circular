@@ -58,7 +58,7 @@ async function prepararCursos() {
   }
 }
 
-async function cargar() {
+async function cargar(aviso = null) {
   if (!puedeConsultar(identidad)) {
     lista.replaceChildren();
     paginacion.hidden = true;
@@ -69,7 +69,6 @@ async function cargar() {
   }
 
   const solicitud = ++ultimaSolicitud;
-  lista.replaceChildren();
   lista.setAttribute('aria-busy', 'true');
   anterior.disabled = true;
   siguiente.disabled = true;
@@ -85,28 +84,42 @@ async function cargar() {
       return;
     }
     if (!respuesta.ok) {
-      total = 0;
-      paginacion.hidden = true;
-      mostrar(textoError(respuesta, cuerpo, 'Documentación'), true);
+      // Un rechazo no debe borrar lo que ya se estaba viendo. Si el curso ya
+      // no vale, se quita del filtro y se repite la consulta para que los
+      // controles y los resultados sigan diciendo lo mismo.
+      if (cuerpo?.error === 'CURSO_NO_DISPONIBLE') {
+        curso.value = '';
+        await cargar(textoError(respuesta, cuerpo, 'Documentación'));
+        return;
+      }
+      actualizarPaginacion();
+      // Un 422 de filtros apunta al buscador: se marca el campo y se lleva allí.
+      const filtroInvalido = respuesta.status === 422 && cuerpo?.error === 'PARAMETROS_INVALIDOS';
+      if (filtroInvalido) {
+        busqueda.setAttribute('aria-invalid', 'true');
+        busqueda.focus();
+      }
+      mostrar(textoError(respuesta, cuerpo, 'Documentación'), !filtroInvalido);
       return;
     }
+
+    busqueda.removeAttribute('aria-invalid');
 
     const datos = Array.isArray(cuerpo?.datos) ? cuerpo.datos : [];
     total = Number.isSafeInteger(cuerpo?.total) ? cuerpo.total : datos.length;
     lista.replaceChildren(...datos.map(crearTarjeta));
 
     if (total === 0) {
-      mostrar(hayFiltros()
+      mostrar(aviso ?? (hayFiltros()
         ? 'No hay documentos que coincidan con los filtros. Cambia o limpia los filtros para ver más documentos.'
-        : 'No hay documentos publicados para tu curso. Vuelve más tarde o pregunta a tu docente.');
+        : 'No hay documentos publicados para tu curso. Vuelve más tarde o pregunta a tu docente.'));
     } else {
-      mostrar(total === 1 ? '1 documento encontrado.' : total + ' documentos encontrados.');
+      mostrar(aviso ?? (total === 1 ? '1 documento encontrado.' : total + ' documentos encontrados.'));
     }
     actualizarPaginacion();
   } catch {
     if (solicitud !== ultimaSolicitud) return;
-    total = 0;
-    paginacion.hidden = true;
+    actualizarPaginacion();
     mostrar('No se pudo contactar con el servidor. Inténtalo de nuevo.', true);
   } finally {
     if (solicitud === ultimaSolicitud) lista.setAttribute('aria-busy', 'false');

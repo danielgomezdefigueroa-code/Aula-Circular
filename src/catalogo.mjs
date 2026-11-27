@@ -46,6 +46,17 @@ function parametrosInvalidos(res) {
   return res.status(422).json({ error: 'PARAMETROS_INVALIDOS' });
 }
 
+// Un curso retirado del catálogo no puede usarse como filtro: si el valor ya no
+// existe o está inactivo, el cliente debe explicarlo en vez de mostrar vacío.
+async function cursoActivo(pool, curso) {
+  if (!curso || curso.id === null) return true;
+  const resultado = await pool.query(
+    'SELECT 1 FROM curso WHERE id = $1 AND activo',
+    [curso.id]
+  );
+  return resultado.rowCount > 0;
+}
+
 function puedeConsultar(req, res, next) {
   return req.usuario.roles.some((rol) => rol === 'alumno' || rol === 'docente')
     ? next()
@@ -78,6 +89,9 @@ export function rutasCatalogo(pool, sesionNecesaria, activaNecesaria) {
           curso === null || disponible === null ||
           pagina === null || limite === null) {
         return parametrosInvalidos(res);
+      }
+      if (!(await cursoActivo(pool, curso))) {
+        return res.status(422).json({ error: 'CURSO_NO_DISPONIBLE' });
       }
 
       const busqueda = normalizarBusqueda(texto);
@@ -287,6 +301,9 @@ export function rutasCatalogo(pool, sesionNecesaria, activaNecesaria) {
       if (texto === null || curso === null || disponible === null ||
           pagina === null || limite === null) {
         return parametrosInvalidos(res);
+      }
+      if (!(await cursoActivo(pool, curso))) {
+        return res.status(422).json({ error: 'CURSO_NO_DISPONIBLE' });
       }
 
       const busqueda = normalizarBusqueda(texto);

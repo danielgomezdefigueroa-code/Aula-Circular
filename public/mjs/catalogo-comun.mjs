@@ -75,6 +75,9 @@ export function puedeConsultar(identidad) {
 
 export function textoError(respuesta, cuerpo, contexto = 'el catálogo') {
   if (respuesta.status === 401) return 'Tu sesión ha caducado. Vuelve a iniciar sesión.';
+  if (cuerpo?.error === 'CURSO_NO_DISPONIBLE') {
+    return 'El curso que habías elegido ya no está activo. Se ha quitado del filtro; puedes seguir buscando.';
+  }
   if (cuerpo?.error === 'MATERIAL_DE_OTRO_CURSO') {
     return 'Este material pertenece a otro curso. Solo puedes solicitar material de tu curso.';
   }
@@ -83,6 +86,12 @@ export function textoError(respuesta, cuerpo, contexto = 'el catálogo') {
   }
   if (cuerpo?.error === 'SOLICITUD_PROPIA') {
     return 'No puedes solicitar tu propio ejemplar.';
+  }
+  if (respuesta.status === 409) {
+    return 'Otra persona ha cambiado este recurso a la vez. Actualiza la lista y vuelve a intentarlo.';
+  }
+  if (respuesta.status === 422) {
+    return 'Revisa los filtros: hay un valor que no es válido. Corrige el campo y vuelve a buscar.';
   }
   if (respuesta.status === 403) return 'Necesitas una cuenta activa de alumnado o docencia para consultar ' + contexto + '.';
   return cuerpo?.mensaje ?? cuerpo?.error ?? 'No se pudo cargar ' + contexto + '.';
@@ -125,7 +134,7 @@ function parrafo(clase, texto) {
   return elemento;
 }
 
-export function crearLineaEjemplar(ejemplar, identidad, mostrar) {
+export function crearLineaEjemplar(ejemplar, identidad, mostrar, recargar) {
   const fila = document.createElement('p');
   fila.className = 't14-edicion-codigo';
   const codigo = document.createElement('span');
@@ -180,6 +189,9 @@ export function crearLineaEjemplar(ejemplar, identidad, mostrar) {
     actualizarEtiqueta();
   });
   boton.addEventListener('click', async () => {
+    // Doble pulsación: el botón se bloquea antes de la petición. El servidor
+    // mantiene la unicidad, así que un reintento no crea dos solicitudes.
+    if (boton.disabled) return;
     boton.disabled = true;
     actualizarEtiqueta();
     try {
@@ -195,10 +207,18 @@ export function crearLineaEjemplar(ejemplar, identidad, mostrar) {
         boton.disabled = false;
         actualizarEtiqueta();
         mostrar(textoError(respuesta, cuerpo, 'el préstamo'), true);
+        // Si el ejemplar ya no está libre, la lista debe dejar de ofrecerlo.
+        if (cuerpo?.error === 'EJEMPLAR_NO_DISPONIBLE' || respuesta.status === 409) {
+          recargar?.();
+        }
         return;
       }
       const pendiente = document.createElement('span');
-      pendiente.textContent = 'Préstamo pendiente';
+      // La solicitud queda pendiente de revisión docente; nunca se muestra
+      // como reservada. Si el servidor devolviera otro estado, no se inventa.
+      pendiente.textContent = cuerpo?.datos?.estado === 'pendiente'
+        ? 'Préstamo pendiente'
+        : 'Solicitud enviada';
       boton.replaceWith(pendiente);
       mostrar('Solicitud de préstamo enviada. Un docente la revisará.');
     } catch {

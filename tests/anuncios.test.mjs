@@ -159,6 +159,10 @@ const arch=await pool.query(`INSERT INTO archivo(nombre,tipo_mime,ruta)
       for(const consulta of ['tipo=otro','curso=abc','disponible=2','pagina=0','limite=21','desconocido=1','q='+encodeURIComponent('x'.repeat(81))]){
         assert.equal((await buscar(consulta)).status,422,consulta);
       }
+      // Un curso inexistente o inactivo se explica, no se responde con vacío.
+      const cursoRetirado=await buscar('curso=2147483647');
+      assert.equal(cursoRetirado.status,422);
+      assert.equal(cursoRetirado.error,'CURSO_NO_DISPONIBLE');
 
       const documentacion=await pedir(d,'/api/documentacion');
       assert.equal(documentacion.status,200);
@@ -269,6 +273,9 @@ assert.equal(
       for(const consulta of ['modalidad=otro','curso=abc','disponible=2','pagina=0','limite=21','desconocido=1','q='+encodeURIComponent('x'.repeat(81))]){
         assert.equal((await buscarLibro(consulta)).status,422,consulta);
       }
+      const cursoRetirado=await buscarLibro('curso=2147483647');
+      assert.equal(cursoRetirado.status,422);
+      assert.equal(cursoRetirado.error,'CURSO_NO_DISPONIBLE');
 
       const publicado=(await pedir(a,'/api/anuncios/'+id)).datos;version=publicado.version;
       const igual=await pedir(a,'/api/anuncios/'+id,'PATCH',{...datos,conservacion:publicado.conservacion,version});

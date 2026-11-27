@@ -33,7 +33,8 @@
         <form id="filtros-documentacion" class="filtros-lab filtros-catalogo" role="search" aria-label="Filtros de Documentación">
           <div>
             <label for="doc-q">Buscar</label>
-            <input id="doc-q" name="q" type="search" maxlength="80" placeholder="Título, código, curso o procedencia">
+            <span class="ayuda" id="doc-q-ayuda">Hasta 80 caracteres. No distingue acentos.</span>
+            <input id="doc-q" name="q" type="search" maxlength="80" placeholder="Título, código, curso o procedencia" aria-describedby="doc-q-ayuda">
           </div>
           <div>
             <label for="doc-curso">Curso</label>
