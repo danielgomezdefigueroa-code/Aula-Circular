@@ -274,7 +274,7 @@ export function rutasCatalogo(pool, sesionNecesaria, activaNecesaria) {
     activaNecesaria,
     puedeConsultar,
     async (req, res) => {
-      const permitidos = ['q', 'curso', 'disponible', 'pagina', 'limite'];
+      const permitidos = ['q', 'curso', 'disponible', 'pagina', 'limite', 'estado'];
       if (Object.keys(req.query).some((clave) => !permitidos.includes(clave))) {
         return parametrosInvalidos(res);
       }
@@ -297,6 +297,9 @@ export function rutasCatalogo(pool, sesionNecesaria, activaNecesaria) {
       const propietario = sinAcentos("COALESCE(d.propietario, '')");
       const procedencia = sinAcentos("COALESCE(d.procedencia, '')");
       const esDocente = req.usuario.roles.includes('docente');
+      const estado = req.query.estado ?? 'publicado';
+      if (!['publicado', 'retirado', 'borrador'].includes(estado)) return parametrosInvalidos(res);
+      if (estado !== 'publicado' && !esDocente) return res.status(403).json({error:'PERMISO_INSUFICIENTE'});
 
       const resultado = await pool.query(
         `WITH coincidencias AS (
@@ -317,12 +320,13 @@ export function rutasCatalogo(pool, sesionNecesaria, activaNecesaria) {
                  v.id AS version_id
           FROM documento d
           LEFT JOIN curso c ON c.id = d.curso_id
-          JOIN documento_version v
+          LEFT JOIN documento_version v
             ON v.documento_id = d.id
            AND v.actual = true
            AND v.estado_version = 'vigente'
           LEFT JOIN archivo a ON a.id = v.archivo_id
-          WHERE d.estado_editorial = 'publicado'
+          WHERE d.estado_editorial = $9
+            AND (d.estado_editorial <> 'publicado' OR v.id IS NOT NULL)
             AND (d.curso_id IS NULL OR d.curso_id = $6 OR $7::boolean)
             AND (
               $1 = '' OR
@@ -347,7 +351,7 @@ export function rutasCatalogo(pool, sesionNecesaria, activaNecesaria) {
         ) pagina ON true
         ORDER BY pagina.titulo NULLS LAST, pagina.id`,
         [busqueda, curso.id, curso.general, disponible, limite,
-          req.usuario.curso_confirmado_id, esDocente, desplazamiento]
+          req.usuario.curso_confirmado_id, esDocente, desplazamiento, estado]
       );
 
       const total = resultado.rows[0]?.total ?? 0;

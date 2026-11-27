@@ -28,6 +28,8 @@ const secciones = {
 const estados = {
   disponible: 'Disponible',
   publicado: 'Publicado',
+  retirado: 'Archivado',
+  borrador: 'Borrador',
   'no disponible': 'No disponible'
 };
 
@@ -270,13 +272,14 @@ export function crearTarjeta(recurso) {
   }
 
   // Solo enlazar a la descarga protegida cuando la API aporta una versión autorizada.
-  if (recurso.seccion === 'documentacion' && recurso.modalidad === 'descarga' &&
+  if (recurso.seccion === 'documentacion' && recurso.estado === 'publicado' && recurso.modalidad === 'descarga' &&
+      Number.isSafeInteger(recurso.id) && recurso.id > 0 &&
       Number.isSafeInteger(recurso.version_id) && recurso.version_id > 0) {
     const acciones = document.createElement('div');
     acciones.className = 'acciones-tarjeta';
     const enlace = document.createElement('a');
     enlace.className = 'boton-sec enlace-descarga';
-    enlace.href = `/api/documentos/versiones/${recurso.version_id}/descargar`;
+    enlace.href = `/api/documentos/${recurso.id}/vigente/descargar`;
     enlace.textContent = 'Descargar PDF';
     acciones.append(enlace);
     tarjeta.append(acciones);

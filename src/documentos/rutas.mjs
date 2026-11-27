@@ -1179,7 +1179,7 @@ export function crearRutasDocumentos(
         const esDocente =
           req.usuario.roles.includes('docente');
 
-        if (registro.estado_editorial === 'retirado') {
+        if (registro.estado_editorial === 'retirado' && !esDocente) {
           return errorHttp(
             res,
             'DOCUMENTO_NO_DISPONIBLE',
@@ -1187,8 +1187,10 @@ export function crearRutasDocumentos(
           );
         }
 
-        // El alumnado únicamente puede consultar
-        // versiones publicadas y vigentes.
+        // El docente puede recuperar versiones vigentes,
+        // históricas y borradores, incluso de documentos
+        // archivados, sin hacerlos accesibles al alumnado.
+
         if (!esDocente) {
           if (
             registro.estado_editorial !== 'publicado' ||
@@ -1367,6 +1369,137 @@ export function crearRutasDocumentos(
             versiones: versiones.rows
           }
         });
+
+      } catch (error) {
+        next(error);
+      }
+    }
+  );
+
+
+  /**
+ * T16 - ARCHIVAR DOCUMENTO
+ *
+ * PATCH /api/documentos/:id/archivar
+ *
+ * Conserva el documento lógico, las versiones,
+ * los archivos y sus metadatos.
+ */
+  router.patch(
+    '/:id/archivar',
+    requiereRol('docente'),
+
+    async (req, res, next) => {
+      const documentoId = idPositivo(req.params.id);
+
+      if (!documentoId) {
+        return errorHttp(res, 'ID_INVALIDO');
+      }
+
+      try {
+        const resultado = await pool.query(`
+          UPDATE documento
+          SET estado_editorial = 'retirado'
+          WHERE id = $1
+          RETURNING id, estado_editorial
+        `, [documentoId]);
+
+        if (!resultado.rowCount) {
+          return errorHttp(
+            res,
+            'DOCUMENTO_NO_ENCONTRADO',
+            404
+          );
+        }
+
+        return res.status(200).json({
+          datos: {
+            documentoId,
+            estado: 'retirado',
+            archivado: true
+          }
+        });
+
+      } catch (error) {
+        next(error);
+      }
+    }
+  );
+
+
+  /**
+ * T16 - DESCARGA DE LA VERSIÓN VIGENTE
+ *
+ * GET /api/documentos/:id/vigente/descargar
+ *
+ * Resuelve la versión actual en cada petición.
+ */
+  router.get(
+    '/:id/vigente/descargar',
+    requiereRol('alumno', 'docente'),
+
+    async (req, res, next) => {
+      const documentoId = idPositivo(req.params.id);
+
+      if (!documentoId) {
+        return errorHttp(res, 'ID_INVALIDO');
+      }
+
+      try {
+        const resultado = await pool.query(`
+          SELECT
+            v.id AS version_id,
+            d.curso_id
+          FROM documento d
+          JOIN documento_version v
+            ON v.documento_id = d.id
+          WHERE d.id = $1
+            AND d.estado_editorial = 'publicado'
+            AND v.actual = true
+            AND v.estado_version = 'vigente'
+        `, [documentoId]);
+
+        if (resultado.rowCount !== 1) {
+          return errorHttp(
+            res,
+            'DOCUMENTO_NO_DISPONIBLE',
+            404
+          );
+        }
+
+        const registro = resultado.rows[0];
+
+        const esDocente =
+          req.usuario.roles.includes('docente');
+
+        if (!esDocente) {
+          if (req.usuario.curso_confirmado_id == null) {
+            return errorHttp(
+              res,
+              'CURSO_NO_CONFIRMADO',
+              403
+            );
+          }
+
+          if (
+            registro.curso_id !== null &&
+            Number(registro.curso_id) !==
+              Number(req.usuario.curso_confirmado_id)
+          ) {
+            return errorHttp(
+              res,
+              'CURSO_NO_AUTORIZADO',
+              403
+            );
+          }
+        }
+
+        res.set('Cache-Control', 'private, no-store');
+
+        return res.redirect(
+          307,
+          `/api/documentos/versiones/${registro.version_id}/descargar`
+        );
 
       } catch (error) {
         next(error);

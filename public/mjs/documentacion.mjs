@@ -3,6 +3,7 @@
 import { listo, pedir, leerJson, irALogin } from './shell.mjs';
 import { crearTarjeta, puedeConsultar, textoError } from './catalogo-comun.mjs';
 import { cargarCursos } from './filtros-catalogo.mjs';
+import { gestionarDocumento } from './gestion-documentos.mjs';
 
 const formulario = document.querySelector('#filtros-documentacion');
 const busqueda = document.querySelector('#doc-q');
@@ -14,6 +15,9 @@ const anterior = document.querySelector('#doc-anterior');
 const siguiente = document.querySelector('#doc-siguiente');
 const paginaTexto = document.querySelector('#doc-pagina');
 
+const filtroEstado = document.querySelector('#doc-estado');
+const zonaEstado = document.querySelector('#doc-estado-zona');
+const esDocente = () => identidad?.estado === 'activo' && identidad.roles.includes('docente');
 const limite = 20;
 let identidad = null;
 let pagina = 1;
@@ -34,6 +38,7 @@ function parametros() {
   const texto = busqueda.value.trim();
   if (texto) parametros.set('q', texto);
   if (curso.value) parametros.set('curso', curso.value);
+  if (esDocente()) parametros.set('estado', filtroEstado.value);
   parametros.set('pagina', String(pagina));
   parametros.set('limite', String(limite));
   return parametros;
@@ -58,6 +63,9 @@ async function prepararCursos() {
 }
 
 async function cargar() {
+  zonaEstado.hidden = !esDocente();
+  filtroEstado.disabled = !esDocente();
+  if (!esDocente()) filtroEstado.value = 'publicado';
   if (!puedeConsultar(identidad)) {
     lista.replaceChildren();
     paginacion.hidden = true;
@@ -92,7 +100,16 @@ async function cargar() {
 
     const datos = Array.isArray(cuerpo?.datos) ? cuerpo.datos : [];
     total = Number.isSafeInteger(cuerpo?.total) ? cuerpo.total : datos.length;
-    lista.replaceChildren(...datos.map(crearTarjeta));
+    lista.replaceChildren(...datos.map(recurso => {
+      const tarjeta = crearTarjeta(recurso);
+      if (esDocente()) gestionarDocumento(tarjeta, recurso, async mensaje => {
+        await cargar();
+        mostrar(mensaje);
+        cuenta.tabIndex = -1;
+        cuenta.focus();
+      });
+      return tarjeta;
+    }));
 
     if (total === 0) {
       mostrar(hayFiltros()
@@ -111,6 +128,8 @@ async function cargar() {
     if (solicitud === ultimaSolicitud) lista.setAttribute('aria-busy', 'false');
   }
 }
+
+filtroEstado.addEventListener('change', () => { pagina = 1; cargar(); });
 
 formulario.addEventListener('submit', (evento) => {
   evento.preventDefault();
