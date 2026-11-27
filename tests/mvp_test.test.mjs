@@ -581,14 +581,26 @@ caso(21, 'Dos intercambios concurrentes y aceptación del propietario receptor',
   const solicitado = await env.crearMaterial(env.sesiones.a, 'intercambio');
   const ofrecidoB = await env.crearMaterial(env.sesiones.b, 'intercambio');
   const ofrecidoC = await env.crearMaterial(env.sesiones.c, 'intercambio');
+
   const propuestas = await Promise.all([
     env.proponerIntercambio(env.sesiones.b, env.sesiones.a, ofrecidoB, solicitado),
     env.proponerIntercambio(env.sesiones.c, env.sesiones.a, ofrecidoC, solicitado)
   ]);
+
   const aceptaciones = await Promise.all(propuestas.map(p =>
     env.aceptarIntercambio(env.sesiones.a, p)));
-  env.informar({ status: [200, 409] }, { status: aceptaciones.map(r => r.status) },
-    'POST /api/intercambios/:id/aceptar (dos propuestas sobre el mismo material)');
+
+  // El orden de procesamiento de las peticiones concurrentes
+  // no garantiza qué propuesta será aceptada primero.
+  const estados = aceptaciones
+    .map(r => r.status)
+    .sort((a, b) => a - b);
+
+  env.informar(
+    { status: [200, 409] },
+    { status: estados },
+    'POST /api/intercambios/:id/aceptar (dos propuestas sobre el mismo material, sin importar el orden)'
+  );
 });
 
 caso(22, 'Carrera entre cancelar y aceptar un intercambio', async env => {
