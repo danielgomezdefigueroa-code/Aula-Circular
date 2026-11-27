@@ -367,6 +367,10 @@ function renderPanel(cuerpo) {
         : 'cesiones.html';
       enlace.textContent = 'Ver operación #' + aviso.operacion_id;
       acciones.append(enlace);
+    } else if (aviso.cambio_curso_id) {
+      enlace.href = '#perfil-datos';
+      enlace.textContent = 'Ver tu curso en el perfil';
+      acciones.append(enlace);
     } else {
       enlace.href = '#seccion-anuncios';
       enlace.textContent = 'Ver tus publicaciones';

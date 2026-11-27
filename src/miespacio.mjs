@@ -122,7 +122,7 @@ export function rutasMiEspacio(pool, sesionNecesaria, activaNecesaria) {
       `, [usuarioId, limite]),
 
       pool.query(`
-        SELECT a.id, a.mensaje, a.creado_en, a.leido, a.operacion_id, o.tipo AS operacion_tipo,
+        SELECT a.id, a.mensaje, a.creado_en, a.leido, a.operacion_id, a.cambio_curso_id, o.tipo AS operacion_tipo,
           count(*) OVER ()::integer AS total
       FROM aviso a
       LEFT JOIN operacion o ON o.id = a.operacion_id

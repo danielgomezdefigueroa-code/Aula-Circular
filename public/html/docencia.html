@@ -38,6 +38,15 @@
           <button type="button" id="siguiente" class="boton-sec" disabled>Siguiente</button>
         </div>
       </section>
+      <section id="gestionar-cambios-curso" class="seccion area" aria-labelledby="titulo-cambios" hidden>
+        <h2 id="titulo-cambios">Cambios de curso</h2>
+        <p class="area-estado" role="status" tabindex="-1"></p>
+        <ul class="tarjeta-grid area-lista" aria-labelledby="titulo-cambios"></ul>
+        <div class="paginacion">
+          <button type="button" id="cambios-anterior" class="boton-sec" disabled>Anterior</button>
+          <button type="button" id="cambios-siguiente" class="boton-sec" disabled>Siguiente</button>
+        </div>
+      </section>
     </main>
 
     <footer class="pie">
@@ -46,5 +55,6 @@
 
     <script type="module" src="../mjs/shell.mjs"></script>
     <script type="module" src="../mjs/docencia.mjs"></script>
+    <script type="module" src="../mjs/cambios-curso.mjs"></script>
   </body>
 </html>
