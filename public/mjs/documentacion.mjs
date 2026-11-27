@@ -21,8 +21,9 @@ let total = 0;
 let ultimaSolicitud = 0;
 let cursosCargados = false;
 
-function mostrar(texto) {
+function mostrar(texto, enfocar = false) {
   cuenta.textContent = texto ?? '';
+  if (enfocar) cuenta.focus();
 }
 
 function hayFiltros() {
@@ -86,7 +87,7 @@ async function cargar() {
     if (!respuesta.ok) {
       total = 0;
       paginacion.hidden = true;
-      mostrar(textoError(respuesta, cuerpo, 'Documentación'));
+      mostrar(textoError(respuesta, cuerpo, 'Documentación'), true);
       return;
     }
 
@@ -106,7 +107,7 @@ async function cargar() {
     if (solicitud !== ultimaSolicitud) return;
     total = 0;
     paginacion.hidden = true;
-    mostrar('No se pudo contactar con el servidor. Inténtalo de nuevo.');
+    mostrar('No se pudo contactar con el servidor. Inténtalo de nuevo.', true);
   } finally {
     if (solicitud === ultimaSolicitud) lista.setAttribute('aria-busy', 'false');
   }

@@ -75,7 +75,15 @@ export function puedeConsultar(identidad) {
 
 export function textoError(respuesta, cuerpo, contexto = 'el catálogo') {
   if (respuesta.status === 401) return 'Tu sesión ha caducado. Vuelve a iniciar sesión.';
-  if (cuerpo?.error === 'MATERIAL_DE_OTRO_CURSO') return 'MATERIAL_DE_OTRO_CURSO';
+  if (cuerpo?.error === 'MATERIAL_DE_OTRO_CURSO') {
+    return 'Este material pertenece a otro curso. Solo puedes solicitar material de tu curso.';
+  }
+  if (cuerpo?.error === 'EJEMPLAR_NO_DISPONIBLE') {
+    return 'Este ejemplar ya no está disponible. Elige otro.';
+  }
+  if (cuerpo?.error === 'SOLICITUD_PROPIA') {
+    return 'No puedes solicitar tu propio ejemplar.';
+  }
   if (respuesta.status === 403) return 'Necesitas una cuenta activa de alumnado o docencia para consultar ' + contexto + '.';
   return cuerpo?.mensaje ?? cuerpo?.error ?? 'No se pudo cargar ' + contexto + '.';
 }

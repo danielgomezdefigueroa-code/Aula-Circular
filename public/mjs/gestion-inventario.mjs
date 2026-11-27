@@ -26,10 +26,12 @@ function anunciar(mensaje, error = false) {
   aviso.setAttribute('role', error ? 'alert' : 'status');
 }
 
-function mostrarEstadoCatalogo(mensaje) {
+function mostrarEstadoCatalogo(mensaje, enfocar = false) {
   const cuenta = $('bib-cuenta');
-  if (cuenta) cuenta.textContent = mensaje;
-  else anunciar(mensaje);
+  if (cuenta) {
+    cuenta.textContent = mensaje;
+    if (enfocar) cuenta.focus();
+  } else anunciar(mensaje);
 }
 
 // T14: cada formulario informa de sus propios errores, cerca del campo afectado.

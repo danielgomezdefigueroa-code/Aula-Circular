@@ -30,8 +30,9 @@ let total = 0;
 let ultimaSolicitud = 0;
 let cursosCargados = false;
 
-function mostrar(texto) {
+function mostrar(texto, enfocar = false) {
   cuenta.textContent = texto ?? '';
+  if (enfocar) cuenta.focus();
 }
 
 function hayFiltros() {

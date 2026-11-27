@@ -26,7 +26,12 @@
   font: inherit;
   text-decoration: underline;
 }
-.t14-enlace-prestamo:hover { background: var(--ac-verde-suave); }
+/* Especificidad mayor que button:hover de estilo.css, que pintaba el fondo
+   oscuro y dejaba la etiqueta ilegible (contraste 1,1:1). */
+button.t14-enlace-prestamo:not(:disabled):not([aria-disabled="true"]):hover {
+  background: var(--ac-verde-suave);
+  color: var(--ac-verde-principal);
+}
 .t14-enlace-prestamo:disabled { color: var(--ac-texto-secundario); cursor: wait; }
 .t14-detalle-ejemplares { margin-top: .4rem; }
 #gestion-inventario .t14-aviso { font-size: .9rem; color: var(--ac-texto-secundario); margin-bottom: .8rem; }

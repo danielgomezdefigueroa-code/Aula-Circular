@@ -90,7 +90,7 @@ function mostrar(texto, enfocar = false) {
 function textoError(respuesta, cuerpo) {
   if (respuesta.status === 401) return 'Tu sesión ha caducado. Vuelve a iniciar sesión.';
   if (cuerpo?.error === 'MATERIAL_DE_OTRO_CURSO') {
-    return cuerpo.mensaje ?? 'MATERIAL_DE_OTRO_CURSO';
+    return cuerpo.mensaje ?? 'Este material pertenece a otro curso. Solo puedes solicitar material de tu curso.';
   }
   if (respuesta.status === 403) return cuerpo?.mensaje ?? 'No tienes permiso para realizar esta acción.';
   if (cuerpo?.campos) {
